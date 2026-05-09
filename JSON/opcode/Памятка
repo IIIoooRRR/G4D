@@ -1,0 +1,8 @@
+Op 0: Dispatch (Любые события: READY, MESSAGE_CREATE).
+Op 1: Heartbeat (Пульс бота).
+Op 2: Identify (Первый вход).
+Op 6: Resume (Возобновление сессии).
+Op 7: Reconnect (Когда Discord просит переподключиться).
+Op 9: Invalid Session (Когда надо перелогиниться с нуля).
+Op 10: Hello (Первый пакет от Discord с интервалом пульса).
+Op 11: Heartbeat ACK (Подтверждение от Discord, что пульс дошел
