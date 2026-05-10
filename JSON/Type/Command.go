@@ -1,4 +1,4 @@
-package Event
+package Type
 
 const (
 	// EventReady Основные события жизненного цикла

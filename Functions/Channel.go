@@ -1,4 +1,4 @@
-package Event
+package Functions
 
 import (
 	"bytes"
@@ -9,32 +9,10 @@ import (
 	"net/http"
 
 	"github.com/IIIoooRRR/G4D/G4D"
+	"github.com/IIIoooRRR/G4D/JSON/Parse"
 )
 
-type Channel struct {
-	Name             string `json:"name"`
-	Type             int    `json:"type"`
-	Topic            string `json:"topic,omitempty"`
-	Nsfw             bool   `json:"nsfw,omitempty"`
-	ParentID         int    `json:"parent_id,omitempty"`
-	BitRate          int    `json:"bit_rate,omitempty"`
-	UserLimit        int    `json:"user_limit,omitempty"`
-	RateLimitPerUser int    `json:"rate_limit_per_user,omitempty"`
-}
-
-const (
-	ChannelTypeGuildText          = 0  // Текстовый канал на сервере
-	ChannelTypeGuildVoice         = 2  // Голосовой канал
-	ChannelTypeGuildAnnouncement  = 5  // Канал объявлений
-	ChannelTypeAnnouncementThread = 10 // Тред объявления (сообщение)
-	ChannelTypePublicThread       = 11 // Публичный тред
-	ChannelTypePrivateThread      = 12 // Приватный тред
-	ChannelTypeGuildStageVoice    = 13 // Сцена (Stage Channel)
-	ChannelTypeGuildDirectory     = 14 // Каталог (для связки каналов)
-	ChannelTypeGuildMedia         = 16 // Медиа-канал
-)
-
-func (channel *Channel) CreateChannel(guildId string) error {
+func CreateChannel(guildId string, channel *Parse.Channel) error {
 	var url = fmt.Sprintf("https://discord.com/api/v10/guilds/%s/channels", guildId)
 	jsonBody, err := json.Marshal(channel)
 	if err != nil {
@@ -45,7 +23,7 @@ func (channel *Channel) CreateChannel(guildId string) error {
 		return err
 	}
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "G4D "+G4D.CurrentBot().Token)
+	req.Header.Set("Authorization", "Bot "+G4D.CurrentBot().Token)
 	client := http.Client{}
 	_, err = client.Do(req)
 	if err != nil {
@@ -54,7 +32,7 @@ func (channel *Channel) CreateChannel(guildId string) error {
 	return nil
 }
 
-func (channel *Channel) DeleteChannel(channelId string) error {
+func DeleteChannel(channelId string, channel *Parse.Channel) error {
 	var url = fmt.Sprintf("https://discord.com/api/v10/channels/%s", channelId)
 	jsonBody, err := json.Marshal(channel)
 	if err != nil {
@@ -65,7 +43,7 @@ func (channel *Channel) DeleteChannel(channelId string) error {
 		return err
 	}
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "G4D "+G4D.CurrentBot().Token)
+	req.Header.Set("Authorization", "Bot "+G4D.CurrentBot().Token)
 	client := http.Client{}
 	_, err = client.Do(req)
 	if err != nil {
@@ -74,7 +52,7 @@ func (channel *Channel) DeleteChannel(channelId string) error {
 	return nil
 }
 
-func (channel *Channel) ChangeChannels(channelID string) error {
+func ChangeChannels(channelID string, channel *Parse.Channel) error {
 	var url = fmt.Sprintf("https://discord.com/api/v10/channels/%s", channelID)
 	jsonBody, err := json.Marshal(channel)
 	if err != nil {
@@ -85,7 +63,7 @@ func (channel *Channel) ChangeChannels(channelID string) error {
 		return err
 	}
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "G4D "+G4D.CurrentBot().Token)
+	req.Header.Set("Authorization", "Bot "+G4D.CurrentBot().Token)
 	client := http.Client{}
 	_, err = client.Do(req)
 	if err != nil {
@@ -94,7 +72,7 @@ func (channel *Channel) ChangeChannels(channelID string) error {
 	return nil
 }
 
-func GetChannel(channelId string) (*Channel, error) {
+func GetChannel(channelId string) (*Parse.Channel, error) {
 	if G4D.CurrentBot().Cache != nil {
 		cache, err := G4D.CurrentBot().Cache.GetChannel(channelId)
 		if err == nil {
@@ -105,10 +83,10 @@ func GetChannel(channelId string) (*Channel, error) {
 	var url = fmt.Sprintf("https://discord.com/api/v10/channels/%s", channelId)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return &Channel{}, err
+		return &Parse.Channel{}, err
 	}
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "G4D "+G4D.CurrentBot().Token)
+	req.Header.Set("Authorization", "Bot "+G4D.CurrentBot().Token)
 	client := http.Client{}
 	res, err := client.Do(req)
 	defer res.Body.Close()
@@ -119,10 +97,10 @@ func GetChannel(channelId string) (*Channel, error) {
 	if err != nil {
 		return nil, err
 	}
-	var channel Channel
+	var channel Parse.Channel
 	err = json.Unmarshal(bodyBytes, &channel)
 	if err != nil {
-		return &Channel{}, err
+		return &Parse.Channel{}, err
 	}
 
 	return &channel, nil

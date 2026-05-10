@@ -5,8 +5,8 @@ import (
 	"sync"
 
 	"github.com/IIIoooRRR/G4D/Connect"
-	"github.com/IIIoooRRR/G4D/G4D/Event"
 	"github.com/IIIoooRRR/G4D/JSON/Dependencies"
+	"github.com/IIIoooRRR/G4D/JSON/Parse"
 )
 
 type Bot struct {
@@ -21,10 +21,10 @@ type Bot struct {
 
 type Cacher interface {
 	GetUser(Id string) (Dependencies.User, error)
-	GetGuild(Id string) (Event.Guild, error)
-	GetMessage(Id string) (Event.Message, error)
-	GetInteraction(Id string) (Event.Interaction, error)
-	GetChannel(Id string) (Event.Channel, error)
+	GetGuild(Id string) (Parse.Guild, error)
+	GetMessage(Id string) (Parse.Message, error)
+	GetInteraction(Id string) (Parse.Interaction, error)
+	GetChannel(Id string) (Parse.Channel, error)
 }
 
 var bot *Bot

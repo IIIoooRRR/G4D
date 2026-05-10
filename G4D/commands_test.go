@@ -4,6 +4,7 @@ import (
 	"github.com/IIIoooRRR/G4D/Connect"
 	"github.com/IIIoooRRR/G4D/G4D"
 	"github.com/IIIoooRRR/G4D/G4D/Event"
+	"github.com/IIIoooRRR/G4D/JSON/Type"
 	"github.com/IIIoooRRR/G4D/JSON/Parse"
 )
 
@@ -21,7 +22,7 @@ func ExampleBot_AddCommand() {
 
 	bot.AddCommands([]G4D.CommandTemplate{
 		{
-			Trigger: Event.EventMessageCreate,
+			Trigger: Type.EventMessageCreate,
 			Action:  Execute, //use any function
 		}, //. It should accept G4D and RawEvent, return error.
 	})
@@ -35,7 +36,7 @@ func ExampleBot_AddCommand() {
 				Options:     nil,
 			},
 			CommandTemplate: G4D.CommandTemplate{
-				Trigger: Event.EventInteractionCreate, //specify the type of event to initialize and the function
+				Trigger: Type.EventInteractionCreate, //specify the type of event to initialize and the function
 				Action:  Slash,
 			},
 		},
@@ -46,7 +47,7 @@ func ExampleBot_AddCommand() {
 func Execute(event *Connect.RawEvent) error {
 	d := Parse.ToMessageCreate(*event) //turn the resulting RawEvent into the structure you need.
 	if d.Content == "!hello" {
-		msg := Event.Message{
+		msg := Parse.Message{
 			Content: "hello world",
 		}
 		Event.SendMessage(d.ChannelID, &msg)
@@ -55,9 +56,9 @@ func Execute(event *Connect.RawEvent) error {
 }
 func Slash(event *Connect.RawEvent) error {
 	data := Parse.ToInteraction(*event) // turn the resulting RawEvent into the structure you need.
-	msg := Event.InteractionResponse{
+	msg := Parse.InteractionResponse{
 		Type: 0,
-		Data: Event.InteractionResponseData{
+		Data: Parse.InteractionResponseData{
 			Content: "hello world",
 			Flags:   0,
 			Embeds:  nil,

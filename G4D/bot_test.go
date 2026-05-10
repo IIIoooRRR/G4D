@@ -7,6 +7,7 @@ import (
 	"github.com/IIIoooRRR/G4D/Connect"
 	"github.com/IIIoooRRR/G4D/G4D"
 	"github.com/IIIoooRRR/G4D/G4D/Event"
+	"github.com/IIIoooRRR/G4D/JSON/Type"
 	"github.com/IIIoooRRR/G4D/JSON/Parse"
 )
 
@@ -24,7 +25,7 @@ func ExampleBot() {
 	// for slash commands, see the following example
 	bot.AddCommands([]G4D.CommandTemplate{
 		{
-			Trigger: Event.EventMessageCreate,
+			Trigger: Type.EventMessageCreate,
 			Action:  Hello,
 		},
 	})
@@ -44,7 +45,7 @@ func ExampleBot() {
 func Hello(event *Connect.RawEvent) error {
 	data := Parse.ToMessageCreate(*event)
 	if data.Content == G4D.CurrentBot().Prefix+"hello" {
-		msg := Event.Message{
+		msg := Parse.Message{
 			ChannelID: data.ChannelID,
 			GuildID:   data.GuildID,
 			Content:   "Ping <@" + data.Author.Id + ">",

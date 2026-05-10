@@ -1,49 +1,62 @@
-├── Bot
-│        ├──
-│        ├── Message.go
-│        ├── Guilds.go
-│    ├── AddCommand.go  
-│    ├── Bot.go
-│    ├── Command.go
-│    ├── EventProcessor.go
-│    ├── Guilds.go
-│    └── Message.go
 ├── Bot.md
-├── ConnectToDiscord
-│         ├── Connect.go
-│         ├── CreateBot.go
-│         ├── dispatch.go
-│         ├── gateway.go
-│         ├── heartbeat.go
-│         ├── hello.go
-│         ├── identify.go
-│         ├── Receiver.go
-│         ├── resume.go
-│         └── Stop.go
+├── Connect
+│   ├── Connect.go
+│   ├── CreateBot.go
+│   ├── dispatch.go
+│   ├── gateway.go
+│   ├── heartbeat.go
+│   ├── hello.go
+│   ├── identify.go
+│   ├── Receiver.go
+│   ├── resume.go
+│   └── Stop.go
 ├── CreateCommand.md
+├── EventProcessor.md
+├── Functions
+│   ├── Channel.go
+│   ├── Message.go
+│   └── Restriction.go
+├── G4D
+│   ├── AddCommand.go
+│   ├── Bot.go
+│   ├── bot_test.go
+│   ├── Command.go
+│   ├── commands_test.go
+│   ├── EventProcessor.go
+│   ├── eventProcessor_test.go
+│   ├── GetBotInfo.go
+│   └── SlashCommand.go
 ├── go.mod
 ├── go.sum
 ├── JSON
-│         ├── Dependencies
-│         │ ├── Attachment.go
-│         │ ├── Channel.go
-│         │ ├── Embed.go
-│         │ ├── Emoji.go
-│         │ ├── Role.go
-│         │ └── User.go
-│         ├── Identify.go
-│         ├── opcode
-│         │ └── Памятка
-│         ├── Parse
-│         │ └── Message.go
-│         ├── Payload.go
-│         ├── Ready.go
-│         └── Resume.go
+│   ├── Dependencies
+│   │   ├── Attachment.go
+│   │   ├── Embed.go
+│   │   ├── Emoji.go
+│   │   ├── GuildMember.go
+│   │   ├── Role.go
+│   │   ├── User.go
+│   │   └── VoiceState.go
+│   ├── Identify.go
+│   ├── opcode
+│   │   └── Памятка
+│   ├── Parse
+│   │   ├── Channel.go
+│   │   ├── Guilds.go
+│   │   ├── Interaction.go
+│   │   ├── Message.go
+│   │   └── Parser.go
+│   ├── Payload.go
+│   ├── Ready.go
+│   ├── Resume.go
+│   └── Type
+│       ├── Channel.go
+│       └── Command.go
 ├── LICENSE
 ├── README.md
+├── SendMessage.md
 └── Structure.md
-
-## BOT
+## G4D
 The main package for working with data.\
 It is controlled by the user and has an Event sub-package that allows you to interact with discord - to parse or send/track data.\
 There will be an Event sub-package that will expand

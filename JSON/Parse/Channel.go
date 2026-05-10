@@ -1,16 +1,14 @@
 package Parse
 
-import (
-	"encoding/json"
-
-	"github.com/IIIoooRRR/G4D/G4D/Event"
-)
-
-func ToChannel(body []byte) (Event.Channel, error) {
-	var channel Event.Channel
-	err := json.Unmarshal(body, &channel)
-	if err != nil {
-		return Event.Channel{}, err
-	}
-	return channel, nil
+type Channel struct {
+	Name             string `json:"name"`
+	Type             int    `json:"type"`
+	Topic            string `json:"topic,omitempty"`
+	Nsfw             bool   `json:"nsfw,omitempty"`
+	ParentID         int    `json:"parent_id,omitempty"`
+	BitRate          int    `json:"bit_rate,omitempty"`
+	UserLimit        int    `json:"user_limit,omitempty"`
+	RateLimitPerUser int    `json:"rate_limit_per_user,omitempty"`
 }
+
+

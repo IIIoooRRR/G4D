@@ -27,25 +27,25 @@ Here is an example of a simple bot that responds to the `!hello` command:
 ```go
 
 func main() {
-    bot := G4D.Bot{
-    Token: "token",
-    Gateway: &Connect.Receiver{
-        Intents: 33280,
-    },
-	Prefix:  "!",
-    Context: context.Context(context.Background()),
+    token := "token"
+    gateway := Connect.Receiver{
+        QueueSize: 20,
+        Intents:   33280,
         }
-bot.AddCommands([]G4D.CommandTemplate{
-    {
-    Trigger: Event.EventMessageCreate,
-    Action:  Hello,
-    },
-        })
-go bot.StaticEventProcessor()
-err := bot.Run()
-if err != nil {
-    log.Println(err)
+    bot := G4D.Bot{
+        Token:   token,
+        Gateway: &gateway,
+        Cache:   nil,
+        Context: context.Background(),
     }
+
+    bot.AddCommands([]G4D.CommandTemplate{
+        {
+			Trigger: Type.EventMessageCreate, Action: Hello
+		},
+	})
+go bot.StaticEventProcessor()
+bot.Run()
 }
 func Hello(event *Connect.RawEvent) error {
     data := Parse.ToMessageCreate(*event)
@@ -92,3 +92,4 @@ Contributions are welcome! Feel free to:
 The project documentation is available on godoc
 ---
 **Author:** [IIIoooRRR](https://github.com)
+---

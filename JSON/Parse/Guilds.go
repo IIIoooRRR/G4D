@@ -1,4 +1,4 @@
-package Event
+package Parse
 
 import (
 	"github.com/IIIoooRRR/G4D/JSON/Dependencies"
