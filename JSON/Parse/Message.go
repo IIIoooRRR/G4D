@@ -11,6 +11,7 @@ type Message struct {
 	ChannelID       string                     `json:"channel_id,omitempty"`
 	GuildID         string                     `json:"guild_id,omitempty"` // Отсутствует в личке
 	Author          Dependencies2.User         `json:"author,omitempty"`
+	Member          Dependencies2.GuildMember  `json:"member,omitempty"`
 	Content         string                     `json:"content,omitempty"`
 	Flags           int                        `json:"flags,omitempty"`
 	Timestamp       string                     `json:"timestamp,omitempty"`
