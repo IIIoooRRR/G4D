@@ -29,7 +29,10 @@ func BanUser(guildId string, userId string) error {
 func MuteUser(guildId string, userId string, dur time.Duration) error {
 	until := time.Now().Add(dur).Format(time.RFC3339)
 	var url = fmt.Sprintf("https://discord.com/api/v10/guilds/%s/members/%s", guildId, userId)
-	body := &until
+	body := map[string]interface{}{
+		"communication_disabled_until": until,
+	}
+
 	jsonBody, err := json.Marshal(body)
 	if err != nil {
 		return err
