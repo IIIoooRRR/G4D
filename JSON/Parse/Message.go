@@ -7,20 +7,20 @@ import (
 )
 
 type Message struct {
-	ID              string                     `json:"id"`
-	ChannelID       string                     `json:"channel_id"`
+	ID              string                     `json:"id,omitempty"`
+	ChannelID       string                     `json:"channel_id,omitempty"`
 	GuildID         string                     `json:"guild_id,omitempty"` // Отсутствует в личке
-	Author          Dependencies2.User         `json:"author"`
-	Content         string                     `json:"content"`
+	Author          Dependencies2.User         `json:"author,omitempty"`
+	Content         string                     `json:"content,omitempty"`
 	Flags           int                        `json:"flags,omitempty"`
-	Timestamp       string                     `json:"timestamp"`
+	Timestamp       string                     `json:"timestamp,omitempty"`
 	EditedTimestamp string                     `json:"edited_timestamp,omitempty"`
-	MentionEveryone bool                       `json:"mention_everyone"`
-	Mentions        []Dependencies2.User       `json:"mentions"`
-	MentionRoles    []string                   `json:"mention_roles"`
-	Attachments     []Dependencies2.Attachment `json:"attachments"`
-	Embeds          []Dependencies2.Embed      `json:"embeds"`
-	Type            int                        `json:"type"`
+	MentionEveryone bool                       `json:"mention_everyone,omitempty"`
+	Mentions        []Dependencies2.User       `json:"mentions,omitempty"`
+	MentionRoles    []string                   `json:"mention_roles,omitempty"`
+	Attachments     []Dependencies2.Attachment `json:"attachments,omitempty"`
+	Embeds          []Dependencies2.Embed      `json:"embeds,omitempty"`
+	Type            int                        `json:"type,omitempty"`
 	// ReferencedMessage нужна для обработки ответов (reply)
 	ReferencedMessage *Message `json:"referenced_message,omitempty"`
 }

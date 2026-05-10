@@ -51,3 +51,9 @@ func MuteUser(guildId string, userId string, dur time.Duration) error {
 	defer resp.Body.Close()
 	return nil
 }
+func GetAvatarURL(userID, avatarHash string) string {
+	if avatarHash == "" {
+		return ""
+	}
+	return fmt.Sprintf("https://cdn.discordapp.com/avatars/%s/%s.png", userID, avatarHash)
+}

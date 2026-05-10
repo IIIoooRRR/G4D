@@ -1,6 +1,9 @@
 package Dependencies
 
-import "strconv"
+import (
+	"strconv"
+	"strings"
+)
 
 type Embed struct {
 	Title       string     `json:"title,omitempty"`
@@ -64,6 +67,7 @@ type Field struct {
 }
 
 func (e *Embed) SetColor(color string) error {
+	color = strings.ReplaceAll(color, "#", "")
 	result, err := strconv.ParseInt(color, 16, 64)
 	if err != nil {
 		return err
