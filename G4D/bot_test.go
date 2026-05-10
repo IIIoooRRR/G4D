@@ -51,7 +51,7 @@ func Hello(event *Connect.RawEvent) error {
 			Flags:     0,
 			Type:      0,
 		}
-		msg.SendMessage(data.ChannelID)
+		Event.SendMessage(data.ChannelID, &msg)
 	}
 	return nil
 }

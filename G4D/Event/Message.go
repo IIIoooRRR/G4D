@@ -1,13 +1,8 @@
 package Event
 
 import (
-	"bytes"
-	"encoding/json"
 	"errors"
-	"log"
-	"net/http"
 
-	"github.com/IIIoooRRR/G4D/G4D"
 	Dependencies2 "github.com/IIIoooRRR/G4D/JSON/Dependencies"
 )
 
@@ -41,33 +36,5 @@ func (m *Message) AddEmbed(embeds ...Dependencies2.Embed) error {
 		return errors.New("[MESSAGE CREATE] Max 10 Embeds")
 	}
 	m.Embeds = append(m.Embeds, embeds...)
-	return nil
-}
-
-func (msg *Message) SendMessage(ToChannel string) error {
-	var url = "https://discord.com/api/v10/channels/"
-	url = url + ToChannel + "/messages"
-	body := msg
-	jsonBody, err := json.Marshal(body) //delaem жсон из message
-	if err != nil {
-		return err
-	}
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonBody))
-	if err != nil {
-		return err
-	}
-	// добавляем поля
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "G4D "+G4D.CurrentBot().Token)
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close() // ждем пока закроется
-	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		log.Println("[SEND-MESSAGE] Discord API ERROR " + resp.Status)
-	}
-
 	return nil
 }

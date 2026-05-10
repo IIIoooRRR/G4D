@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 
 	"github.com/IIIoooRRR/G4D/G4D"
@@ -91,4 +92,38 @@ func (channel *Channel) ChangeChannels(channelID string) error {
 		return errors.New("[DISCORD] Failed to update channels")
 	}
 	return nil
+}
+
+func GetChannel(channelId string) (*Channel, error) {
+	if G4D.CurrentBot().Cache != nil {
+		cache, err := G4D.CurrentBot().Cache.GetChannel(channelId)
+		if err == nil {
+			return &cache, err
+		}
+
+	}
+	var url = fmt.Sprintf("https://discord.com/api/v10/channels/%s", channelId)
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return &Channel{}, err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "G4D "+G4D.CurrentBot().Token)
+	client := http.Client{}
+	res, err := client.Do(req)
+	defer res.Body.Close()
+	if err != nil {
+		return nil, errors.New("[DISCORD] Failed to get channel")
+	}
+	bodyBytes, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+	var channel Channel
+	err = json.Unmarshal(bodyBytes, &channel)
+	if err != nil {
+		return &Channel{}, err
+	}
+
+	return &channel, nil
 }

@@ -49,19 +49,20 @@ func Execute(event *Connect.RawEvent) error {
 		msg := Event.Message{
 			Content: "hello world",
 		}
-		msg.SendMessage(d.ChannelID)
+		Event.SendMessage(d.ChannelID, &msg)
 	}
 	return nil
 }
 func Slash(event *Connect.RawEvent) error {
 	data := Parse.ToInteraction(*event) // turn the resulting RawEvent into the structure you need.
-	msg := Event.Message{
-		ChannelID: data.ChannelID,
-		GuildID:   data.GuildID,
-		Content:   "Ping <@" + data.Member.Id + ">",
-		Flags:     64,
-		Type:      0,
+	msg := Event.InteractionResponse{
+		Type: 0,
+		Data: Event.InteractionResponseData{
+			Content: "hello world",
+			Flags:   0,
+			Embeds:  nil,
+		},
 	}
-	msg.SendMessage(data.ChannelID)
+	Event.SendInteractionMessage(&msg, &data)
 	return nil
 }
