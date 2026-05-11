@@ -10,9 +10,17 @@ import (
 	"github.com/IIIoooRRR/G4D/G4D"
 )
 
-func BanUser(guildId string, userId string) error {
+func BanUser(guildId, userId string, reason *string, timeMessDelete int) error {
 	var url = fmt.Sprintf("https://discord.com/api/v10/guilds/%s/bans/%s", guildId, userId)
-	req, err := http.NewRequest("PUT", url, nil)
+	body := Ban{
+		DeleteMessageSeconds: timeMessDelete,
+		Reason:               reason,
+	}
+	jsonBody, err := json.Marshal(body)
+	if err != nil {
+		return err
+	}
+	req, err := http.NewRequest("PUT", url, bytes.NewBuffer(jsonBody))
 	if err != nil {
 		return err
 	}
@@ -51,9 +59,8 @@ func MuteUser(guildId string, userId string, dur time.Duration) error {
 	defer resp.Body.Close()
 	return nil
 }
-func GetAvatarURL(userID, avatarHash string) string {
-	if avatarHash == "" {
-		return ""
-	}
-	return fmt.Sprintf("https://cdn.discordapp.com/avatars/%s/%s.png", userID, avatarHash)
+
+type Ban struct {
+	DeleteMessageSeconds int     `json:"delete_message_seconds"`
+	Reason               *string `json:"reason"`
 }

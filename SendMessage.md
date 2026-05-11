@@ -1,7 +1,7 @@
 ## Interaction Message and TextMessage
 ```go
 //TextMessage
-func Hello(b *Bot.Bot, event *Connect.RawEvent) error {
+func Hello(event *Connect.RawEvent) error {
 	log.Printf("DEBUG DATA: %+v", event)
 	d := Parse.ToMessageCreate(*event)
 	if d.Content == "!hello" {
@@ -9,12 +9,12 @@ func Hello(b *Bot.Bot, event *Connect.RawEvent) error {
 
 			Content: "hello world",
 		}
-		msg.SendMessage(d.ChannelID, b)
+		Functions.SendMessage(d.ChannelID, b)
 	}
 	return nil
 }
 // Interaction
-func Slash(b *Bot.Bot, event *Connect.RawEvent) error {
+func Slash(event *Connect.RawEvent) error {
 	log.Printf("DEBUG DATA: %+v", event)
 	d := Parse.ToInteraction(*event)
 	response := Event.InteractionResponse{
@@ -25,7 +25,7 @@ func Slash(b *Bot.Bot, event *Connect.RawEvent) error {
 			Embeds:  nil,
 		},
 	}
-	err := response.SendInteractionMessage(d, b)
+	err := Functions.SendInteractionMessage(d)
 	if err != nil {
 		log.Println(err)
 	}
