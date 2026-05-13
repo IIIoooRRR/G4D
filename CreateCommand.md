@@ -13,7 +13,7 @@ cmd := Bot.Command{			//to create a command, create a type and use the Action in
 type FirstCommand struct {
 }
 
-func (f *FirstCommand) Execute(b *Bot.Bot, event *ConnectToDiscord.RawEvent) error {
+func (f *FirstCommand) Execute(event *ConnectToDiscord.RawEvent) error {
 log.Printf("DEBUG DATA: %+v", event)
 var d Dparam.Message
 if err := json.Unmarshal(event.Data, &d); err != nil {
@@ -36,7 +36,7 @@ return nil
 bot.AddCommand(MessageTemplate{parseJSON.EventMessageCreate, Hello})
 ... in main
 ----- outside the main function:
-func Hello(b *Bot.Bot, event *ConnectToDiscord.RawEvent) error {
+func Hello(event *ConnectToDiscord.RawEvent) error {
 log.Printf("DEBUG DATA: %+v", event)
 var d Dparam.Message
 if err := json.Unmarshal(event.Data, &d); err != nil {
@@ -67,7 +67,7 @@ bot.AddCommands([]Bot.CommandTemplate{
 ... in main
 ----- outside the main function:
 
-func Execute(b *Bot.Bot, event *Connect.RawEvent) error {
+func Execute(event *Connect.RawEvent) error {
 d := Parse.ToMessageDelete(*event)
 embed := Dependencies.Embed{
 Title:       "hello",
@@ -84,7 +84,7 @@ return err
 }
 return nil
 }
-func Create(b *Bot.Bot, event *Connect.RawEvent) error {
+func Create(event *Connect.RawEvent) error {
 d := Parse.ToMessageCreate(*event)
 if d.Content == "!hello" {
 msg := Event.Message{

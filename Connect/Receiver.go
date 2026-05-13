@@ -22,9 +22,13 @@ type Receiver struct {
 	QueueSize int
 	connMutex sync.Mutex
 	ctx       context.Context
+	Cache     Cacher
 }
 
 type RawEvent struct {
 	Type string          `json:"t"`
 	Data json.RawMessage `json:"d"`
+}
+type Cacher interface {
+	CacheGuildCreate(event *RawEvent)
 }

@@ -62,5 +62,5 @@ func MuteUser(guildId string, userId string, dur time.Duration) error {
 
 type Ban struct {
 	DeleteMessageSeconds int     `json:"delete_message_seconds"`
-	Reason               *string `json:"reason"`
+	Reason               *string `json:"reason,omitempty"`
 }

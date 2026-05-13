@@ -5,8 +5,6 @@ import (
 	"sync"
 
 	"github.com/IIIoooRRR/G4D/Connect"
-	"github.com/IIIoooRRR/G4D/JSON/Dependencies"
-	"github.com/IIIoooRRR/G4D/JSON/Parse"
 )
 
 type Bot struct {
@@ -16,15 +14,7 @@ type Bot struct {
 	CommandBuffer []Command
 	appId         string
 	Context       context.Context
-	Cache         Cacher
-}
-
-type Cacher interface {
-	GetUser(Id string) (Dependencies.User, error)
-	GetGuild(Id string) (Parse.Guild, error)
-	GetMessage(Id string) (Parse.Message, error)
-	GetInteraction(Id string) (Parse.Interaction, error)
-	GetChannel(Id string) (Parse.Channel, error)
+	Cache         Connect.Cacher
 }
 
 var bot *Bot
@@ -36,6 +26,7 @@ func CurrentBot() *Bot {
 	return bot
 }
 func (b *Bot) Run() error {
+	b.Gateway.Cache = b.Cache
 	botMu.Lock()
 	bot = b
 	botMu.Unlock()

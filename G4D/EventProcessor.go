@@ -7,10 +7,10 @@ import (
 )
 
 func (b *Bot) StaticEventProcessor() {
-	Buffer := &b.CommandBuffer
+	Buffer := b.CommandBuffer
 	for event := range b.Gateway.Queue {
 
-		for _, command := range *Buffer {
+		for _, command := range Buffer {
 			if event.Type != command.Trigger {
 				continue
 			}
