@@ -73,13 +73,6 @@ func ChangeChannels(channelID string, channel *Parse.Channel) error {
 }
 
 func GetChannel(channelId string) (*Parse.Channel, error) {
-	if G4D.CurrentBot().Cache != nil {
-		cache, err := G4D.CurrentBot().Cache.GetChannel(channelId)
-		if err == nil {
-			return &cache, err
-		}
-
-	}
 	var url = fmt.Sprintf("https://discord.com/api/v10/channels/%s", channelId)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
