@@ -25,40 +25,39 @@ go get github.com/IIIoooRRR/G4D
 Here is an example of a simple bot that responds to the `!hello` command:
 
 ```go
-
 func main() {
-    token := "token"
-    gateway := Connect.Receiver{
-        QueueSize: 20,
-        Intents:   33280,
-        }
-    bot := G4D.Bot{
-        Token:   token,
-        Gateway: &gateway,
-        Cache:   nil,
-        Context: context.Background(),
-    }
+token := "token"
+gateway := Connect.Receiver{
+QueueSize: 20,
+Intents:   34307,
+}
+bot := G4D.Bot{
+Token:   token,
+Gateway: &gateway,
+Cache:   nil,
+Context: context.Background(),
+Prefix:  "!",
+}
 
-    bot.AddCommands([]G4D.CommandTemplate{
-        {
-			Trigger: Type.EventMessageCreate, Action: Hello
-		},
-	})
-go bot.StaticEventProcessor()
+bot.AddCommands([]G4D.CommandTemplate{
+{Trigger: Type.EventGuildCreate, Action: Commands.LALA},
+{Trigger: Type.EventMessageCreate, Action: Hello},
+})
+
+go bot.DynamicEventProcessor()
 bot.Run()
 }
 func Hello(event *Connect.RawEvent) error {
-    data := Parse.ToMessageCreate(*event)
-    if data.Content == G4D.CurrentBot().Prefix+"hello" {
-        chann := Event.Channel{
-            Name:  "lalal",
-			Type:  Event.ChannelTypeGuildText,
-            Topic: "",
-            Nsfw:  false,
-            }
-    chann.ChangeChannels(data.ChannelID)
-    }
-    return nil
+log.Println(time.Now())
+data := Parse.ToMessageCreate(*event)
+if data.Content == "hello" {
+err := Functions.DeleteMessage(data.ChannelID, data.ID)
+if err != nil {
+log.Println(err)
+}
+}
+log.Println(time.Now())
+return nil
 }
 
 ```

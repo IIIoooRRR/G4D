@@ -2,10 +2,10 @@ package G4D_test
 
 import (
 	"github.com/IIIoooRRR/G4D/Connect"
+	"github.com/IIIoooRRR/G4D/Functions"
 	"github.com/IIIoooRRR/G4D/G4D"
-	"github.com/IIIoooRRR/G4D/G4D/Event"
-	"github.com/IIIoooRRR/G4D/JSON/Type"
 	"github.com/IIIoooRRR/G4D/JSON/Parse"
+	"github.com/IIIoooRRR/G4D/JSON/Type"
 )
 
 func ExampleBot_AddCommand() {
@@ -50,7 +50,7 @@ func Execute(event *Connect.RawEvent) error {
 		msg := Parse.Message{
 			Content: "hello world",
 		}
-		Event.SendMessage(d.ChannelID, &msg)
+		Functions.SendMessage(d.ChannelID, &msg)
 	}
 	return nil
 }
@@ -64,6 +64,6 @@ func Slash(event *Connect.RawEvent) error {
 			Embeds:  nil,
 		},
 	}
-	Event.SendInteractionMessage(&msg, &data)
+	Functions.SendInteractionMessage(&msg, &data)
 	return nil
 }

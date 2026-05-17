@@ -24,6 +24,14 @@ func ToMessageDelete(event Connect.RawEvent) MessageDelete {
 	}
 	return d
 }
+func ToMessageEdited(event Connect.RawEvent) MessageEdit {
+	var d MessageEdit
+	err := json.Unmarshal(event.Data, &d)
+	if err != nil {
+		log.Println(err)
+	}
+	return d
+}
 
 func ToInteraction(event Connect.RawEvent) Interaction {
 	var d Interaction
@@ -49,4 +57,9 @@ func ToChannel(body []byte) (Channel, error) {
 		return Channel{}, err
 	}
 	return channel, nil
+}
+func ToReactionsAdd(event Connect.RawEvent) MessageReactionAdd {
+	var d MessageReactionAdd
+	json.Unmarshal(event.Data, &d)
+	return d
 }

@@ -32,6 +32,17 @@ type MessageDelete struct {
 	GuildID   string `json:"guild_id,omitempty"`
 }
 
+type MessageEdit struct {
+	Content         string `json:"content"`
+	Embeds          string `json:"embeds,omitempty"`
+	Flags           string `json:"flags,omitempty"`
+	AllowedMentions string `json:"allowed_mentions,omitempty"`
+	Components      string `json:"components,omitempty"`
+	Files           string `json:"files,omitempty"`
+	PayloadJson     string `json:"payload_json,omitempty"`
+	Attachments     string `json:"attachments,omitempty"`
+}
+
 func (m *Message) AddEmbed(embeds ...Dependencies2.Embed) error {
 	if len(m.Embeds)+len(embeds) > 10 {
 		return errors.New("[MESSAGE CREATE] Max 10 Embeds")

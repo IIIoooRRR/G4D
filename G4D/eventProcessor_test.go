@@ -29,18 +29,15 @@ func (b *Bot) ExampleBot_DynamicEventProcessor() {
 }
 
 func (b *Bot) ExampleBot_StaticEventProcessor() {
-	Buffer := b.CommandBuffer // copies the link to the buffer, which will then be referenced during operation
+	commands := sortCommand(b.CommandBuffer)
 	for event := range b.Gateway.Queue {
-		for _, command := range Buffer {
-			if event.Type != command.Trigger { //comparing it with the trigger declared during initialization
-				continue
-			}
-			go func(cmd *Command, event *Connect.RawEvent) {
-				err := cmd.Action.Execute(event) // executing the command
+		for _, command := range commands[event.Type] {
+			go func(command Command, event *Connect.RawEvent) {
+				err := command.Action.Execute(event)
 				if err != nil {
 					log.Println("[EVENT PROCESSOR] ", err)
 				}
-			}(&command, event)
+			}(command, event)
 		}
 	}
 }

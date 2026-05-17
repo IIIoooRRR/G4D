@@ -1,19 +1,19 @@
 ## Static Event Processor
 ```go
     func (b *Bot) StaticEventProcessor() {
-        Buffer := &b.CommandBuffer
+        Buffer := b.CommandBuffer
 for event := range b.Gateway.Queue {
-    for _, command := range *Buffer {
+    for _, command := range Buffer {
         log.Println(event.Type, command.Trigger)
 	    if event.Type != command.Trigger {
              continue
         }
-        go func(cmd *Command, event *Connect.RawEvent) {
+        go func(cmd Command, event *Connect.RawEvent) {
         err := cmd.Action.Execute(b, event)
         if err != nil {
         log.Println("[EVENT PROCESSOR] ", err)
 		}
-      }(&command, event)
+      }(command, event)
 	}
   }
 }
@@ -30,12 +30,12 @@ func (b *Bot) DynamicEventProcessor() {
 			if event.Type != command.Trigger {
 				continue
 			}
-			go func(cmd *Command, event *Connect.RawEvent) {
+			go func(cmd Command, event *Connect.RawEvent) {
 				err := cmd.Action.Execute(b, event)
 				if err != nil {
 					log.Println("[EVENT PROCESSOR] ", err)
 				}
-			}(&command, event)
+			}(command, event)
 		}
 	}
 }

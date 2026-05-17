@@ -59,3 +59,39 @@ func SendMessage(ToChannel string, msg *Parse.Message) error {
 
 	return nil
 }
+func EditMessage(ToChannel, msgId string, msg *Parse.MessageEdit) error {
+	url := fmt.Sprintf("https://discord.com/api/v10/channels/%s/messages/%s", ToChannel, msgId)
+	jsonBody, err := json.Marshal(msg)
+	if err != nil {
+		return err
+	}
+	req, err := http.NewRequest("PATCH", url, bytes.NewBuffer(jsonBody))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bot "+G4D.CurrentBot().Token)
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	return nil
+}
+func DeleteMessage(ToChannel string, msgId string) error {
+	url := fmt.Sprintf("https://discord.com/api/v10/channels/%s/messages/%s", ToChannel, msgId)
+	req, err := http.NewRequest("DELETE", url, nil)
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bot "+G4D.CurrentBot().Token)
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	return nil
+}

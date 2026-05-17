@@ -18,4 +18,9 @@ const (
 
 	// EventInteraction Взаимодействия (кнопки, слэш-команды)
 	EventInteractionCreate = "INTERACTION_CREATE"
+
+	//EventReaction Реакции
+	EventMessageReactionAdd       = "MESSAGE_REACTION_ADD"
+	EventMessageReactionRemove    = "MESSAGE_REACTION_REMOVE"
+	EventMessageReactionRemoveAll = "MESSAGE_REACTION_REMOVE_ALL"
 )

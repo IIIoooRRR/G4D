@@ -5,10 +5,10 @@ import (
 	"log"
 
 	"github.com/IIIoooRRR/G4D/Connect"
+	"github.com/IIIoooRRR/G4D/Functions"
 	"github.com/IIIoooRRR/G4D/G4D"
-	"github.com/IIIoooRRR/G4D/G4D/Event"
-	"github.com/IIIoooRRR/G4D/JSON/Type"
 	"github.com/IIIoooRRR/G4D/JSON/Parse"
+	"github.com/IIIoooRRR/G4D/JSON/Type"
 )
 
 // an example of initializing a bot and assigning basic commands
@@ -52,7 +52,7 @@ func Hello(event *Connect.RawEvent) error {
 			Flags:     0,
 			Type:      0,
 		}
-		Event.SendMessage(data.ChannelID, &msg)
+		Functions.SendMessage(data.ChannelID, &msg)
 	}
 	return nil
 }
