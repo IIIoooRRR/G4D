@@ -10,11 +10,12 @@ import (
 )
 
 func (b *Bot) AddCommand(cmd CommandTemplate) {
-
+	b.commandMu.Lock()
 	b.CommandBuffer = append(b.CommandBuffer, Command{
 		Trigger: cmd.Trigger,
 		Action:  cmd.Action,
 	})
+	b.commandMu.Unlock()
 }
 func (b *Bot) AddCommands(cmds []CommandTemplate) {
 	for _, cmd := range cmds {

@@ -16,6 +16,7 @@ type Bot struct {
 	Context       context.Context
 	Cache         connect.Cacher
 	PanicHandler  PanicHandler
+	commandMu     sync.Mutex
 }
 type PanicHandler interface {
 	OnPanic(event *connect.RawEvent, cmd *Command, r any, stack []byte)

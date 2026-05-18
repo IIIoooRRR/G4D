@@ -3,12 +3,9 @@ package G4D
 import (
 	"log"
 	"runtime/debug"
-	"sync"
 
 	"github.com/IIIoooRRR/G4D/connect"
 )
-
-var mu sync.Mutex
 
 func sortCommand(cmds []Command) map[string][]Command {
 	CmdMap := make(map[string][]Command)
@@ -62,9 +59,9 @@ func (b *Bot) StaticEventProcessor() {
 
 func (b *Bot) DynamicEventProcessor() {
 	for event := range b.Gateway.Queue {
-		mu.Lock()
+		b.commandMu.Lock()
 		bufCopy := b.CommandBuffer
-		mu.Unlock()
+		b.commandMu.Unlock()
 		for _, command := range bufCopy {
 			if event.Type != command.Trigger {
 				continue
