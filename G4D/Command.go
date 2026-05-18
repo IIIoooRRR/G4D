@@ -1,7 +1,7 @@
 package G4D
 
 import (
-	"github.com/IIIoooRRR/G4D/Connect"
+	"github.com/IIIoooRRR/G4D/connect"
 )
 
 type Command struct {
@@ -17,11 +17,11 @@ type SlashCommandTemplate struct {
 	CommandTemplate CommandTemplate
 }
 
-type ToCommand func(*Connect.RawEvent) error //объявляет любую функцию Execute, которая подъодит по условию
-func (f ToCommand) Execute(event *Connect.RawEvent) error {
+type ToCommand func(*connect.RawEvent) error //объявляет любую функцию Execute, которая подъодит по условию
+func (f ToCommand) Execute(event *connect.RawEvent) error {
 	return f(event)
 }
 
 type Action interface {
-	Execute(event *Connect.RawEvent) error
+	Execute(event *connect.RawEvent) error
 }

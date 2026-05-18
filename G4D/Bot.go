@@ -4,17 +4,21 @@ import (
 	"context"
 	"sync"
 
-	"github.com/IIIoooRRR/G4D/Connect"
+	"github.com/IIIoooRRR/G4D/connect"
 )
 
 type Bot struct {
 	Token         string
-	Gateway       *Connect.Receiver
+	Gateway       *connect.Receiver
 	Prefix        string
 	CommandBuffer []Command
 	appId         string
 	Context       context.Context
-	Cache         Connect.Cacher
+	Cache         connect.Cacher
+	PanicHandler  PanicHandler
+}
+type PanicHandler interface {
+	OnPanic(event *connect.RawEvent, cmd *Command, r any, stack []byte)
 }
 
 var bot *Bot
@@ -30,9 +34,6 @@ func (b *Bot) Run() error {
 	botMu.Lock()
 	bot = b
 	botMu.Unlock()
-	err := b.Gateway.CreateBot(b.Context, &b.Token)
-	if err != nil {
-		return err
-	}
+	b.Gateway.CreateBot(b.Context, &b.Token)
 	return nil
 }

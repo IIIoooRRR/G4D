@@ -32,7 +32,7 @@ func (b *Bot) GetBotInfo() error {
 	byteValue, err := io.ReadAll(resp.Body)
 	var body map[string]interface{}
 	json.Unmarshal(byteValue, &body)
-	log.Println("[DISCORD] Connect is correct") // получаем id бота
+	log.Println("[DISCORD] connect is correct") // получаем id бота
 	id, ok := body["id"].(string)
 	if !ok {
 		return errors.New("[BOT CONNECT] Pasre failed")

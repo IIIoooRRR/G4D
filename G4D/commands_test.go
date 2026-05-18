@@ -1,18 +1,18 @@
 package G4D_test
 
 import (
-	"github.com/IIIoooRRR/G4D/Connect"
-	"github.com/IIIoooRRR/G4D/Functions"
 	"github.com/IIIoooRRR/G4D/G4D"
 	"github.com/IIIoooRRR/G4D/JSON/Parse"
 	"github.com/IIIoooRRR/G4D/JSON/Type"
+	"github.com/IIIoooRRR/G4D/connect"
+	"github.com/IIIoooRRR/G4D/functions"
 )
 
 func ExampleBot_AddCommand() {
 
 	bot := &G4D.Bot{
 		Token: "token",
-		Gateway: &Connect.Receiver{
+		Gateway: &connect.Receiver{
 			Intents:   33280,
 			QueueSize: 40,
 		},
@@ -44,17 +44,17 @@ func ExampleBot_AddCommand() {
 	//the rest of the bot implementation
 }
 
-func Execute(event *Connect.RawEvent) error {
+func Execute(event *connect.RawEvent) error {
 	d := Parse.ToMessageCreate(*event) //turn the resulting RawEvent into the structure you need.
 	if d.Content == "!hello" {
 		msg := Parse.Message{
 			Content: "hello world",
 		}
-		Functions.SendMessage(d.ChannelID, &msg)
+		functions.SendMessage(d.ChannelID, &msg)
 	}
 	return nil
 }
-func Slash(event *Connect.RawEvent) error {
+func Slash(event *connect.RawEvent) error {
 	data := Parse.ToInteraction(*event) // turn the resulting RawEvent into the structure you need.
 	msg := Parse.InteractionResponse{
 		Type: 0,
@@ -64,6 +64,6 @@ func Slash(event *Connect.RawEvent) error {
 			Embeds:  nil,
 		},
 	}
-	Functions.SendInteractionMessage(&msg, &data)
+	functions.SendInteractionMessage(&msg, &data)
 	return nil
 }

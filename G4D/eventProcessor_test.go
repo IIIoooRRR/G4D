@@ -3,7 +3,7 @@ package G4D
 import (
 	"log"
 
-	"github.com/IIIoooRRR/G4D/Connect"
+	"github.com/IIIoooRRR/G4D/connect"
 )
 
 // DynamicEventProcessor reads b.CommandBuffer on every event.
@@ -18,7 +18,7 @@ func (b *Bot) ExampleBot_DynamicEventProcessor() {
 			if event.Type != command.Trigger { //comparing it with the trigger declared during initialization
 				continue
 			}
-			go func(cmd *Command, event *Connect.RawEvent) {
+			go func(cmd *Command, event *connect.RawEvent) {
 				err := cmd.Action.Execute(event) // executing the command
 				if err != nil {
 					log.Println("[EVENT PROCESSOR] ", err)
@@ -32,7 +32,7 @@ func (b *Bot) ExampleBot_StaticEventProcessor() {
 	commands := sortCommand(b.CommandBuffer)
 	for event := range b.Gateway.Queue {
 		for _, command := range commands[event.Type] {
-			go func(command Command, event *Connect.RawEvent) {
+			go func(command Command, event *connect.RawEvent) {
 				err := command.Action.Execute(event)
 				if err != nil {
 					log.Println("[EVENT PROCESSOR] ", err)
