@@ -4,9 +4,7 @@
 
 > **Project Status:** 🛠️ Educational project under active development. It is an excellent resource for learning the inner workings of the Discord API and WebSocket management in Golang
 ## The basic information is provided in the root .md files.
-CreateCommand.md
-Bot.md
-Structure.md
+
 ## ✨ Features
 
 - **Bot-Centric Architecture**: Centralized management of all modules via a main `Bot` structure
@@ -22,82 +20,102 @@ go get github.com/IIIoooRRR/G4D
 
 ## 🚀 Quick Start
 
-Here is an example of a simple bot that responds to the `!hello` command:
+Here is an example of a simple bot that responds to the basic command:
+
 
 ```go
-var token = ""
 var details = "Go to codding"
 var state = "Believe"
 var activity = customize.Activity{
-	Name:    "Codding",
-	Type:    Type.ActivityStreaming,
-	Details: &details,
-	State:   &state,
-}
-var bot = G4D.Bot{
-	Token:   token,
-	Gateway: connect.NewGateway().WithActivity(activity).WithNetStatus(Type.NetStatusOnline).WithIntents(34307).WithQueueSize(20),
-	Context: context.Background(),
-	Prefix:  "!",
+    Name:    "Codding",
+    Type:    _const.ActivityStreaming,
+    Details: &details,
+    State:   &state,
 }
 
+var token = ""
+var bot = g4d.Bot{
+    Token:   token,
+    Gateway: gateway.NewGateway().WithActivity(activity).WithNetStatus(_const.NetStatusOnline).WithIntents(34307).WithQueueSize(100),
+    Context: context.Background(),
+    Prefix:  "!",
+}
 func main() {
-	bot.SetBotDescription("Example Bot")
-	bot.AddCommands([]G4D.CommandTemplate{
-		{Trigger: Type.EventGuildCreate, Action: Commands.RolePermCache},
-		{Trigger: Type.EventMessageCreate, Action: Hello},
-	})
-	go bot.DynamicEventProcessor()
+	bot.SetBotDescription("Example Bot").
+		AddCommands([]g4d.CommandTemplate{
+			{Trigger: _const.EventMessageCreate, Name: "Hello", Action: cmd.Hello},
+			{Trigger: _const.EventMessageDelete, Name: "Bye", Action: cmd.Bye},
+			{Trigger: _const.EventMessageCreate, Name: "Menu", Action: Menu},
+			{Trigger: _const.EventMessageCreate, Name: "Button", Action: Button},
+			{Trigger: _const.EventGuildCreate, Name: "Input", Action: Input},
+			{Trigger: _const.EventInteractionCreate, Name: "ButtonInteraction", Action: ButtonReaction},
+		})
+	go bot.StaticEventProcessor()
 	bot.Run()
 }
 
-func Hello(event *connect.RawEvent) error {
-	data := Parse.ToMessageCreate(*event)
-	message := strings.Split(data.Content, " ")
-	var MessageId Type.MessageId
-	if len(message) > 2 {
-		MessageId = Type.MessageId(message[1])
-	}
-	switch message[0] {
-	case "Add":
-		functions.AddReaction(data.ChannelID, data.ID, "💗") //adds a heart to the current emoji
-	case "Remove":
-		functions.DeleteReaction(data.ChannelID, MessageId, "💗") //removes the heart from the specified message
-	case "RemoveAll":
-		functions.DeleteAllReactions(data.ChannelID, MessageId) // removes all emojis from the specified message
-	case "RemoveAllHeart":
-		functions.DeleteAllReactionsForEmoji(data.ChannelID, MessageId, "💗") // removes all hearts from the specified message.
-	default:
+func Menu(event *gateway.RawEvent) error {
+	d := parse.ToMessageCreate(*event)
+	if d.Content != "menu" {
 		return nil
 	}
-	msg := Parse.NewMessage().AddReferencedMessage(data).AddContent("hihi")
-	err := functions.SendMessage(data.ChannelID, msg)
-	if err != nil {
-		return err
+	menu := ui.NewMenu("test")
+	menu.Options = append(menu.Options, ui.NewSelectOption("test", "12").SetDescription("test1"))
+	row := ui.NewActionRow().AddComponents(menu)
+	msg := _struct.NewMessage().AddActionRow(row).AddContent("gello")
+	return api.SendMessage(d.ChannelID, msg)
+}
+func Button(event *gateway.RawEvent) error {
+	d := parse.ToMessageCreate(*event)
+	if d.Content != "button" {
+		return nil
 	}
-	return nil
+	button := ui.NewButton("button").SetLabel("button").SetStyle(1)
+	row := ui.NewActionRow().AddComponents(button)
+	msg := _struct.NewMessage().AddActionRow(row).AddContent("buttooonn!!!!")
+	return api.SendMessage(d.ChannelID, msg)
+}
+
+func ButtonReaction(event *gateway.RawEvent) error {
+	d := parse.ToInteraction(*event)
+	if d.Data.ComponentType != _const.ButtonType {
+		return nil
+	}
+	data := _struct.NewInteractionResponseData("hihi!")
+	response := _struct.NewInteractionResponse(_const.InteractionApplicationCommandAutocomplete).SetData(*data)
+    return api.SendInteractionMessage(d, response)
+}
+
+func Input(event *gateway.RawEvent) error {
+	d := parse.ToMessageCreate(*event)
+	if d.Content != "input" {
+		return nil
+	}
+	input := ui.NewTextInput("input", "tututu", _const.InputParagraph)
+	row := ui.NewActionRow().AddComponents(input)
+	msg := _struct.NewMessage().AddActionRow(row).AddContent("tututu")
+	return api.SendMessage(d.ChannelID, msg)
 }
 
 ```
 
 
+
 ## 🛠 Project Structure
 
 The project follows a modular hierarchy inspired by structured programming:
-- `G4D/` — Core logic, command management, and lifecycle.
-- `ConnectToDiscord/` — Low-level WebSocket (Gateway) and network handling.
-- `parseJSON/` — Specialized packages for parsing and typifying Discord data structures.
+- `g4d/` — Core logic, command management, and lifecycle.
+- `gateway/` — Low-level WebSocket (Gateway) and network handling.
+- `model/` — Specialized packages for parsing and typifying Discord data structures.
 
-## ⚡ Philosophy
+## Philosophy
+- **You are in control** — G4D doesn't hide complexity. You handle events, caching, and errors yourself.
+- **Strict typing** — helps you avoid mistakes, but doesn't limit you.
+- **No magic** — what you write is what happens. Every HTTP request, every WebSocket message is visible.
+- **Your responsibility** — this is a tool, not a guarantee. If you break something, you know why.
+- **Assembly, not framework** — you build your bot brick by brick.
 
-- **Full control** over every event and decision.
-- **No magic** — you see what the library does.
-- **Backward compatibility** — your old code keeps working.
-
-> **Any problem is the user's problem :)**
->
-> G4D gives you tools, not guarantees. If you cause a race condition, a panic, or a memory leak — that's your call. You're an engineer. Act like one.
-
+> *"I give you the tools. The rest is up to you."*
 ## 🤝 Contributing
 
 Contributions are welcome! Feel free to:
