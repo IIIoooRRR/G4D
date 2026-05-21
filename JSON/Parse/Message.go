@@ -1,15 +1,17 @@
 package Parse
 
 import (
-	"errors"
+	"log"
 
 	Dependencies2 "github.com/IIIoooRRR/G4D/JSON/Dependencies"
+	Type2 "github.com/IIIoooRRR/G4D/JSON/Type"
 )
 
-type Message struct {
-	ID              string                     `json:"id,omitempty"`
-	ChannelID       string                     `json:"channel_id,omitempty"`
-	GuildID         string                     `json:"guild_id,omitempty"` // Отсутствует в личке
+type GetMessage struct {
+	ID              Type2.MessageId            `json:"id,omitempty"`
+	GuildID         Type2.GuildId              `json:"guild_id,omitempty"` // Отсутствует в личке
+	ChannelID       Type2.ChannelId            `json:"channel_id,omitempty"`
+	Thread          *Channel                   `json:"thread,omitempty"`
 	Author          Dependencies2.User         `json:"author,omitempty"`
 	Member          Dependencies2.GuildMember  `json:"member,omitempty"`
 	Content         string                     `json:"content,omitempty"`
@@ -23,30 +25,79 @@ type Message struct {
 	Embeds          []Dependencies2.Embed      `json:"embeds,omitempty"`
 	Type            int                        `json:"type,omitempty"`
 	// ReferencedMessage нужна для обработки ответов (reply)
-	ReferencedMessage *Message `json:"referenced_message,omitempty"`
+	ReferencedMessage *MessageReference `json:"message_reference,omitempty"`
+}
+type SendMessage struct {
+	Content     string                     `json:"content"`
+	Flags       int                        `json:"flags,omitempty"`
+	Attachments []Dependencies2.Attachment `json:"attachments,omitempty"`
+	Embeds      []Dependencies2.Embed      `json:"embeds,omitempty"`
+	Type        int                        `json:"type,omitempty"`
+	// ReferencedMessage нужна для обработки ответов (reply)
+	ReferencedMessage *MessageReference `json:"message_reference,omitempty"`
 }
 
 type MessageDelete struct {
-	ID        string `json:"id"`
-	ChannelID string `json:"channel_id"`
-	GuildID   string `json:"guild_id,omitempty"`
+	ID        Type2.MessageId `json:"id"`
+	ChannelID string          `json:"channel_id"`
+	GuildID   string          `json:"guild_id,omitempty"`
 }
 
 type MessageEdit struct {
-	Content         string `json:"content"`
-	Embeds          string `json:"embeds,omitempty"`
-	Flags           string `json:"flags,omitempty"`
-	AllowedMentions string `json:"allowed_mentions,omitempty"`
-	Components      string `json:"components,omitempty"`
-	Files           string `json:"files,omitempty"`
-	PayloadJson     string `json:"payload_json,omitempty"`
-	Attachments     string `json:"attachments,omitempty"`
+	Content         string                `json:"content"`
+	Embeds          []Dependencies2.Embed `json:"embeds,omitempty"`
+	Flags           []string              `json:"flags,omitempty"`
+	AllowedMentions string                `json:"allowed_mentions,omitempty"`
+	Components      []string              `json:"components,omitempty"`
+	Files           []string              `json:"files,omitempty"`
+	PayloadJson     string                `json:"payload_json,omitempty"`
+	Attachments     []string              `json:"attachments,omitempty"`
 }
 
-func (m *Message) AddEmbed(embeds ...Dependencies2.Embed) error {
-	if len(m.Embeds)+len(embeds) > 10 {
-		return errors.New("[MESSAGE CREATE] Max 10 Embeds")
+type MessageReference struct {
+	ChannelId Type2.ChannelId `json:"channel_id,omitempty"`
+	MessageId Type2.MessageId `json:"message_id,omitempty"`
+}
+
+func NewMessage() *SendMessage {
+	return &SendMessage{}
+}
+func (m *SendMessage) AddContent(content string) *SendMessage {
+	m.Content = content
+	return m
+}
+func (m *SendMessage) AddFlags(flags int) *SendMessage {
+	m.Flags = flags
+	return m
+}
+func (m *SendMessage) AddEmbed(embeds ...Dependencies2.Embed) *SendMessage {
+	if len(m.Embeds)+len(embeds) <= 10 {
+		m.Embeds = append(m.Embeds, embeds...)
+	} else {
+		log.Println("[MESSAGE CREATE] max 10 embeds")
 	}
-	m.Embeds = append(m.Embeds, embeds...)
-	return nil
+	return m
+}
+func (m *SendMessage) AddAttachment(attachments ...Dependencies2.Attachment) *SendMessage {
+	if len(m.Attachments)+len(attachments) <= 10 {
+		m.Attachments = append(m.Attachments, attachments...)
+	} else {
+		log.Println("[MESSAGE CREATE]  max 10 attachments")
+	}
+	return m
+
+}
+func (m *SendMessage) AddReferencedMessage(message *GetMessage) *SendMessage {
+	m.ReferencedMessage = &MessageReference{
+		ChannelId: message.ChannelID,
+		MessageId: message.ID,
+	}
+	return m
+}
+func (m *SendMessage) AddReference(channelId Type2.ChannelId, messageId Type2.MessageId) *SendMessage {
+	m.ReferencedMessage = &MessageReference{
+		ChannelId: channelId,
+		MessageId: messageId,
+	}
+	return m
 }

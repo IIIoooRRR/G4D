@@ -1,12 +1,5 @@
 package customize
 
-const (
-	Game      = 0
-	Streaming = 1
-	Listening = 2
-	Watching  = 3
-)
-
 type PresenceUpdate struct {
 	Since      int        `json:"since,omitempty"`
 	Activities []Activity `json:"activities,omitempty"`
@@ -15,6 +8,12 @@ type PresenceUpdate struct {
 }
 
 type Activity struct {
-	Name string `json:"name,omitempty"`
-	Type int    `json:"type,omitempty"` // 0=Game, 1=Streaming, 2=Listening, 3=Watching
+	Name          string  `json:"name"`
+	Type          int     `json:"type"`              //type.Activity
+	URL           *string `json:"url,omitempty"`     // for streaming
+	Details       *string `json:"details,omitempty"` // "Playing Minecraft"
+	State         *string `json:"state,omitempty"`   // "On Hypixel"
+	ApplicationID *string `json:"application_id,omitempty"`
+	Flags         *int    `json:"flags,omitempty"`
+	Instance      *bool   `json:"instance,omitempty"`
 }

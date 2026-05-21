@@ -1,4 +1,4 @@
-package Connect
+package connect
 
 import (
 	"context"
@@ -10,12 +10,12 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-func (b *Receiver) connect(ParentCtx context.Context) error {
+func (r *Receiver) connect(ParentCtx context.Context) error {
 	sleep := 1
-	b.ctx, b.cancel = context.WithCancel(ParentCtx) //создаем контекст на основе родительского
-	defer b.cancel()
+	r.ctx, r.cancel = context.WithCancel(ParentCtx) //создаем контекст на основе родительского
+	defer r.cancel()
 	for {
-		err := b.gateway()
+		err := r.gateway()
 		if err == nil {
 			break
 		}
@@ -25,30 +25,33 @@ func (b *Receiver) connect(ParentCtx context.Context) error {
 		} // создаем цикл для гатеваев
 	}
 
-	interval := b.helloDiscord()
+	interval := r.helloDiscord()
 	if interval == -1 {
 		return errors.New("[DISCORD] hello json is bad :[")
 	}
 
-	go b.heartbeat(b.ctx)
-	err := b.identify()
+	go r.heartbeat(r.ctx)
+	err := r.identify()
 	if err != nil {
 		return err
 	}
-	err = b.listen(b.ctx)
+	err = r.listen(r.ctx)
 	if err != nil {
 		return err
 	}
+	defer func() {
+
+	}()
 	return nil
 }
 
-func (b *Receiver) listen(ctx context.Context) error {
+func (r *Receiver) listen(ctx context.Context) error {
 	defer func(connectWS *websocket.Conn) {
 		err := connectWS.Close()
 		if err != nil {
 
 		}
-	}(b.connectWS)
+	}(r.connectWS)
 	for {
 		select {
 		case <-ctx.Done():
@@ -56,7 +59,7 @@ func (b *Receiver) listen(ctx context.Context) error {
 		default:
 
 			var event JSON.Payload
-			err := b.connectWS.ReadJSON(&event)
+			err := r.connectWS.ReadJSON(&event)
 			if err != nil {
 				return err
 			}
@@ -64,28 +67,28 @@ func (b *Receiver) listen(ctx context.Context) error {
 			switch op {
 			case 0:
 				go func() {
-					err = b.dispatch(event)
+					err = r.dispatch(event)
 					if err != nil {
 						log.Println(err)
 					}
 				}()
 			case 1:
-				b.connMutex.Lock()
-				err := b.connectWS.WriteJSON(JSON.Payload{
+				r.connMutex.Lock()
+				err := r.connectWS.WriteJSON(JSON.Payload{
 					Op: 1,
-					S:  b.lastSeq,
+					S:  r.lastSeq,
 				})
-				b.connMutex.Unlock()
-				log.Println("[CONNECT] last Seq: ", b.lastSeq)
+				r.connMutex.Unlock()
+				log.Println("[CONNECT] last Seq: ", r.lastSeq)
 				if err != nil {
 					log.Println("[CONNECT] ", err)
 					return err
 				}
 			case 7:
-				b.sessionID = ""
+				r.sessionID = ""
 				return errors.New("[LISTEN] HARD RECONNECT TO DISCORD")
 			case 9:
-				b.sessionID = ""
+				r.sessionID = ""
 				return errors.New("[LISTEN] RECONNECT TO DISCORD")
 			}
 		}

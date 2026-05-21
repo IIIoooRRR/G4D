@@ -25,39 +25,57 @@ go get github.com/IIIoooRRR/G4D
 Here is an example of a simple bot that responds to the `!hello` command:
 
 ```go
+var token = ""
+var details = "Go to codding"
+var state = "Believe"
+var activity = customize.Activity{
+	Name:    "Codding",
+	Type:    Type.ActivityStreaming,
+	Details: &details,
+	State:   &state,
+}
+var bot = G4D.Bot{
+	Token:   token,
+	Gateway: connect.NewGateway().WithActivity(activity).WithNetStatus(Type.NetStatusOnline).WithIntents(34307).WithQueueSize(20),
+	Context: context.Background(),
+	Prefix:  "!",
+}
+
 func main() {
-token := "token"
-gateway := Connect.Receiver{
-QueueSize: 20,
-Intents:   34307,
-}
-bot := G4D.Bot{
-Token:   token,
-Gateway: &gateway,
-Cache:   nil,
-Context: context.Background(),
-Prefix:  "!",
+	bot.SetBotDescription("Example Bot")
+	bot.AddCommands([]G4D.CommandTemplate{
+		{Trigger: Type.EventGuildCreate, Action: Commands.RolePermCache},
+		{Trigger: Type.EventMessageCreate, Action: Hello},
+	})
+	go bot.DynamicEventProcessor()
+	bot.Run()
 }
 
-bot.AddCommands([]G4D.CommandTemplate{
-{Trigger: Type.EventGuildCreate, Action: Commands.LALA},
-{Trigger: Type.EventMessageCreate, Action: Hello},
-})
-
-go bot.DynamicEventProcessor()
-bot.Run()
-}
-func Hello(event *Connect.RawEvent) error {
-log.Println(time.Now())
-data := Parse.ToMessageCreate(*event)
-if data.Content == "hello" {
-err := Functions.DeleteMessage(data.ChannelID, data.ID)
-if err != nil {
-log.Println(err)
-}
-}
-log.Println(time.Now())
-return nil
+func Hello(event *connect.RawEvent) error {
+	data := Parse.ToMessageCreate(*event)
+	message := strings.Split(data.Content, " ")
+	var MessageId Type.MessageId
+	if len(message) > 2 {
+		MessageId = Type.MessageId(message[1])
+	}
+	switch message[0] {
+	case "Add":
+		functions.AddReaction(data.ChannelID, data.ID, "💗") //adds a heart to the current emoji
+	case "Remove":
+		functions.DeleteReaction(data.ChannelID, MessageId, "💗") //removes the heart from the specified message
+	case "RemoveAll":
+		functions.DeleteAllReactions(data.ChannelID, MessageId) // removes all emojis from the specified message
+	case "RemoveAllHeart":
+		functions.DeleteAllReactionsForEmoji(data.ChannelID, MessageId, "💗") // removes all hearts from the specified message.
+	default:
+		return nil
+	}
+	msg := Parse.NewMessage().AddReferencedMessage(data).AddContent("hihi")
+	err := functions.SendMessage(data.ChannelID, msg)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 ```
@@ -88,7 +106,7 @@ Contributions are welcome! Feel free to:
 3. Improve documentation and examples.
 
 ---
-The project documentation is available on godoc
+godoc: https://pkg.go.dev/github.com/IIIoooRRR/G4D
 ---
 **Author:** [IIIoooRRR](https://github.com)
 ---

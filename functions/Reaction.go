@@ -1,73 +1,32 @@
-package Functions
+package functions
 
 import (
 	"fmt"
-	"net/http"
 	"net/url"
 
-	"github.com/IIIoooRRR/G4D/G4D"
+	"github.com/IIIoooRRR/G4D/JSON/Type"
 )
 
-func AddReaction(channelId, messageId, reactionId string) error {
+func AddReaction(channelId Type.ChannelId, messageId Type.MessageId, reactionId string) error {
 	encodedReaction := url.QueryEscape(reactionId)
-	url := fmt.Sprintf("https://discord.com/api/v10/channels/%s/messages/%s/reactions/%s/@me", channelId, messageId, encodedReaction)
-	req, err := http.NewRequest("PUT", url, nil)
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bot "+G4D.CurrentBot().Token)
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	return nil
+	uri := fmt.Sprintf("/channels/%s/messages/%s/reactions/%s/@me", channelId, messageId, encodedReaction)
+	_, err := doDiscordRequest("PATCH", uri, []byte{})
+	return err
 }
-func DeleteReaction(channelId, messageId, reactionId string) error {
+func DeleteReaction(channelId Type.ChannelId, messageId Type.MessageId, reactionId string) error {
 	encodedReaction := url.QueryEscape(reactionId)
-	url := fmt.Sprintf("https://discord.com/api/v10/channels/%s/messages/%s/reactions/%s/@me", channelId, messageId, encodedReaction)
-	req, err := http.NewRequest("DELETE", url, nil)
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bot "+G4D.CurrentBot().Token)
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	return nil
+	uri := fmt.Sprintf("/channels/%s/messages/%s/reactions/%s/@me", channelId, messageId, encodedReaction)
+	_, err := doDiscordRequest("PATCH", uri, []byte{})
+	return err
 }
-func DeleteAllReactions(channelId, messageId string) error {
-	url := fmt.Sprintf("https://discord.com/api/v10/channels/%s/messages/%s/reactions", channelId, messageId)
-	req, err := http.NewRequest("DELETE", url, nil)
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bot "+G4D.CurrentBot().Token)
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	return nil
+func DeleteAllReactions(channelId Type.ChannelId, messageId Type.MessageId) error {
+	uri := fmt.Sprintf("/channels/%s/messages/%s/reactions", channelId, messageId)
+	_, err := doDiscordRequest("DELETE", uri, []byte{})
+	return err
 }
-func DeleteAllReactionsForEmoji(channelId, messageId, reactionId string) error {
+func DeleteAllReactionsForEmoji(channelId Type.ChannelId, messageId Type.MessageId, reactionId string) error {
 	encodedReaction := url.QueryEscape(reactionId)
-	url := fmt.Sprintf("https://discord.com/api/v10/channels/%s/messages/%s/reactions/%s", channelId, messageId, encodedReaction)
-	req, err := http.NewRequest("DELETE", url, nil)
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bot "+G4D.CurrentBot().Token)
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	return nil
+	uri := fmt.Sprintf("/channels/%s/messages/%s/reactions/%s", channelId, messageId, encodedReaction)
+	_, err := doDiscordRequest("DELETE", uri, []byte{})
+	return err
 }

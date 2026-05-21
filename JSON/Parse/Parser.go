@@ -4,11 +4,12 @@ import (
 	"encoding/json"
 	"log"
 
-	"github.com/IIIoooRRR/G4D/Connect"
+	"github.com/IIIoooRRR/G4D/connect"
 )
 
-func ToMessageCreate(event Connect.RawEvent) Message {
-	var d Message
+/* Basic */
+func ToMessageCreate(event connect.RawEvent) *GetMessage {
+	var d *GetMessage
 	err := json.Unmarshal(event.Data, &d)
 	if err != nil {
 		log.Println(err)
@@ -16,16 +17,16 @@ func ToMessageCreate(event Connect.RawEvent) Message {
 	return d
 }
 
-func ToMessageDelete(event Connect.RawEvent) MessageDelete {
-	var d MessageDelete
+func ToMessageDelete(event connect.RawEvent) *MessageDelete {
+	var d *MessageDelete
 	err := json.Unmarshal(event.Data, &d)
 	if err != nil {
 		log.Println(err)
 	}
 	return d
 }
-func ToMessageEdited(event Connect.RawEvent) MessageEdit {
-	var d MessageEdit
+func ToMessageEdited(event connect.RawEvent) *MessageEdit {
+	var d *MessageEdit
 	err := json.Unmarshal(event.Data, &d)
 	if err != nil {
 		log.Println(err)
@@ -33,33 +34,42 @@ func ToMessageEdited(event Connect.RawEvent) MessageEdit {
 	return d
 }
 
-func ToInteraction(event Connect.RawEvent) Interaction {
-	var d Interaction
+func ToInteraction(event connect.RawEvent) *Interaction {
+	var d *Interaction
 	json.Unmarshal(event.Data, &d)
 	return d
 }
 
-func ToGuildMemberAdd(event Connect.RawEvent) GuildMemberAdd {
-	var d GuildMemberAdd
+/* Reactions */
+func ToReactionsAdd(event connect.RawEvent) *MessageReactionAdd {
+	var d *MessageReactionAdd
 	json.Unmarshal(event.Data, &d)
 	return d
 }
-func ToGuildMemberRemove(event Connect.RawEvent) GuildMemberRemove {
-	var d GuildMemberRemove
+func ToReactionRemove(event connect.RawEvent) *MessageReactionRemove {
+	var d *MessageReactionRemove
 	json.Unmarshal(event.Data, &d)
 	return d
 }
 
-func ToChannel(body []byte) (Channel, error) {
-	var channel Channel
-	err := json.Unmarshal(body, &channel)
+/* Guild */
+func ToGuildMemberAdd(event connect.RawEvent) *GuildMemberAdd {
+	var d *GuildMemberAdd
+	json.Unmarshal(event.Data, &d)
+	return d
+}
+func ToGuildMemberRemove(event connect.RawEvent) *GuildMemberRemove {
+	var d *GuildMemberRemove
+	json.Unmarshal(event.Data, &d)
+	return d
+}
+
+/* Channel */
+func ToChannel(body []byte) (*Channel, error) {
+	var channel *Channel
+	err := json.Unmarshal(body, channel)
 	if err != nil {
-		return Channel{}, err
+		return nil, err
 	}
 	return channel, nil
-}
-func ToReactionsAdd(event Connect.RawEvent) MessageReactionAdd {
-	var d MessageReactionAdd
-	json.Unmarshal(event.Data, &d)
-	return d
 }

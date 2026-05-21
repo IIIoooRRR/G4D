@@ -1,4 +1,4 @@
-package Connect
+package connect
 
 import (
 	"context"
@@ -8,19 +8,19 @@ import (
 	"github.com/IIIoooRRR/G4D/JSON"
 )
 
-func (b *Receiver) heartbeat(ctx context.Context) error {
-	ticker := time.NewTicker(b.interval)
+func (r *Receiver) heartbeat(ctx context.Context) error {
+	ticker := time.NewTicker(r.interval)
 	defer ticker.Stop()
 	for {
 		select {
 		case <-ticker.C:
-			b.connMutex.Lock()
-			err := b.connectWS.WriteJSON(
+			r.connMutex.Lock()
+			err := r.connectWS.WriteJSON(
 				JSON.Payload{
 					Op: 1,
-					S:  b.lastSeq,
+					S:  r.lastSeq,
 				})
-			b.connMutex.Unlock()
+			r.connMutex.Unlock()
 			if err != nil {
 				return err
 			}

@@ -1,4 +1,4 @@
-package Connect
+package connect
 
 import (
 	"encoding/json"
@@ -7,12 +7,12 @@ import (
 	"github.com/IIIoooRRR/G4D/JSON"
 )
 
-func (b *Receiver) resume() error {
-	if b.sessionID != "" {
+func (r *Receiver) resume() error {
+	if r.sessionID != "" {
 		Data := JSON.Resume{
-			Token:     b.token,
-			SessionID: b.sessionID,
-			Sequence:  b.lastSeq,
+			Token:     r.token,
+			SessionID: r.sessionID,
+			Sequence:  r.lastSeq,
 		}
 		DataBytes, err := json.Marshal(&Data)
 		if err != nil {
@@ -24,9 +24,9 @@ func (b *Receiver) resume() error {
 				Op: 6,
 				D:  DataBytes,
 			}
-		b.connMutex.Lock()
-		err = b.connectWS.WriteJSON(&answerToDiscord)
-		b.connMutex.Unlock()
+		r.connMutex.Lock()
+		err = r.connectWS.WriteJSON(&answerToDiscord)
+		r.connMutex.Unlock()
 		if err != nil {
 			return err
 		}

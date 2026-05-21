@@ -1,4 +1,4 @@
-package Connect
+package connect
 
 import (
 	"encoding/json"
@@ -9,10 +9,10 @@ import (
 	"github.com/IIIoooRRR/G4D/JSON"
 )
 
-func (b *Receiver) helloDiscord() time.Duration {
+func (r *Receiver) helloDiscord() time.Duration {
 	var hello JSON.Payload
 
-	if err := b.connectWS.ReadJSON(&hello); err != nil {
+	if err := r.connectWS.ReadJSON(&hello); err != nil {
 		return -1
 	}
 	var d JSON.Hello
@@ -21,6 +21,6 @@ func (b *Receiver) helloDiscord() time.Duration {
 		log.Println("[DISCORD] parse to hello is bad")
 		return -1
 	}
-	b.interval = time.Duration(d.HeartbeatInterval) * time.Millisecond
-	return b.interval
+	r.interval = time.Duration(d.HeartbeatInterval) * time.Millisecond
+	return r.interval
 }

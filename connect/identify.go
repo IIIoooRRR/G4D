@@ -1,4 +1,4 @@
-package Connect
+package connect
 
 import (
 	"encoding/json"
@@ -7,15 +7,16 @@ import (
 	"github.com/IIIoooRRR/G4D/JSON"
 )
 
-func (b *Receiver) identify() error {
+func (r *Receiver) identify() error {
 	Data := JSON.Identify{
-		Token:   b.token,
-		Intents: b.Intents,
+		Token:   r.token,
+		Intents: r.Intents,
 		Properties: JSON.IdentifyProperties{
 			OS:      "linux",
 			Browser: "G4D",
 			Device:  "G4D",
 		},
+		Presence: r.Presence,
 	}
 	DataBytes, err := json.Marshal(&Data)
 	if err != nil {
@@ -26,11 +27,11 @@ func (b *Receiver) identify() error {
 		Op: 2,
 		D:  DataBytes,
 	}
-	b.connMutex.Lock()
-	err = b.connectWS.WriteJSON(&identify)
-	b.connMutex.Unlock()
+	r.connMutex.Lock()
+	err = r.connectWS.WriteJSON(&identify)
+	r.connMutex.Unlock()
 	if err != nil {
-		b.Stop()
+		r.Stop()
 		return err
 
 	}

@@ -1,8 +1,12 @@
-package Functions
+package functions
 
-import "fmt"
+import (
+	"fmt"
 
-func GetAvatarURL(userID, avatarHash string) string {
+	"github.com/IIIoooRRR/G4D/JSON/Type"
+)
+
+func GetAvatarURL(userID Type.UserId, avatarHash string) string {
 	if avatarHash == "" {
 		return ""
 	}

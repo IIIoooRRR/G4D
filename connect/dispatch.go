@@ -1,4 +1,4 @@
-package Connect
+package connect
 
 import (
 	"encoding/json"
@@ -7,7 +7,7 @@ import (
 	"github.com/IIIoooRRR/G4D/JSON"
 )
 
-func (b *Receiver) dispatch(event JSON.Payload) error {
+func (r *Receiver) dispatch(event JSON.Payload) error {
 	t := event.T
 	switch t {
 	case "READY":
@@ -16,25 +16,25 @@ func (b *Receiver) dispatch(event JSON.Payload) error {
 			log.Println("[DISPATCH] ", err)
 		}
 		log.Println("[DISPATCH] G4D is ready")
-		b.sessionID = d.SessionID
+		r.sessionID = d.SessionID
 
-		b.resumeURL = d.ResumeGatewayURL
+		r.resumeURL = d.ResumeGatewayURL
 	case "GUILD_CREATE":
-		if b.Cache != nil {
-			b.Cache.CacheGuildCreate(&RawEvent{t, event.D})
+		if r.Cache != nil {
+			r.Cache.CacheGuildCreate(&RawEvent{t, event.D})
 			break
 		}
-		b.Queue <- &RawEvent{
+		r.Queue <- &RawEvent{
 			t,
 			event.D,
 		}
 		return nil
 	default:
-		b.Queue <- &RawEvent{
+		r.Queue <- &RawEvent{
 			t,
 			event.D,
 		}
 	}
-	b.lastSeq = event.S
+	r.lastSeq = event.S
 	return nil
 }

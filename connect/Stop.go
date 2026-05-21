@@ -1,13 +1,13 @@
-package Connect
+package connect
 
 import "log"
 
-func (b *Receiver) Stop() {
-	if b.ctx != nil || b.cancel != nil {
-		b.cancel()
+func (r *Receiver) Stop() {
+	if r.ctx != nil || r.cancel != nil {
+		r.cancel()
 	}
-	if b.connectWS != nil {
-		b.connectWS.Close()
+	if r.connectWS != nil {
+		r.connectWS.Close()
 	}
 	log.Println("[BOT] Disconnected from Discord")
 }

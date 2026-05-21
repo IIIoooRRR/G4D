@@ -1,27 +1,35 @@
-├── Bot.md
-├── Connect
+├── connect
 │   ├── Connect.go
 │   ├── CreateBot.go
 │   ├── dispatch.go
 │   ├── gateway.go
 │   ├── heartbeat.go
 │   ├── hello.go
+│   ├── helpers.go
 │   ├── identify.go
 │   ├── Receiver.go
 │   ├── resume.go
+│   ├── status.go
 │   └── Stop.go
-├── CreateCommand.md
-├── EventProcessor.md
-├── Functions
+├── Documentation
+│   ├── Bot.md
+│   ├── CreateCommand.md
+│   ├── EventProcessor.md
+│   ├── SendMessage.md
+│   └── Structure.md
+├── functions
 │   ├── Channel.go
 │   ├── Message.go
-│   └── Restriction.go
+│   ├── Reaction.go
+│   ├── Restriction.go
+│   └── User.go
 ├── G4D
 │   ├── AddCommand.go
 │   ├── Bot.go
 │   ├── bot_test.go
 │   ├── Command.go
 │   ├── commands_test.go
+│   ├── decription.go
 │   ├── EventProcessor.go
 │   ├── eventProcessor_test.go
 │   ├── GetBotInfo.go
@@ -29,6 +37,8 @@
 ├── go.mod
 ├── go.sum
 ├── JSON
+│   ├── customize
+│   │   └── status.go
 │   ├── Dependencies
 │   │   ├── Attachment.go
 │   │   ├── Embed.go
@@ -45,7 +55,8 @@
 │   │   ├── Guilds.go
 │   │   ├── Interaction.go
 │   │   ├── Message.go
-│   │   └── Parser.go
+│   │   ├── Parser.go
+│   │   └── Reactions.go
 │   ├── Payload.go
 │   ├── Ready.go
 │   ├── Resume.go
@@ -54,8 +65,10 @@
 │       └── Command.go
 ├── LICENSE
 ├── README.md
-├── SendMessage.md
-└── Structure.md
+└── test
+├── Commands
+│   └── guildc.go
+└── test.go
 ## G4D
 The main package for working with data.\
 It is controlled by the user and has an Event sub-package that allows you to interact with discord - to parse or send/track data.\

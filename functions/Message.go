@@ -1,97 +1,44 @@
-package Functions
+package functions
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
-	"log"
-	"net/http"
 
-	"github.com/IIIoooRRR/G4D/G4D"
 	"github.com/IIIoooRRR/G4D/JSON/Parse"
+	"github.com/IIIoooRRR/G4D/JSON/Type"
 )
 
 func SendInteractionMessage(msg *Parse.InteractionResponse, event *Parse.Interaction) error {
-	url := fmt.Sprintf("https://discord.com/api/v10/interactions/%s/%s/callback", event.ID, event.Token)
-	jsonData, _ := json.Marshal(msg)
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
+	uri := fmt.Sprintf("/interactions/%s/%s/callback", event.ID, event.Token)
+	jsonData, err := json.Marshal(msg)
 	if err != nil {
 		return err
 	}
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bot "+G4D.CurrentBot().Token)
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		log.Println("[SEND-MESSAGE] Discord API ERROR " + resp.Status)
-	}
-	return nil
+	_, err = doDiscordRequest("POST", uri, jsonData)
+	return err
 }
 
-func SendMessage(ToChannel string, msg *Parse.Message) error {
-	var url = "https://discord.com/api/v10/channels/"
-	url = url + ToChannel + "/messages"
+func SendMessage(ToChannel Type.ChannelId, msg *Parse.SendMessage) error {
+	uri := fmt.Sprintf("/channels/%s/messages", ToChannel)
 	body := msg
 	jsonBody, err := json.Marshal(body) //delaem жсон из message
 	if err != nil {
 		return err
 	}
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonBody))
-	if err != nil {
-		return err
-	}
-	// добавляем поля
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bot "+G4D.CurrentBot().Token)
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close() // ждем пока закроется
-	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		log.Println("[SEND-MESSAGE] Discord API ERROR " + resp.Status)
-	}
-
-	return nil
+	_, err = doDiscordRequest("POST", uri, jsonBody)
+	return err
 }
-func EditMessage(ToChannel, msgId string, msg *Parse.MessageEdit) error {
-	url := fmt.Sprintf("https://discord.com/api/v10/channels/%s/messages/%s", ToChannel, msgId)
+func EditMessage(ToChannel Type.ChannelId, msgId Type.MessageId, msg *Parse.MessageEdit) error {
+	uri := fmt.Sprintf("/channels/%s/messages/%s", ToChannel, msgId)
 	jsonBody, err := json.Marshal(msg)
 	if err != nil {
 		return err
 	}
-	req, err := http.NewRequest("PATCH", url, bytes.NewBuffer(jsonBody))
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bot "+G4D.CurrentBot().Token)
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	return nil
+	_, err = doDiscordRequest("PATCH", uri, jsonBody)
+	return err
 }
-func DeleteMessage(ToChannel string, msgId string) error {
-	url := fmt.Sprintf("https://discord.com/api/v10/channels/%s/messages/%s", ToChannel, msgId)
-	req, err := http.NewRequest("DELETE", url, nil)
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bot "+G4D.CurrentBot().Token)
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	return nil
+func DeleteMessage(ToChannel Type.ChannelId, msgId Type.MessageId) error {
+	uri := fmt.Sprintf("/channels/%s/messages/%s", ToChannel, msgId)
+	_, err := doDiscordRequest("DELETE", uri, []byte{})
+	return err
 }

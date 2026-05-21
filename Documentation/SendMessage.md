@@ -4,13 +4,10 @@
 func Hello(event *Connect.RawEvent) error {
 	log.Printf("DEBUG DATA: %+v", event)
 	d := Parse.ToMessageCreate(*event)
-	if d.Content == "!hello" {
-		msg := Event.Message{
-
-			Content: "hello world",
-		}
-		Functions.SendMessage(d.ChannelID, b)
-	}
+	if d.Content != "!hello" { return nil }
+	msg := Parse.NewMessage().AddReferencedMessage(&data).AddContent("hihi")
+    err := functions.SendMessage(data.ChannelID, msg)
+    if err != nil { return err }
 	return nil
 }
 // Interaction

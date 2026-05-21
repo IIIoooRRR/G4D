@@ -47,7 +47,7 @@ func ExampleBot_AddCommand() {
 func Execute(event *connect.RawEvent) error {
 	d := Parse.ToMessageCreate(*event) //turn the resulting RawEvent into the structure you need.
 	if d.Content == "!hello" {
-		msg := Parse.Message{
+		msg := Parse.GetMessage{
 			Content: "hello world",
 		}
 		functions.SendMessage(d.ChannelID, &msg)

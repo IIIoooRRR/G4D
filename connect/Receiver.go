@@ -1,4 +1,4 @@
-package Connect
+package connect
 
 import (
 	"context"
@@ -6,6 +6,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/IIIoooRRR/G4D/JSON/customize"
 	"github.com/gorilla/websocket"
 )
 
@@ -23,6 +24,7 @@ type Receiver struct {
 	connMutex sync.Mutex
 	ctx       context.Context
 	Cache     Cacher
+	Presence  *customize.PresenceUpdate
 }
 
 type RawEvent struct {

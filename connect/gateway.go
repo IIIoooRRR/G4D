@@ -1,4 +1,4 @@
-package Connect
+package connect
 
 import (
 	"log"
@@ -6,13 +6,13 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-func (b *Receiver) gateway() error {
+func (r *Receiver) gateway() error {
 	con, _, err := websocket.DefaultDialer.Dial("wss://gateway.discord.gg/?v=10&encoding=json", nil)
 	if err != nil {
 		log.Println("[GATEWAY] NOT CONNECT TO WEBSOCKET")
 		return err
 	}
-	b.connectWS = con // подключаемся
+	r.connectWS = con // подключаемся
 	log.Println("[GATEWAY] CONNECTED")
 	return nil
 }

@@ -1,100 +1,48 @@
-package Functions
+package functions
 
 import (
-	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
-	"io"
-	"net/http"
 
-	"github.com/IIIoooRRR/G4D/G4D"
 	"github.com/IIIoooRRR/G4D/JSON/Parse"
+	"github.com/IIIoooRRR/G4D/JSON/Type"
 )
 
-func CreateChannel(guildId string, channel *Parse.Channel) error {
-	var url = fmt.Sprintf("https://discord.com/api/v10/guilds/%s/channels", guildId)
+func CreateChannel(guildId Type.GuildId, channel *Parse.Channel) error {
 	jsonBody, err := json.Marshal(channel)
 	if err != nil {
 		return err
 	}
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonBody))
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bot "+G4D.CurrentBot().Token)
-	client := http.Client{}
-	_, err = client.Do(req)
-	if err != nil {
-		return errors.New("[DISCORD] Failed to create channel")
-	}
-	return nil
+	endpoint := fmt.Sprintf("/channels/%s", guildId)
+	_, err = doDiscordRequest("POST", endpoint, jsonBody)
+	return err
 }
 
-func DeleteChannel(channelId string, channel *Parse.Channel) error {
-	var url = fmt.Sprintf("https://discord.com/api/v10/channels/%s", channelId)
+func DeleteChannel(channelId Type.ChannelId, channel *Parse.Channel) error {
 	jsonBody, err := json.Marshal(channel)
 	if err != nil {
 		return err
 	}
-	req, err := http.NewRequest("DELETE", url, bytes.NewBuffer(jsonBody))
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bot "+G4D.CurrentBot().Token)
-	client := http.Client{}
-	_, err = client.Do(req)
-	if err != nil {
-		return errors.New("[DISCORD] Failed to delete channel")
-	}
-	return nil
+	endpoint := fmt.Sprintf("/channels/%s", channelId)
+	_, err = doDiscordRequest("DELETE", endpoint, jsonBody)
+	return err
 }
 
-func ChangeChannels(channelID string, channel *Parse.Channel) error {
-	var url = fmt.Sprintf("https://discord.com/api/v10/channels/%s", channelID)
+func ChangeChannels(channelId Type.ChannelId, channel *Parse.Channel) error {
 	jsonBody, err := json.Marshal(channel)
 	if err != nil {
 		return err
 	}
-	req, err := http.NewRequest("PUT", url, bytes.NewBuffer(jsonBody))
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bot "+G4D.CurrentBot().Token)
-	client := http.Client{}
-	_, err = client.Do(req)
-	if err != nil {
-		return errors.New("[DISCORD] Failed to update channels")
-	}
-	return nil
+	endpoint := fmt.Sprintf("/channels/%s", channelId)
+	_, err = doDiscordRequest("PATCH", endpoint, jsonBody)
+	return err
 }
 
-func GetChannel(channelId string) (*Parse.Channel, error) {
-	var url = fmt.Sprintf("https://discord.com/api/v10/channels/%s", channelId)
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		return &Parse.Channel{}, err
-	}
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bot "+G4D.CurrentBot().Token)
-	client := http.Client{}
-	res, err := client.Do(req)
-	defer res.Body.Close()
-	if err != nil {
-		return nil, errors.New("[DISCORD] Failed to get channel")
-	}
-	bodyBytes, err := io.ReadAll(res.Body)
+func GetChannel(channelId Type.ChannelId) (*Parse.Channel, error) {
+	endpoint := fmt.Sprintf("/channels/%s", channelId)
+	abstract, err := doDiscordRequest("GET", endpoint, []byte{})
 	if err != nil {
 		return nil, err
 	}
-	var channel Parse.Channel
-	err = json.Unmarshal(bodyBytes, &channel)
-	if err != nil {
-		return &Parse.Channel{}, err
-	}
-
-	return &channel, nil
+	return Parse.ToChannel(abstract)
 }

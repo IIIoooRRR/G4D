@@ -29,3 +29,28 @@ func (b *Bot) DynamicEventProcessor() {
 ```
 Use a dynamic event processor if you initialize commands at run time.\
 It consumes more memory and may be slower, but each iteration causes a copy of the current array.
+## Functions helper
+```go
+func sortCommand(cmds []Command) map[string][]Command {
+	CmdMap := make(map[string][]Command)
+	for _, command := range cmds {
+		CmdMap[command.Trigger] = append(CmdMap[command.Trigger], command)
+	}
+	return CmdMap
+}
+
+func (b *Bot) InitCommand(command Command, event *connect.RawEvent) {
+	defer func() {
+		if r := recover(); r != nil {
+			if b.PanicHandler != nil {
+				b.PanicHandler.OnPanic(event, &command, r, debug.Stack())
+			}
+		}
+	}()
+	err := command.Action.Execute(event)
+	if err != nil {
+		log.Println("[EVENT PROCESSOR] ", err)
+	}
+}
+
+```

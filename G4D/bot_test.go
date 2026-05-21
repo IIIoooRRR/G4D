@@ -45,7 +45,7 @@ func ExampleBot() {
 func Hello(event *connect.RawEvent) error {
 	data := Parse.ToMessageCreate(*event)
 	if data.Content == G4D.CurrentBot().Prefix+"hello" {
-		msg := Parse.Message{
+		msg := Parse.GetMessage{
 			ChannelID: data.ChannelID,
 			GuildID:   data.GuildID,
 			Content:   "Ping <@" + data.Author.Id + ">",

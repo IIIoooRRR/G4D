@@ -2,10 +2,11 @@ package Parse
 
 import (
 	"github.com/IIIoooRRR/G4D/JSON/Dependencies"
+	"github.com/IIIoooRRR/G4D/JSON/Type"
 )
 
 type GuildMemberAdd struct {
-	GuildID      string            `json:"guild_id"`
+	GuildID      Type.GuildId      `json:"guild_id"`
 	User         Dependencies.User `json:"user"`
 	Roles        []string          `json:"roles"`
 	JoinedAt     string            `json:"joined_at"`
@@ -15,39 +16,54 @@ type GuildMemberAdd struct {
 	PremiumSince string            `json:"premium_since,omitempty"`
 }
 type GuildMemberRemove struct {
-	GuildID string            `json:"guild_id"`
+	GuildID Type.GuildId      `json:"guild_id"`
 	User    Dependencies.User `json:"user"`
 }
 
 type Guild struct {
-	ID                          string                     `json:"id"`
-	Name                        string                     `json:"name"`
-	Icon                        string                     `json:"icon"`
-	OwnerID                     string                     `json:"owner_id"`
-	Permissions                 string                     `json:"permissions"`
-	AfkChannelID                string                     `json:"afk_channel_id"`
-	AfkTimeout                  int                        `json:"afk_timeout"`
-	VerificationLevel           int                        `json:"verification_level"`
-	DefaultMessageNotifications int                        `json:"default_message_notifications"`
-	ExplicitContentFilter       int                        `json:"explicit_content_filter"`
-	Roles                       []Dependencies.Role        `json:"roles"`
-	Emojis                      []Dependencies.Emoji       `json:"emojis"`
-	Features                    []string                   `json:"features"`
-	MFALevel                    int                        `json:"mfa_level"`
-	SystemChannelID             string                     `json:"system_channel_id"`
-	SystemChannelFlags          int                        `json:"system_channel_flags"`
-	RulesChannelID              string                     `json:"rules_channel_id"`
-	VanityURLCode               string                     `json:"vanity_url_code"`
-	Description                 string                     `json:"description"`
-	Banner                      string                     `json:"banner"`
-	PremiumTier                 int                        `json:"premium_tier"`
-	PreferredLocale             string                     `json:"preferred_locale"`
-	PublicUpdatesChannelID      string                     `json:"public_updates_channel_id"`
-	NSFWLevel                   int                        `json:"nsfw_level"`
-	PremiumProgressBarEnabled   bool                       `json:"premium_progress_bar_enabled"`
-	Channels                    []Channel                  `json:"channels"`
-	Members                     []Dependencies.GuildMember `json:"members"`
-	Presences                   []interface{}              `json:"presences"`
-	VoiceStates                 []Dependencies.VoiceState  `json:"voice_states"`
-	Threads                     []Channel                  `json:"threads"`
+	ID                          Type.GuildId         `json:"id"`
+	Name                        string               `json:"name"`
+	Icon                        string               `json:"icon"`
+	IconHash                    string               `json:"icon_hash,omitempty"`
+	Splash                      string               `json:"splash,omitempty"`
+	DiscoverySplash             string               `json:"discovery_splash,omitempty"`
+	OwnerID                     string               `json:"owner_id"`
+	Permissions                 string               `json:"permissions,omitempty"`
+	Region                      string               `json:"region,omitempty"`
+	WidgetEnabled               bool                 `json:"widget_enabled,omitempty"`
+	WidgetChannelID             string               `json:"widget_channel_id,omitempty"`
+	AfkChannelID                string               `json:"afk_channel_id"`
+	AfkTimeout                  int                  `json:"afk_timeout"`
+	VerificationLevel           int                  `json:"verification_level"`
+	DefaultMessageNotifications int                  `json:"default_message_notifications"`
+	ExplicitContentFilter       int                  `json:"explicit_content_filter"`
+	MFALevel                    int                  `json:"mfa_level"`
+	NSFWLevel                   int                  `json:"nsfw_level"`
+	Roles                       []Dependencies.Role  `json:"roles"`
+	Emojis                      []Dependencies.Emoji `json:"emojis"`
+	Features                    []string             `json:"features"`
+	Banner                      string               `json:"banner,omitempty"`
+	Description                 string               `json:"description,omitempty"`
+	VanityURLCode               interface{}          `json:"vanity_url_code,omitempty"`
+	PremiumTier                 int                  `json:"premium_tier"`
+	PremiumProgressBarEnabled   bool                 `json:"premium_progress_bar_enabled,omitempty"`
+	PremiumSubscriptionCount    int                  `json:"premium_subscription_count,omitempty"`
+	SystemChannelID             string               `json:"system_channel_id"`
+	SystemChannelFlags          int                  `json:"system_channel_flags"`
+	RulesChannelID              string               `json:"rules_channel_id"`
+	PublicUpdatesChannelID      string               `json:"public_updates_channel_id"`
+	PreferredLocale             string               `json:"preferred_locale"`
+	ApplicationID               interface{}          `json:"application_id,omitempty"`
+	MaxPresences                interface{}          `json:"max_presences,omitempty"`
+	MaxMembers                  int                  `json:"max_members,omitempty"`
+	MaxVideoChannelUsers        int                  `json:"max_video_channel_users,omitempty"`
+	MaxStageVideoChannelUsers   int                  `json:"max_stage_video_channel_users,omitempty"`
+	ApproximateMemberCount      int                  `json:"approximate_member_count,omitempty"`
+	ApproximatePresenceCount    int                  `json:"approximate_presence_count,omitempty"`
+
+	Channels    []Channel                  `json:"channels,omitempty"`
+	Members     []Dependencies.GuildMember `json:"members,omitempty"`
+	Presences   []interface{}              `json:"presences,omitempty"`
+	VoiceStates []Dependencies.VoiceState  `json:"voice_states,omitempty"`
+	Threads     []Channel                  `json:"threads,omitempty"`
 }
