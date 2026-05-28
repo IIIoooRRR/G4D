@@ -48,7 +48,7 @@ func ExampleBot_AddCommand() {
 func Execute(event *gateway.RawEvent) error {
 	d := parse.ToMessageCreate(*event) //turn the resulting RawEvent into the structure you need.
 	if d.Content == "!hello" {
-		msg := _struct.GetMessage{
+		msg := _struct.SendMessage{
 			Content: "hello world",
 		}
 		api.SendMessage(d.ChannelID, &msg)
@@ -65,6 +65,6 @@ func Slash(event *gateway.RawEvent) error {
 			Embeds:  nil,
 		},
 	}
-	api.SendInteractionMessage(&msg, &data)
+	api.SendInteractionMessage(data, msg)
 	return nil
 }

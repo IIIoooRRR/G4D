@@ -46,14 +46,8 @@ func ExampleBot() {
 func Hello(event *gateway.RawEvent) error {
 	data := parse.ToMessageCreate(*event)
 	if data.Content == g4d.CurrentBot().Prefix+"hello" {
-		msg := _struct.GetMessage{
-			ChannelID: data.ChannelID,
-			GuildID:   data.GuildID,
-			Content:   "Ping <@" + data.Author.Id + ">",
-			Flags:     0,
-			Type:      0,
-		}
-		api.SendMessage(data.ChannelID, &msg)
+		msg := _struct.NewMessage().AddContent("Ping <@" + data.Author.Id + ">")
+		api.SendMessage(data.ChannelID, msg)
 	}
 	return nil
 }
