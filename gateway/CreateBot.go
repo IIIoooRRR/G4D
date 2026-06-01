@@ -10,11 +10,11 @@ func (r *Receiver) CreateBot(ParentCtx context.Context, token *string) error {
 	if ParentCtx == nil {
 		return errors.New("[BOT CREATE] ParentCtx must be initialized before calling")
 	}
-	if r.QueueSize == 0 {
-		log.Println("[BOT CREATE] Queue size is zero. An unlimited queue has been created. To fix it, define the QueueSize parameter.")
-		r.Queue = make(chan *RawEvent)
-	} else {
-		if r.Queue == nil {
+	if r.Queue == nil {
+		if r.QueueSize == 0 {
+			log.Println("[BOT CREATE] Queue size is zero. An unlimited queue has been created. To fix it, define the QueueSize parameter.")
+			r.Queue = make(chan *RawEvent)
+		} else {
 			r.Queue = make(chan *RawEvent, r.QueueSize) // создание очереди
 		}
 	}
