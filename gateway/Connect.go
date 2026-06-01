@@ -13,7 +13,6 @@ import (
 func (r *Receiver) connect(ParentCtx context.Context) error {
 	sleep := 1
 	r.ctx, r.cancel = context.WithCancel(ParentCtx) //создаем контекст на основе родительского
-	defer r.cancel()
 	for {
 		err := r.gateway()
 		if err == nil {
@@ -38,9 +37,7 @@ func (r *Receiver) connect(ParentCtx context.Context) error {
 	if err != nil {
 		return err
 	}
-	defer func() {
-
-	}()
+	r.Stop()
 	return nil
 }
 
@@ -48,7 +45,6 @@ func (r *Receiver) listen(ctx context.Context) error {
 	defer func(connectWS *websocket.Conn) {
 		err := connectWS.Close()
 		if err != nil {
-
 		}
 	}(r.connectWS)
 	for {
@@ -84,9 +80,15 @@ func (r *Receiver) listen(ctx context.Context) error {
 					return err
 				}
 			case 7:
-				r.sessionID = ""
-				return errors.New("[LISTEN] HARD RECONNECT TO DISCORD")
+				if err := r.resume(); err != nil {
+					log.Printf("[GATEWAY] Resume failed: %v, full reconnect", err)
+					r.sessionID = ""
+					return err
+				}
 			case 9:
+				r.connMutex.Lock()
+				r.connectWS.Close()
+				r.connMutex.Unlock()
 				r.sessionID = ""
 				return errors.New("[LISTEN] RECONNECT TO DISCORD")
 			}
