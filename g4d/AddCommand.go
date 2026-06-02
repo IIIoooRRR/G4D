@@ -7,12 +7,15 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"sync"
 )
 
+var commandMu sync.Mutex
+
 func (b *Bot) AddCommand(cmd CommandTemplate) {
-	b.commandMu.Lock()
+	commandMu.Lock()
 	b.CommandBuffer = append(b.CommandBuffer, cmd)
-	b.commandMu.Unlock()
+	commandMu.Unlock()
 }
 func (b *Bot) AddCommands(cmds []CommandTemplate) *Bot {
 	for _, cmd := range cmds {
