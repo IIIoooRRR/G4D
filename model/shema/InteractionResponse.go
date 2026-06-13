@@ -1,4 +1,4 @@
-package _struct
+package shema
 
 import (
 	"github.com/IIIoooRRR/G4D/model/dependencies"

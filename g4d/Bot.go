@@ -4,17 +4,18 @@ import (
 	"context"
 	"sync"
 
-	"github.com/IIIoooRRR/G4D/gateway"
+	"github.com/IIIoooRRR/G4D/model/gateway"
+
+	gw "github.com/IIIoooRRR/G4D/gateway"
 )
 
 type Bot struct {
 	Token         string
-	Gateway       *gateway.Receiver
+	Gateway       *gw.Receiver
 	Prefix        string
 	CommandBuffer []CommandTemplate
 	appId         string
 	Context       context.Context
-	Cache         gateway.Cacher
 	PanicHandler  PanicHandler
 	commandMu     sync.Mutex
 }
@@ -31,7 +32,6 @@ func CurrentBot() *Bot {
 	return bot
 }
 func (b *Bot) Run() error {
-	b.Gateway.Cache = b.Cache
 	botMu.Lock()
 	bot = b
 	botMu.Unlock()

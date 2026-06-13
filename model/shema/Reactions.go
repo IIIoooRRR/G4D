@@ -1,4 +1,4 @@
-package _struct
+package shema
 
 import (
 	Type2 "github.com/IIIoooRRR/G4D/model/_const"

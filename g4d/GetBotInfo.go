@@ -1,12 +1,13 @@
 package g4d
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
+
+	"github.com/IIIoooRRR/G4D/model/parse"
 )
 
 func (b *Bot) GetBotInfo() error {
@@ -31,7 +32,7 @@ func (b *Bot) GetBotInfo() error {
 	}(resp.Body)
 	byteValue, err := io.ReadAll(resp.Body)
 	var body map[string]interface{}
-	json.Unmarshal(byteValue, &body)
+	parse.Unmarshal(byteValue, &body)
 	log.Println("[DISCORD] gateway is correct") // получаем id бота
 	id, ok := body["id"].(string)
 	if !ok {

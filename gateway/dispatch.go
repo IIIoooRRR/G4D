@@ -5,6 +5,7 @@ import (
 	"log"
 
 	json2 "github.com/IIIoooRRR/G4D/model/codec"
+	"github.com/IIIoooRRR/G4D/model/gateway"
 )
 
 func (r *Receiver) dispatch(event json2.Payload) error {
@@ -20,19 +21,8 @@ func (r *Receiver) dispatch(event json2.Payload) error {
 		r.sessionID = d.SessionID
 
 		r.resumeURL = d.ResumeGatewayURL
-
-	case "GUILD_CREATE":
-		if r.Cache != nil {
-			r.Cache.CacheGuildCreate(&RawEvent{t, event.D})
-			break
-		}
-		r.Queue <- &RawEvent{
-			t,
-			event.D,
-		}
-		return nil
 	default:
-		r.Queue <- &RawEvent{
+		r.Queue <- &gateway.RawEvent{
 			t,
 			event.D,
 		}

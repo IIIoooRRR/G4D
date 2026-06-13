@@ -1,12 +1,12 @@
 package gateway
 
 import (
-	"encoding/json"
 	"log"
 
 	"time"
 
 	json2 "github.com/IIIoooRRR/G4D/model/codec"
+	"github.com/IIIoooRRR/G4D/model/parse"
 )
 
 func (r *Receiver) helloDiscord() time.Duration {
@@ -18,7 +18,7 @@ func (r *Receiver) helloDiscord() time.Duration {
 
 	}
 	var d json2.Hello
-	err := json.Unmarshal(hello.D, &d)
+	err := parse.Unmarshal(hello.D, &d)
 	if err != nil {
 		log.Println("[DISCORD] parse to hello is bad")
 		return -1

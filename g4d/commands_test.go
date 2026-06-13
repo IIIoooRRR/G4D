@@ -5,8 +5,9 @@ import (
 	"github.com/IIIoooRRR/G4D/g4d"
 	"github.com/IIIoooRRR/G4D/gateway"
 	"github.com/IIIoooRRR/G4D/model/_const"
-	"github.com/IIIoooRRR/G4D/model/_struct"
+	gw "github.com/IIIoooRRR/G4D/model/gateway"
 	"github.com/IIIoooRRR/G4D/model/parse"
+	"github.com/IIIoooRRR/G4D/model/shema"
 )
 
 func ExampleBot_AddCommand() {
@@ -45,21 +46,21 @@ func ExampleBot_AddCommand() {
 	//the rest of the bot implementation
 }
 
-func Execute(event *gateway.RawEvent) error {
-	d := parse.ToMessageCreate(*event) //turn the resulting RawEvent into the structure you need.
+func Execute(event *gw.RawEvent) error {
+	d := parse.Event[shema.GetMessage](event) //turn the resulting RawEvent into the structure you need.
 	if d.Content == "!hello" {
-		msg := _struct.SendMessage{
+		msg := shema.SendMessage{
 			Content: "hello world",
 		}
 		api.SendMessage(d.ChannelID, &msg)
 	}
 	return nil
 }
-func Slash(event *gateway.RawEvent) error {
-	data := parse.ToInteraction(*event) // turn the resulting RawEvent into the structure you need.
-	msg := _struct.InteractionResponse{
+func Slash(event *gw.RawEvent) error {
+	data := parse.Event[shema.Interaction](event) // turn the resulting RawEvent into the structure you need.
+	msg := shema.InteractionResponse{
 		Type: 0,
-		Data: _struct.InteractionResponseData{
+		Data: shema.InteractionResponseData{
 			Content: "hello world",
 			Flags:   0,
 			Embeds:  nil,

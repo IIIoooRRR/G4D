@@ -2,15 +2,17 @@ package g4d
 
 import (
 	"bytes"
-	"encoding/json"
+	"log"
 	"net/http"
+
+	"github.com/IIIoooRRR/G4D/model/parse"
 )
 
 func (b *Bot) SetBotDescription(description string) *Bot {
 	url := "https://discord.com/api/v10/applications/@me"
 
 	payload := map[string]string{"description": description}
-	jsonBody, _ := json.Marshal(payload)
+	jsonBody, _ := parse.Marshal(payload)
 
 	req, _ := http.NewRequest("PATCH", url, bytes.NewBuffer(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
@@ -18,6 +20,7 @@ func (b *Bot) SetBotDescription(description string) *Bot {
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
+		log.Println("[BOT] set bot description err:", err)
 		return nil
 	}
 	defer resp.Body.Close()

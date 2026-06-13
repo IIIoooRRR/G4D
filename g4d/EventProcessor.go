@@ -4,10 +4,10 @@ import (
 	"log"
 	"runtime/debug"
 
-	"github.com/IIIoooRRR/G4D/gateway"
+	"github.com/IIIoooRRR/G4D/model/gateway"
 )
 
-func sortCommand(cmds []CommandTemplate) map[string][]CommandTemplate {
+func prepareCommand(cmds []CommandTemplate) map[string][]CommandTemplate {
 	CmdMap := make(map[string][]CommandTemplate)
 	for _, command := range cmds {
 		CmdMap[command.Trigger] = append(CmdMap[command.Trigger], command)
@@ -29,44 +29,37 @@ func (b *Bot) InitCommand(command CommandTemplate, event *gateway.RawEvent) {
 	}
 }
 
-/*
-func (b *Bot) StaticEventProcessor() {
-	Buffer := b.CommandBuffer
-	for event := range b.gateway.Queue {
-		for _, command := range Buffer {
-			if event._const != command.Trigger {
-				continue
-			}
-			go func(cmd Command, event *gateway.RawEvent) {
-				err := cmd.Action.Execute(event)
-				if err != nil {
-					log.Println("[EVENT PROCESSOR] ", err)
-				}
+func (b *Bot) StaticEventProcessor(limitSize int) {
+	limiter := make(chan struct{}, limitSize)
+	commands := prepareCommand(b.CommandBuffer)
+	for event := range b.Gateway.Queue {
+		for _, command := range commands[event.Type] {
+			limiter <- struct{}{}
+			go func(command CommandTemplate, event *gateway.RawEvent) {
+				defer func() { <-limiter }()
+				b.InitCommand(command, event)
 			}(command, event)
 		}
 	}
 }
-*/
 
-func (b *Bot) StaticEventProcessor() {
-	commands := sortCommand(b.CommandBuffer)
+func (b *Bot) DynamicEventProcessor(limitSize int) {
+	limiter := make(chan struct{}, limitSize)
 	for event := range b.Gateway.Queue {
-		for _, command := range commands[event.Type] {
-			go b.InitCommand(command, event)
-		}
-	}
-}
-
-func (b *Bot) DynamicEventProcessor() {
-	for event := range b.Gateway.Queue {
+		var activeCmds []CommandTemplate
 		b.commandMu.Lock()
-		bufCopy := b.CommandBuffer
-		b.commandMu.Unlock()
-		for _, command := range bufCopy {
-			if event.Type != command.Trigger {
-				continue
+		for _, command := range b.CommandBuffer {
+			if event.Type == command.Trigger {
+				activeCmds = append(activeCmds, command)
 			}
-			go b.InitCommand(command, event)
+		}
+		b.commandMu.Unlock()
+		for _, command := range activeCmds {
+			limiter <- struct{}{}
+			go func(localCmd CommandTemplate, event *gateway.RawEvent) {
+				defer func() { <-limiter }()
+				b.InitCommand(localCmd, event)
+			}(command, event)
 		}
 	}
 }

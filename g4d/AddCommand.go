@@ -2,20 +2,18 @@ package g4d
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
-	"sync"
+
+	"github.com/IIIoooRRR/G4D/model/parse"
 )
 
-var commandMu sync.Mutex
-
 func (b *Bot) AddCommand(cmd CommandTemplate) {
-	commandMu.Lock()
+	b.commandMu.Lock()
 	b.CommandBuffer = append(b.CommandBuffer, cmd)
-	commandMu.Unlock()
+	b.commandMu.Unlock()
 }
 func (b *Bot) AddCommands(cmds []CommandTemplate) *Bot {
 	for _, cmd := range cmds {
@@ -25,7 +23,7 @@ func (b *Bot) AddCommands(cmds []CommandTemplate) *Bot {
 }
 func (b *Bot) AddSlashCommand(cmd SlashCommandTemplate) error {
 
-	jsonData, err := json.Marshal(cmd.Form)
+	jsonData, err := parse.Marshal(cmd.Form)
 	if err != nil {
 		log.Println("[PARSER] parse slash command error:", err)
 		return err

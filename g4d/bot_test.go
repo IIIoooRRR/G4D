@@ -6,10 +6,12 @@ import (
 
 	"github.com/IIIoooRRR/G4D/api"
 	"github.com/IIIoooRRR/G4D/g4d"
-	"github.com/IIIoooRRR/G4D/gateway"
+	"github.com/IIIoooRRR/G4D/model/gateway"
+
+	gw "github.com/IIIoooRRR/G4D/gateway"
 	"github.com/IIIoooRRR/G4D/model/_const"
-	"github.com/IIIoooRRR/G4D/model/_struct"
 	"github.com/IIIoooRRR/G4D/model/parse"
+	"github.com/IIIoooRRR/G4D/model/shema"
 )
 
 // an example of initializing a bot and assigning basic debug_commands
@@ -17,7 +19,7 @@ func ExampleBot() {
 	token := "your-token"
 	bot := &g4d.Bot{
 		Token: token,
-		Gateway: &gateway.Receiver{
+		Gateway: &gw.Receiver{
 			QueueSize: 20,
 			Intents:   33280,
 		},
@@ -33,7 +35,7 @@ func ExampleBot() {
 	//for ease of development, implement the bot prefix
 	bot.Prefix = "!"
 	// Implement an event processor. It can be dynamic or static. Read in the relevant section
-	bot.StaticEventProcessor() // Choose wisely: performance or adaptability.
+	bot.StaticEventProcessor(34) // Choose wisely: performance or adaptability.
 	err := bot.Gateway.CreateBot(context.Background(), &bot.Token)
 	if err != nil {
 		log.Println(err)
@@ -44,9 +46,9 @@ func ExampleBot() {
 // The function that will be called at the Message Create event
 // It has strict Bot and RawEvent fields, and it should also return an error for logging by the processor.
 func Hello(event *gateway.RawEvent) error {
-	data := parse.ToMessageCreate(*event)
+	data := parse.Event[shema.GetMessage](event)
 	if data.Content == g4d.CurrentBot().Prefix+"hello" {
-		msg := _struct.NewMessage().AddContent("Ping <@" + data.Author.Id + ">")
+		msg := shema.NewMessage().AddContent("Ping <@" + string(data.Author.Id) + ">")
 		api.SendMessage(data.ChannelID, msg)
 	}
 	return nil

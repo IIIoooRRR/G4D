@@ -1,11 +1,11 @@
 package api
 
 import (
-	"encoding/json"
 	"fmt"
 	"time"
 
 	"github.com/IIIoooRRR/G4D/model/_const"
+	"github.com/IIIoooRRR/G4D/model/parse"
 )
 
 func BanUser(guildId _const.GuildId, userId _const.UserId, reason *string, timeMessDelete int) error {
@@ -14,7 +14,7 @@ func BanUser(guildId _const.GuildId, userId _const.UserId, reason *string, timeM
 		DeleteMessageSeconds: timeMessDelete,
 		Reason:               reason,
 	}
-	jsonBody, err := json.Marshal(body)
+	jsonBody, err := parse.Marshal(body)
 	if err != nil {
 		return err
 	}
@@ -27,7 +27,7 @@ func MuteUser(guildId _const.GuildId, userId _const.UserId, dur time.Duration) e
 	body := map[string]interface{}{
 		"communication_disabled_until": until,
 	}
-	jsonBody, err := json.Marshal(body)
+	jsonBody, err := parse.Marshal(body)
 	if err != nil {
 
 	}

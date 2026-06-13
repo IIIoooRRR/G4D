@@ -1,16 +1,16 @@
 package api
 
 import (
-	"encoding/json"
 	"fmt"
 
 	"github.com/IIIoooRRR/G4D/model/_const"
-	"github.com/IIIoooRRR/G4D/model/_struct"
+	"github.com/IIIoooRRR/G4D/model/parse"
+	"github.com/IIIoooRRR/G4D/model/shema"
 )
 
-func SendInteractionMessage(event *_struct.Interaction, msg _struct.InteractionResponse) error {
+func SendInteractionMessage(event *shema.Interaction, msg shema.InteractionResponse) error {
 	uri := fmt.Sprintf("/interactions/%s/%s/callback", event.ID, event.Token)
-	jsonData, err := json.Marshal(msg)
+	jsonData, err := parse.Marshal(msg)
 	if err != nil {
 		return err
 	}
@@ -18,19 +18,19 @@ func SendInteractionMessage(event *_struct.Interaction, msg _struct.InteractionR
 	return err
 }
 
-func SendMessage(ToChannel _const.ChannelId, msg *_struct.SendMessage) error {
+func SendMessage(ToChannel _const.ChannelId, msg *shema.SendMessage) error {
 	uri := fmt.Sprintf("/channels/%s/messages", ToChannel)
 	body := msg
-	jsonBody, err := json.Marshal(body) //delaem жсон из message
+	jsonBody, err := parse.Marshal(body) //delaem жсон из message
 	if err != nil {
 		return err
 	}
 	_, err = DoDiscordRequest("POST", uri, jsonBody)
 	return err
 }
-func EditMessage(ToChannel _const.ChannelId, msgId _const.MessageId, msg *_struct.MessageEdit) error {
+func EditMessage(ToChannel _const.ChannelId, msgId _const.MessageId, msg *shema.MessageEdit) error {
 	uri := fmt.Sprintf("/channels/%s/messages/%s", ToChannel, msgId)
-	jsonBody, err := json.Marshal(msg)
+	jsonBody, err := parse.Marshal(msg)
 	if err != nil {
 		return err
 	}

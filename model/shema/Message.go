@@ -1,4 +1,4 @@
-package _struct
+package shema
 
 import (
 	"log"
@@ -26,7 +26,7 @@ type GetMessage struct {
 	Embeds          []Dependencies2.Embed      `json:"embeds,omitempty"`
 	Type            int                        `json:"type,omitempty"`
 	// ReferencedMessage - reply
-	//put the _struct result here.ToMessage(), if you use the MessageCreate type
+	//put the shema result here.ToMessage(), if you use the MessageCreate type
 	ReferencedMessage *MessageReference `json:"message_reference,omitempty"`
 }
 type SendMessage struct {
@@ -37,7 +37,7 @@ type SendMessage struct {
 	Type        int                        `json:"type,omitempty"`
 	Components  []ui.ActionRow             `json:"components,omitempty"`
 	// ReferencedMessage - replu
-	//put the _struct result here.ToMessage(), if you use the MessageCreate type
+	//put the shema result here.ToMessage(), if you use the MessageCreate type
 	ReferencedMessage *MessageReference `json:"message_reference,omitempty"`
 }
 

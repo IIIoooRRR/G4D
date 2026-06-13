@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"log"
+
+	"github.com/IIIoooRRR/G4D/model/gateway"
 )
 
 func (r *Receiver) CreateBot(ParentCtx context.Context, token *string) error {
@@ -13,9 +15,9 @@ func (r *Receiver) CreateBot(ParentCtx context.Context, token *string) error {
 	if r.Queue == nil {
 		if r.QueueSize == 0 {
 			log.Println("[BOT CREATE] Queue size is zero. An unlimited queue has been created. To fix it, define the QueueSize parameter.")
-			r.Queue = make(chan *RawEvent)
+			r.Queue = make(chan *gateway.RawEvent)
 		} else {
-			r.Queue = make(chan *RawEvent, r.QueueSize) // создание очереди
+			r.Queue = make(chan *gateway.RawEvent, r.QueueSize) // создание очереди
 		}
 	}
 	r.token = *token

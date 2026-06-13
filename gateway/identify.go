@@ -1,10 +1,10 @@
 package gateway
 
 import (
-	"encoding/json"
 	"log"
 
 	json2 "github.com/IIIoooRRR/G4D/model/codec"
+	"github.com/IIIoooRRR/G4D/model/parse"
 )
 
 func (r *Receiver) identify() error {
@@ -18,7 +18,7 @@ func (r *Receiver) identify() error {
 		},
 		Presence: r.Presence,
 	}
-	DataBytes, err := json.Marshal(&Data)
+	DataBytes, err := parse.Marshal(&Data)
 	if err != nil {
 		log.Println("[IDENTIFY] marshalling data error")
 		return err
