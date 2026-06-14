@@ -24,10 +24,8 @@ func TestEvent_GetMessage(t *testing.T) {
 		Data: jsonData,
 	}
 
-	// Вызов парсера
 	msg := Event[shema.GetMessage](event)
 
-	// Проверки
 	if msg.ID != "123456789" {
 		t.Errorf("Expected ID '123456789', got '%s'", msg.ID)
 	}

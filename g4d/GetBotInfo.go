@@ -30,9 +30,16 @@ func (b *Bot) GetBotInfo() error {
 			log.Fatalln("[FATAL ERROR] Error closing body: ", err)
 		}
 	}(resp.Body)
+
 	byteValue, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Println("[FATAL ERROR] Error reading body: ", err)
+	}
 	var body map[string]interface{}
-	parse.Unmarshal(byteValue, &body)
+	err = parse.Unmarshal(byteValue, &body)
+	if err != nil {
+		log.Println("[FATAL ERROR] Error parsing body: ", err)
+	}
 	log.Println("[DISCORD] gateway is correct") // получаем id бота
 	id, ok := body["id"].(string)
 	if !ok {

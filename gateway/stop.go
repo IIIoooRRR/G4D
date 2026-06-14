@@ -7,7 +7,10 @@ func (r *Receiver) Stop() {
 		r.cancel()
 	}
 	if r.connectWS != nil {
-		r.connectWS.Close()
+		err := r.connectWS.Close()
+		if err != nil {
+			log.Printf("failed to close websocket connection: %v", err)
+		}
 	}
 	log.Println("[BOT] Disconnected from Discord")
 }

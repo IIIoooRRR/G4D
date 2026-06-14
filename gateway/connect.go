@@ -88,7 +88,10 @@ func (r *Receiver) listen(ctx context.Context) error {
 				}
 			case 9:
 				r.connMutex.Lock()
-				r.connectWS.Close()
+				err := r.connectWS.Close()
+				if err != nil {
+					log.Println("[CONNECT] ", err)
+				}
 				r.connMutex.Unlock()
 				r.sessionID = ""
 				return errors.New("[LISTEN] RECONNECT TO DISCORD") // 9, 7 - reconnect, hard, or resume
