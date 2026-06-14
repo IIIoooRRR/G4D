@@ -55,7 +55,7 @@ func main() {
 }
 
 func Menu(event *gateway.RawEvent) error {
-	d := parse.ToMessageCreate(*event)
+	d := parse.Event[shema.GetMessage](*event)
 	if d.Content != "menu" {
 		return nil
 	}
@@ -66,7 +66,7 @@ func Menu(event *gateway.RawEvent) error {
 	return api.SendMessage(d.ChannelID, msg)
 }
 func Button(event *gateway.RawEvent) error {
-	d := parse.ToMessageCreate(*event)
+	d := parse.Event[schema.GetMessage](event)
 	if d.Content != "button" {
 		return nil
 	}
@@ -77,7 +77,7 @@ func Button(event *gateway.RawEvent) error {
 }
 
 func ButtonReaction(event *gateway.RawEvent) error {
-	d := parse.ToInteraction(*event)
+	d := parse.Event[schema.Interaction](event)
 	if d.Data.ComponentType != _const.ButtonType {
 		return nil
 	}
@@ -87,7 +87,7 @@ func ButtonReaction(event *gateway.RawEvent) error {
 }
 
 func Input(event *gateway.RawEvent) error {
-	d := parse.ToMessageCreate(*event)
+	d := parse.Event[shema.GetMessage](event)
 	if d.Content != "input" {
 		return nil
 	}
@@ -109,12 +109,12 @@ The project follows a modular hierarchy inspired by structured programming:
 - `model/` — Specialized packages for parsing and typifying Discord data structures.
 
 ## Philosophy
-- **You are in control** — G4D doesn't hide complexity. You handle events, caching, and errors yourself.
-- **Strict typing** — helps you avoid mistakes, but doesn't limit you.
-- **No magic** — what you write is what happens. Every HTTP request, every WebSocket message is visible.
-- **Your responsibility** — this is a tool, not a guarantee. If you break something, you know why.
-- **Assembly, not framework** — you build your bot brick by brick.
-
+- **You are in control** - G4D doesn't hide complexity. You handle events, caching, and errors yourself.
+- **Strict typing** - helps you avoid mistakes, but doesn't limit you.
+- **No magic** - what you write is what happens. Every HTTP request, every WebSocket message is visible.
+- **Your responsibility** - this is a tool, not a guarantee. If you break something, you know why.
+- **Assembly, not framework** - you build your bot brick by brick.
+- **FunFact** - creating an optimized (fast) library that will be safe for working with the discord api
 > *"I give you the tools. The rest is up to you."*
 ## 🤝 Contributing
 
