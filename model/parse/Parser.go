@@ -9,6 +9,9 @@ import (
 
 func Event[T any](event *gateway.RawEvent) *T {
 	var d *T
+	if event == nil {
+		return nil
+	}
 	err := Unmarshal(event.Data, &d)
 	if err != nil {
 		log.Printf("Error unmarshal raw event: %v", err)

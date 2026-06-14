@@ -1,6 +1,7 @@
 package gateway
 
 import (
+	"errors"
 	"log"
 
 	"time"
@@ -9,20 +10,24 @@ import (
 	"github.com/IIIoooRRR/G4D/model/parse"
 )
 
-func (r *Receiver) helloDiscord() time.Duration {
+/*
+it is used when a socket connection is created
+It is needed to get the interval at which heartbeat will send its messages
+*/
+func (r *Receiver) helloDiscord() error {
 	var hello json2.Payload
 
 	if err := r.connectWS.ReadJSON(&hello); err != nil {
 		log.Println("[HELLO DISCORD]", err)
-		return -1
+		return errors.New("bad request")
 
 	}
 	var d json2.Hello
 	err := parse.Unmarshal(hello.D, &d)
 	if err != nil {
 		log.Println("[DISCORD] parse to hello is bad")
-		return -1
+		return errors.New("bad request")
 	}
 	r.interval = time.Duration(d.HeartbeatInterval) * time.Millisecond
-	return r.interval
+	return nil
 }

@@ -8,6 +8,10 @@ import (
 	"github.com/IIIoooRRR/G4D/model/codec"
 )
 
+/*
+a function that takes every n seconds that were specified when connecting
+It consumes almost no CPU or RAM, as it is almost always waiting.
+*/
 func (r *Receiver) heartbeat(ctx context.Context) error {
 	ticker := time.NewTicker(r.interval)
 	defer ticker.Stop()

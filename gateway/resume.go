@@ -7,6 +7,11 @@ import (
 	json2 "github.com/IIIoooRRR/G4D/model/codec"
 )
 
+/*
+It is triggered by opcode 7, which comes to listen
+and helps you reconnect without losing your events
+Discord will simply send events from the last sequence provided to you by discord
+*/
 func (r *Receiver) resume() error {
 	if r.sessionID != "" {
 		Data := json2.Resume{
