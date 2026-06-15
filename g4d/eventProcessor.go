@@ -1,10 +1,10 @@
 package g4d
 
 import (
-	"log"
 	"runtime/debug"
 
 	"github.com/IIIoooRRR/G4D/model/gateway"
+	"go.uber.org/zap"
 )
 
 func prepareCommand(cmds []CommandTemplate) map[string][]CommandTemplate {
@@ -15,7 +15,7 @@ func prepareCommand(cmds []CommandTemplate) map[string][]CommandTemplate {
 	return CmdMap
 }
 
-func (b *Bot) InitCommand(command CommandTemplate, event *gateway.RawEvent) {
+func (b *Bot) InitCommand(command CommandTemplate, event *gateway.RawEvent, logger *zap.Logger) {
 	defer func() {
 		if r := recover(); r != nil {
 			if b.PanicHandler != nil {
@@ -25,26 +25,30 @@ func (b *Bot) InitCommand(command CommandTemplate, event *gateway.RawEvent) {
 	}()
 	err := command.Action.Execute(event)
 	if err != nil {
-		log.Println("[EVENT PROCESSOR] ", err)
+		logger.Error("cmd execution error ", zap.Error(err))
 	}
 }
 
 func (b *Bot) StaticEventProcessor(limitSize int) {
+	logger := b.Logger.Named("eventProcessor")
 	limiter := make(chan struct{}, limitSize)
 	commands := prepareCommand(b.CommandBuffer)
+
 	for event := range b.Gateway.Queue {
 		for _, command := range commands[event.Type] {
 			limiter <- struct{}{}
 			go func(command CommandTemplate, event *gateway.RawEvent) {
 				defer func() { <-limiter }()
-				b.InitCommand(command, event)
+				b.InitCommand(command, event, logger)
 			}(command, event)
 		}
 	}
 }
 
 func (b *Bot) DynamicEventProcessor(limitSize int) {
+	logger := b.Logger.Named("eventProcessor")
 	limiter := make(chan struct{}, limitSize)
+
 	for event := range b.Gateway.Queue {
 		var activeCmds []CommandTemplate
 		b.commandMu.Lock()
@@ -58,7 +62,7 @@ func (b *Bot) DynamicEventProcessor(limitSize int) {
 			limiter <- struct{}{}
 			go func(localCmd CommandTemplate, event *gateway.RawEvent) {
 				defer func() { <-limiter }()
-				b.InitCommand(localCmd, event)
+				b.InitCommand(localCmd, event, logger)
 			}(command, event)
 		}
 	}

@@ -8,6 +8,7 @@ import (
 	"github.com/IIIoooRRR/G4D/model/customize"
 	"github.com/IIIoooRRR/G4D/model/gateway"
 	"github.com/gorilla/websocket"
+	"go.uber.org/zap"
 )
 
 type Receiver struct {
@@ -24,4 +25,6 @@ type Receiver struct {
 	connMutex sync.Mutex
 	ctx       context.Context
 	Presence  *customize.PresenceUpdate
+	logger    *zap.Logger
+	dLogger   *zap.Logger // dispatch.go logger
 }

@@ -2,10 +2,10 @@ package parse
 
 import (
 	"encoding/json"
-	"log"
 	"runtime"
 
 	"github.com/bytedance/sonic"
+	"go.uber.org/zap"
 )
 
 /*
@@ -20,16 +20,17 @@ Thank you if you read this.
 var (
 	Marshal   func(any) ([]byte, error)
 	Unmarshal func([]byte, any) error
+	logger = zap.Must(zap.NewProduction()).Named("parser")
 )
 
 func init() {
 	if runtime.GOARCH == "amd64" {
 		Marshal = sonic.Marshal
 		Unmarshal = sonic.Unmarshal
-		log.Println("[PARSER] Encoder: sonic")
+		logger.Info("Encoder: sonic")
 	} else {
 		Marshal = json.Marshal
 		Unmarshal = json.Unmarshal
-		log.Println("[PARSER] Encoder: encoder/json")
+		logger.Info("Encoder: encoder/json")
 	}
 }

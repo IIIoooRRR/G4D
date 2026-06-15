@@ -2,7 +2,6 @@ package gateway
 
 import (
 	"context"
-	"log"
 	"time"
 
 	"github.com/IIIoooRRR/G4D/model/codec"
@@ -14,6 +13,7 @@ It consumes almost no CPU or RAM, as it is almost always waiting.
 */
 func (r *Receiver) heartbeat(ctx context.Context) error {
 	ticker := time.NewTicker(r.interval)
+	logger := r.logger.Named("heartbeat")
 	defer ticker.Stop()
 	for {
 		select {
@@ -29,7 +29,7 @@ func (r *Receiver) heartbeat(ctx context.Context) error {
 				return err
 			}
 		case <-ctx.Done():
-			log.Println("[HEARTBEAT] HEARTBEAT DONE")
+			logger.Info("done")
 			return nil
 		}
 	}

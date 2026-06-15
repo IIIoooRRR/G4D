@@ -1,21 +1,25 @@
 package g4d_test
 
 import (
+	"sync"
+	"sync/atomic"
 	"testing"
 
 	"github.com/IIIoooRRR/G4D/g4d"
 	gw "github.com/IIIoooRRR/G4D/gateway"
 	gateway "github.com/IIIoooRRR/G4D/model/gateway"
+	"go.uber.org/zap"
 )
 
-// Мок команды
 type mockCommand struct {
-	called bool
+	called atomic.Int64
 	err    error
+	wg     *sync.WaitGroup
 }
 
 func (m *mockCommand) Execute(event *gateway.RawEvent) error {
-	m.called = true
+	defer m.wg.Done()
+	m.called.Add(1)
 	return m.err
 }
 
@@ -37,8 +41,9 @@ func TestBot_AddCommands(t *testing.T) {
 
 // Тест статического процессора
 func TestBot_StaticEventProcessor(t *testing.T) {
-	mockCmd := &mockCommand{}
-
+	mockCmd := &mockCommand{
+		wg: &sync.WaitGroup{},
+	}
 	bot := &g4d.Bot{
 		Gateway: &gw.Receiver{
 			Queue: make(chan *gateway.RawEvent, 10),
@@ -46,21 +51,28 @@ func TestBot_StaticEventProcessor(t *testing.T) {
 		CommandBuffer: []g4d.CommandTemplate{
 			{Trigger: "MESSAGE_CREATE", Name: "test", Action: mockCmd.Execute},
 		},
+		Logger: zap.NewNop(),
 	}
 
 	go bot.StaticEventProcessor(5)
 
-	// Отправляем тестовое событие
-	bot.Gateway.Queue <- &gateway.RawEvent{Type: "MESSAGE_CREATE"}
-
-	// Ждём выполнения
-	// В реальном тесте нужно добавить ожидание
+	for x := 0; x < 100; x++ {
+		mockCmd.wg.Add(1)
+		go func() {
+			bot.Gateway.Queue <- &gateway.RawEvent{Type: "MESSAGE_CREATE"}
+		}()
+	}
+	mockCmd.wg.Wait()
+	if mockCmd.called.Load() != 100 {
+		t.Errorf("Expected %d commands, got 100", mockCmd.called.Load())
+	}
 }
 
 // Тест динамического процессора
 func TestBot_DynamicEventProcessor(t *testing.T) {
-	mockCmd := &mockCommand{}
-
+	mockCmd := &mockCommand{
+		wg: &sync.WaitGroup{},
+	}
 	bot := &g4d.Bot{
 		Gateway: &gw.Receiver{
 			Queue: make(chan *gateway.RawEvent, 10),
@@ -68,16 +80,25 @@ func TestBot_DynamicEventProcessor(t *testing.T) {
 		CommandBuffer: []g4d.CommandTemplate{
 			{Trigger: "MESSAGE_CREATE", Name: "test", Action: mockCmd.Execute},
 		},
+		Logger: zap.NewNop(),
 	}
 
 	go bot.DynamicEventProcessor(5)
-
-	bot.Gateway.Queue <- &gateway.RawEvent{Type: "MESSAGE_CREATE"}
+	for x := 0; x < 100; x++ {
+		mockCmd.wg.Add(1)
+		go func() {
+			bot.Gateway.Queue <- &gateway.RawEvent{Type: "MESSAGE_CREATE"}
+		}()
+	}
+	mockCmd.wg.Wait()
+	if mockCmd.called.Load() != 100 {
+		t.Errorf("Expected %d commands, got 100", mockCmd.called.Load())
+	}
 }
-
-// Бенчмарк
 func BenchmarkStaticEventProcessor(b *testing.B) {
-	mockCmd := &mockCommand{}
+	mockCmd := &mockCommand{
+		wg: &sync.WaitGroup{},
+	}
 
 	bot := &g4d.Bot{
 		Gateway: &gw.Receiver{
@@ -86,11 +107,15 @@ func BenchmarkStaticEventProcessor(b *testing.B) {
 		CommandBuffer: []g4d.CommandTemplate{
 			{Trigger: "MESSAGE_CREATE", Name: "test", Action: mockCmd.Execute},
 		},
+		Logger: zap.NewNop(),
 	}
 
 	go bot.StaticEventProcessor(10)
 
+	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
+		mockCmd.wg.Add(1)
 		bot.Gateway.Queue <- &gateway.RawEvent{Type: "MESSAGE_CREATE"}
 	}
+	mockCmd.wg.Wait()
 }

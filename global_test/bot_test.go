@@ -14,6 +14,7 @@ import (
 	"github.com/IIIoooRRR/G4D/model/parse"
 	"github.com/IIIoooRRR/G4D/model/shema"
 	"github.com/joho/godotenv"
+	"go.uber.org/zap"
 )
 
 func TestBotCreate(t *testing.T) {
@@ -36,6 +37,7 @@ func TestBotCreate(t *testing.T) {
 		Token:   token,
 		Gateway: gw,
 		Context: context.Background(),
+		Logger:  zap.Must(zap.NewProduction()).Named("bot"),
 	}
 
 	bot.AddCommands([]g4d.CommandTemplate{

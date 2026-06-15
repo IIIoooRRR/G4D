@@ -1,9 +1,6 @@
 package gateway
 
 import (
-	"errors"
-	"log"
-
 	"time"
 
 	json2 "github.com/IIIoooRRR/G4D/model/codec"
@@ -16,17 +13,13 @@ It is needed to get the interval at which heartbeat will send its messages
 */
 func (r *Receiver) helloDiscord() error {
 	var hello json2.Payload
-
 	if err := r.connectWS.ReadJSON(&hello); err != nil {
-		log.Println("[HELLO DISCORD]", err)
-		return errors.New("bad request")
-
+		return err
 	}
 	var d json2.Hello
 	err := parse.Unmarshal(hello.D, &d)
 	if err != nil {
-		log.Println("[DISCORD] parse to hello is bad")
-		return errors.New("bad request")
+		return err
 	}
 	r.interval = time.Duration(d.HeartbeatInterval) * time.Millisecond
 	return nil

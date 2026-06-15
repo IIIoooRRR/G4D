@@ -3,11 +3,11 @@ package gateway
 import (
 	"context"
 	"errors"
-	"log"
 	"time"
 
 	"github.com/IIIoooRRR/G4D/model/codec"
 	"github.com/gorilla/websocket"
+	"go.uber.org/zap"
 )
 
 func (r *Receiver) connect(ParentCtx context.Context) error {
@@ -33,7 +33,7 @@ func (r *Receiver) connect(ParentCtx context.Context) error {
 	if err != nil {
 		return err
 	}
-	err = r.listen(r.ctx) // start listening and processing events from web sockets (the main program flow)
+	err = r.listen(r.ctx, r.logger.Named("connect")) // start listening and processing events from web sockets (the main program flow)
 	if err != nil {
 		return err
 	}
@@ -41,7 +41,7 @@ func (r *Receiver) connect(ParentCtx context.Context) error {
 	return nil
 }
 
-func (r *Receiver) listen(ctx context.Context) error {
+func (r *Receiver) listen(ctx context.Context, logger *zap.Logger) error {
 	defer func(connectWS *websocket.Conn) {
 		_ = connectWS.Close()
 	}(r.connectWS)
@@ -66,23 +66,23 @@ func (r *Receiver) listen(ctx context.Context) error {
 				go func() {
 					err = r.dispatch(event) // all basic events have opcode == 0, we transfer control to dispatch
 					if err != nil {
-						log.Println(err)
+						logger.Error("case 0 error", zap.Error(err))
 					}
 				}()
 			case 1:
 				r.connMutex.Lock()
-				err := r.connectWS.WriteJSON(json.Payload{ // it tells you what interval heartbeat.go should work with.
+				err = r.connectWS.WriteJSON(json.Payload{ // it tells you what interval heartbeat.go should work with.
 					Op: 1,
 					S:  r.lastSeq,
 				})
 				r.connMutex.Unlock()
 				if err != nil {
-					log.Println("[CONNECT] ", err)
+					r.logger.Error("case 1 error", zap.Error(err))
 					return err
 				}
 			case 7:
 				if err := r.resume(); err != nil {
-					log.Printf("[GATEWAY] Resume failed: %v, full reconnect", err)
+					logger.Error("Resume failed, full reconnect", zap.Error(err))
 					r.sessionID = ""
 					return err
 				}
@@ -90,11 +90,11 @@ func (r *Receiver) listen(ctx context.Context) error {
 				r.connMutex.Lock()
 				err := r.connectWS.Close()
 				if err != nil {
-					log.Println("[CONNECT] ", err)
+					logger.Error("case 9 error", zap.Error(err))
 				}
 				r.connMutex.Unlock()
 				r.sessionID = ""
-				return errors.New("[LISTEN] RECONNECT TO DISCORD") // 9, 7 - reconnect, hard, or resume
+				return errors.New("RECONNECT TO DISCORD") // 9, 7 - reconnect, hard, or resume
 			}
 		}
 	}

@@ -1,6 +1,8 @@
 package gateway
 
-import "log"
+import (
+	"go.uber.org/zap"
+)
 
 func (r *Receiver) Stop() {
 	if r.ctx != nil || r.cancel != nil {
@@ -9,8 +11,8 @@ func (r *Receiver) Stop() {
 	if r.connectWS != nil {
 		err := r.connectWS.Close()
 		if err != nil {
-			log.Printf("failed to close websocket connection: %v", err)
+			r.logger.Error("failed to close websocket connection", zap.Error(err))
 		}
 	}
-	log.Println("[BOT] Disconnected from Discord")
+	r.logger.Info("Disconnected from Discord")
 }

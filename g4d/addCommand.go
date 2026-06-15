@@ -4,10 +4,10 @@ import (
 	"bytes"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 
 	"github.com/IIIoooRRR/G4D/model/parse"
+	"go.uber.org/zap"
 )
 
 func (b *Bot) AddCommand(cmd CommandTemplate) {
@@ -25,7 +25,7 @@ func (b *Bot) AddSlashCommand(cmd SlashCommandTemplate) error {
 
 	jsonData, err := parse.Marshal(cmd.Form)
 	if err != nil {
-		log.Println("[PARSER] parse slash command error:", err)
+
 		return err
 	}
 
@@ -43,7 +43,8 @@ func (b *Bot) AddSlashCommand(cmd SlashCommandTemplate) error {
 	}
 	defer resp.Body.Close()
 	body, _ := ioutil.ReadAll(resp.Body)
-	log.Println("[DISCORD INTERACTION] slash-command response:" + string(body))
+	b.Logger.Info("[DISCORD INTERACTION] slash-command response:",
+		zap.ByteString("body:", body))
 	b.AddCommand(cmd.CommandTemplate)
 	return nil
 }

@@ -1,8 +1,6 @@
 package shema
 
 import (
-	"log"
-
 	Type2 "github.com/IIIoooRRR/G4D/model/_const"
 	Dependencies2 "github.com/IIIoooRRR/G4D/model/dependencies"
 	"github.com/IIIoooRRR/G4D/model/dependencies/ui"
@@ -48,14 +46,14 @@ type MessageDelete struct {
 }
 
 type MessageEdit struct {
-	Content         string                `json:"content"`
-	Embeds          []Dependencies2.Embed `json:"embeds,omitempty"`
-	Flags           []string              `json:"flags,omitempty"`
-	AllowedMentions string                `json:"allowed_mentions,omitempty"`
-	Components      []string              `json:"components,omitempty"`
-	Files           []string              `json:"files,omitempty"`
-	PayloadJson     string                `json:"payload_json,omitempty"`
-	Attachments     []string              `json:"attachments,omitempty"`
+	Content         string                  `json:"content"`
+	Embeds          [10]Dependencies2.Embed `json:"embeds,omitempty"`
+	Flags           []string                `json:"flags,omitempty"`
+	AllowedMentions string                  `json:"allowed_mentions,omitempty"`
+	Components      []string                `json:"components,omitempty"`
+	Files           []string                `json:"files,omitempty"`
+	PayloadJson     string                  `json:"payload_json,omitempty"`
+	Attachments     [10]string              `json:"attachments,omitempty"`
 }
 
 type MessageReference struct {
@@ -75,19 +73,11 @@ func (m *SendMessage) AddFlags(flags int) *SendMessage {
 	return m
 }
 func (m *SendMessage) AddEmbed(embeds ...Dependencies2.Embed) *SendMessage {
-	if len(m.Embeds)+len(embeds) <= 10 {
-		m.Embeds = append(m.Embeds, embeds...)
-	} else {
-		log.Println("[MESSAGE CREATE] max 10 embeds")
-	}
+	m.Embeds = append(m.Embeds, embeds...)
 	return m
 }
 func (m *SendMessage) AddAttachment(attachments ...Dependencies2.Attachment) *SendMessage {
-	if len(m.Attachments)+len(attachments) <= 10 {
-		m.Attachments = append(m.Attachments, attachments...)
-	} else {
-		log.Println("[MESSAGE CREATE]  max 10 attachments")
-	}
+	m.Attachments = append(m.Attachments, attachments...)
 	return m
 
 }

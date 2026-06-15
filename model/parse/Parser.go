@@ -1,10 +1,9 @@
 package parse
 
 import (
-	"log"
-
 	"github.com/IIIoooRRR/G4D/model/gateway"
 	"github.com/IIIoooRRR/G4D/model/shema"
+	"go.uber.org/zap"
 )
 
 func Event[T any](event *gateway.RawEvent) *T {
@@ -14,7 +13,7 @@ func Event[T any](event *gateway.RawEvent) *T {
 	}
 	err := Unmarshal(event.Data, &d)
 	if err != nil {
-		log.Printf("Error unmarshal raw event: %v", err)
+		logger.Error("unmarshal raw event", zap.Error(err))
 		return nil
 	}
 	return d

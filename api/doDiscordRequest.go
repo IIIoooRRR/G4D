@@ -5,10 +5,10 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 
 	"github.com/IIIoooRRR/G4D/g4d"
+	"go.uber.org/zap"
 )
 
 func DoDiscordRequest(method, uri string, body []byte) ([]byte, error) {
@@ -26,12 +26,12 @@ func DoDiscordRequest(method, uri string, body []byte) ([]byte, error) {
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode >= 400 || resp.StatusCode < 200 {
-		log.Print("[REQUEST] ", resp.Status)
-		return nil, errors.New("Bad Request")
+		g4d.CurrentBot().Logger.Info("response status", zap.String("", resp.Status))
+		return nil, errors.New("bad Request")
 	}
 	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, fmt.Errorf("[RESPONSE READER] %s", err)
+		return nil, errors.New("response body read error")
 	}
 	return respBody, nil
 }

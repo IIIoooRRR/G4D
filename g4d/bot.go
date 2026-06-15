@@ -2,9 +2,11 @@ package g4d
 
 import (
 	"context"
+	"strings"
 	"sync"
 
 	"github.com/IIIoooRRR/G4D/model/gateway"
+	"go.uber.org/zap"
 
 	gw "github.com/IIIoooRRR/G4D/gateway"
 )
@@ -18,6 +20,7 @@ type Bot struct {
 	Context       context.Context
 	PanicHandler  PanicHandler
 	commandMu     sync.Mutex
+	Logger        *zap.Logger
 }
 type PanicHandler interface {
 	OnPanic(event *gateway.RawEvent, cmd *CommandTemplate, r any, stack []byte)
@@ -35,6 +38,15 @@ func (b *Bot) Run() error {
 	botMu.Lock()
 	bot = b
 	botMu.Unlock()
-	b.Gateway.CreateBot(b.Context, &b.Token)
+	name := b.Logger.Name()
+	if name == "" || name == "root" { // дефолтное имя
+		b.Logger = b.Logger.Named("bot")
+	} else if !strings.Contains(name, "bot") {
+		b.Logger = b.Logger.Named("bot")
+	}
+	err := b.Gateway.CreateBot(b.Context, b.Logger.Named("gateway"), &b.Token)
+	if err != nil {
+		return err
+	}
 	return nil
 }

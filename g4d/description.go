@@ -2,10 +2,10 @@ package g4d
 
 import (
 	"bytes"
-	"log"
 	"net/http"
 
 	"github.com/IIIoooRRR/G4D/model/parse"
+	"go.uber.org/zap"
 )
 
 func (b *Bot) SetBotDescription(description string) *Bot {
@@ -20,7 +20,7 @@ func (b *Bot) SetBotDescription(description string) *Bot {
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		log.Println("[BOT] set bot description err:", err)
+		b.Logger.Error("set description err:", zap.Error(err))
 		return nil
 	}
 	defer resp.Body.Close()

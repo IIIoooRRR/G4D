@@ -1,7 +1,7 @@
 package gateway
 
 import (
-	"log"
+	"runtime"
 
 	json2 "github.com/IIIoooRRR/G4D/model/codec"
 	"github.com/IIIoooRRR/G4D/model/parse"
@@ -16,7 +16,7 @@ func (r *Receiver) identify() error {
 		Token:   r.token,
 		Intents: r.Intents,
 		Properties: json2.IdentifyProperties{
-			OS:      "linux",
+			OS:      runtime.GOOS,
 			Browser: "g4d",
 			Device:  "g4d",
 		},
@@ -24,7 +24,7 @@ func (r *Receiver) identify() error {
 	}
 	DataBytes, err := parse.Marshal(&Data)
 	if err != nil {
-		log.Println("[IDENTIFY] marshalling data error")
+		r.logger.Info("marshalling data error in identify")
 		return err
 	}
 	identify := json2.Payload{
