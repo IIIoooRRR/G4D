@@ -3,7 +3,7 @@ package g4d
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 
 	"github.com/IIIoooRRR/G4D/model/parse"
@@ -42,7 +42,7 @@ func (b *Bot) AddSlashCommand(cmd SlashCommandTemplate) error {
 		return err
 	}
 	defer resp.Body.Close()
-	body, _ := ioutil.ReadAll(resp.Body)
+	body, _ := io.ReadAll(resp.Body)
 	b.Logger.Info("[DISCORD INTERACTION] slash-command response:",
 		zap.ByteString("body:", body))
 	b.AddCommand(cmd.CommandTemplate)

@@ -24,7 +24,7 @@ func (r *Receiver) CreateBot(parentCtx context.Context, logger *zap.Logger, toke
 			r.Queue = make(chan *gateway.RawEvent, r.QueueSize)
 		}
 	}
-	r.token = *token
+	r.token = token
 	for {
 		err := r.connect(parentCtx)
 		if err != nil {

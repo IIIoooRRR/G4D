@@ -3,17 +3,15 @@
 //TextMessage
 func Hello(event *Connect.RawEvent) error {
 	log.Printf("DEBUG DATA: %+v", event)
-	d := Parse.ToMessageCreate(*event)
+	d := parse.Event[shema.GetMessage](event)
 	if d.Content != "!hello" { return nil }
 	msg := Parse.NewMessage().AddReferencedMessage(&data).AddContent("hihi")
-    err := functions.SendMessage(data.ChannelID, msg)
-    if err != nil { return err }
-	return nil
+    return api.SendMessage(data.ChannelID, msg)
 }
 // Interaction
 func Slash(event *Connect.RawEvent) error {
 	log.Printf("DEBUG DATA: %+v", event)
-	d := Parse.ToInteraction(*event)
+	d := parse.Event[shema.Interaction](event)
 	response := Event.InteractionResponse{
 		Type: 4,
 		Data: Event.InteractionResponseData{
@@ -22,11 +20,7 @@ func Slash(event *Connect.RawEvent) error {
 			Embeds:  nil,
 		},
 	}
-	err := Functions.SendInteractionMessage(d)
-	if err != nil {
-		log.Println(err)
-	}
-	return nil
+	return api.SendInteractionMessage(d)
 }
 
 ```

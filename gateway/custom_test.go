@@ -16,8 +16,8 @@ func Example_customization() {
 	activity := customize.Activity{
 		Name:    "Coding",
 		Type:    _const.ActivityStreaming,
-		Details: &details,
-		State:   &state,
+		Details: details,
+		State:   state,
 	}
 
 	// Build gateway with all options
