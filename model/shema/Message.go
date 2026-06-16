@@ -46,14 +46,14 @@ type MessageDelete struct {
 }
 
 type MessageEdit struct {
-	Content         string                  `json:"content"`
-	Embeds          [10]Dependencies2.Embed `json:"embeds,omitempty"`
-	Flags           []string                `json:"flags,omitempty"`
-	AllowedMentions string                  `json:"allowed_mentions,omitempty"`
-	Components      []string                `json:"components,omitempty"`
-	Files           []string                `json:"files,omitempty"`
-	PayloadJson     string                  `json:"payload_json,omitempty"`
-	Attachments     [10]string              `json:"attachments,omitempty"`
+	Content         string                `json:"content"`
+	Embeds          []Dependencies2.Embed `json:"embeds,omitempty"`
+	Flags           []string              `json:"flags,omitempty"`
+	AllowedMentions string                `json:"allowed_mentions,omitempty"`
+	Components      []string              `json:"components,omitempty"`
+	Files           []string              `json:"files,omitempty"`
+	PayloadJson     string                `json:"payload_json,omitempty"`
+	Attachments     []string              `json:"attachments,omitempty"`
 }
 
 type MessageReference struct {

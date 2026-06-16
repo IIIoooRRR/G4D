@@ -9,7 +9,7 @@ import (
 )
 
 func SendInteractionMessage(event *shema.Interaction, msg shema.InteractionResponse) error {
-	uri := fmt.Sprintf("/interactions/%s/%s/callback", event.ID, event.Token)
+	uri := fmt.Sprintf("/interactions/%v/%s/callback", event.ID, event.Token)
 	jsonData, err := parse.Marshal(msg)
 	if err != nil {
 		return err

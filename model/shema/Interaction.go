@@ -19,21 +19,16 @@ type Interaction struct {
 	// Для компонентов (кнопки/селекты)
 	Message *GetMessage `json:"message,omitempty"`
 }
-
 type InteractionData struct {
-	// for slash
-	SlashId      string              `json:"id,omitempty"`
-	SlashName    string              `json:"name,omitempty"`
-	SlashType    int                 `json:"type,omitempty"`
-	SlashOptions []InteractionOption `json:"options,omitempty"`
-
-	// button, components
-	ComponentCustomID string       `json:"custom_id,omitempty"`
-	ComponentType     int          `json:"component_type,omitempty"`
-	ComponentValues   []string     `json:"values,omitempty"`
-	Components        []Components `json:"components,omitempty"`
-
-	Focused bool `json:"focused,omitempty"`
+	ID              int                 `json:"id,omitempty"`
+	CustomID        string              `json:"custom_id,omitempty"`
+	Type            int                 `json:"type,omitempty"`
+	ComponentType   int                 `json:"component_type,omitempty"`
+	SlashName       string              `json:"name,omitempty"`
+	SlashOptions    []InteractionOption `json:"options,omitempty"`
+	ComponentValues []string            `json:"values,omitempty"`
+	Components      []Components        `json:"components,omitempty"`
+	Focused         bool                `json:"focused,omitempty"`
 }
 type InteractionOption struct {
 	Name  string      `json:"name"`

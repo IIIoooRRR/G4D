@@ -63,7 +63,7 @@ func TestEvent_MessageDelete(t *testing.T) {
 
 func TestEvent_Interaction(t *testing.T) {
 	jsonData := []byte(`{
-		"id": "123456789",
+		"id": "23",
 		"type": 2,
 		"data": {
 			"name": "ping",
@@ -83,8 +83,8 @@ func TestEvent_Interaction(t *testing.T) {
 
 	interaction := Event[shema.Interaction](event)
 
-	if interaction.ID != "123456789" {
-		t.Errorf("Expected ID '123456789', got '%s'", interaction.ID)
+	if interaction.ID != "23" {
+		t.Errorf("Expected ID '23', got '%v'", interaction.ID)
 	}
 	if interaction.Type != 2 {
 		t.Errorf("Expected Type 2, got %d", interaction.Type)
