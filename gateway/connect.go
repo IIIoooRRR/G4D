@@ -2,7 +2,6 @@ package gateway
 
 import (
 	"context"
-	"errors"
 	"time"
 
 	"github.com/IIIoooRRR/G4D/model/codec"
@@ -94,7 +93,8 @@ func (r *Receiver) listen(ctx context.Context, logger *zap.Logger) error {
 				}
 				r.connMutex.Unlock()
 				r.sessionID = ""
-				return errors.New("RECONNECT TO DISCORD") // 9, 7 - reconnect, hard, or resume
+				r.logger.Info("reconnect to discord")
+				return nil // 9, 7 - reconnect, hard, or resume
 			}
 		}
 	}

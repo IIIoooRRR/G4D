@@ -18,9 +18,9 @@ import (
 )
 
 func TestBotCreate(t *testing.T) {
-	err := godotenv.Load(".env.ci")
+	err := godotenv.Load(".env.locale.ci")
 	if err != nil {
-		t.Log(".env.ci not found")
+		t.Log(".env.locale.ci not found")
 	}
 
 	token := os.Getenv("CI_TOKEN")

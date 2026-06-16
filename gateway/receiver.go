@@ -12,7 +12,7 @@ import (
 )
 
 type Receiver struct {
-	token     string
+	token     *string
 	Intents   int
 	connectWS *websocket.Conn
 	sessionID string

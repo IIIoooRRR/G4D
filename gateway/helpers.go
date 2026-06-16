@@ -1,6 +1,7 @@
 package gateway
 
 import (
+	"github.com/IIIoooRRR/G4D/model/_const"
 	"github.com/IIIoooRRR/G4D/model/customize"
 	"github.com/IIIoooRRR/G4D/model/dependencies"
 )
@@ -10,7 +11,7 @@ func NewGateway() *Receiver {
 		Presence: &customize.PresenceUpdate{
 			Since:      0,
 			Activities: []customize.Activity{},
-			Status:     "online",
+			Status:     _const.NetStatusOnline,
 			Afk:        false,
 		},
 	}
@@ -21,8 +22,8 @@ func (r *Receiver) WithIntents(intents int) *Receiver {
 	return r
 }
 
-func (r *Receiver) WithActivity(activity customize.Activity) *Receiver {
-	r.Presence.Activities = append(r.Presence.Activities, activity)
+func (r *Receiver) WithActivity(activity ...customize.Activity) *Receiver {
+	r.Presence.Activities = append(r.Presence.Activities, activity...)
 	return r
 }
 

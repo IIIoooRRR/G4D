@@ -16,7 +16,7 @@ func (r *Receiver) resume() error {
 	logger := r.logger.Named("resume")
 	if r.sessionID != "" {
 		Data := json2.Resume{
-			Token:     r.token,
+			Token:     *r.token,
 			SessionID: r.sessionID,
 			Sequence:  r.lastSeq,
 		}
