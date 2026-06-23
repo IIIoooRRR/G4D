@@ -1,15 +1,15 @@
 package shema
 
 import (
-	Type2 "github.com/IIIoooRRR/G4D/model/_const"
+	_const "github.com/IIIoooRRR/G4D/model/_const"
 	Dependencies2 "github.com/IIIoooRRR/G4D/model/dependencies"
 	"github.com/IIIoooRRR/G4D/model/dependencies/ui"
 )
 
 type GetMessage struct {
-	ID              Type2.MessageId            `json:"id,omitempty"`
-	GuildID         Type2.GuildId              `json:"guild_id,omitempty"` // Отсутствует в личке
-	ChannelID       Type2.ChannelId            `json:"channel_id,omitempty"`
+	ID              _const.MessageId           `json:"id,omitempty"`
+	GuildID         _const.GuildId             `json:"guild_id,omitempty"` // Отсутствует в личке
+	ChannelID       _const.ChannelId           `json:"channel_id,omitempty"`
 	Thread          *Channel                   `json:"thread,omitempty"`
 	Author          Dependencies2.User         `json:"author,omitempty"`
 	Member          Dependencies2.GuildMember  `json:"member,omitempty"`
@@ -34,17 +34,21 @@ type SendMessage struct {
 	Embeds      []Dependencies2.Embed      `json:"embeds,omitempty"`
 	Type        int                        `json:"type,omitempty"`
 	Components  []ui.ActionRow             `json:"components,omitempty"`
-	// ReferencedMessage - replu
+	// ReferencedMessage - reply
 	//put the shema result here.ToMessage(), if you use the MessageCreate type
 	ReferencedMessage *MessageReference `json:"message_reference,omitempty"`
 }
 
 type MessageDelete struct {
-	ID        Type2.MessageId `json:"id"`
-	ChannelID Type2.ChannelId `json:"channel_id"`
-	GuildID   Type2.GuildId   `json:"guild_id,omitempty"`
+	ID        _const.MessageId `json:"id"`
+	ChannelID _const.ChannelId `json:"channel_id"`
+	GuildID   _const.GuildId   `json:"guild_id,omitempty"`
 }
-
+type MessageDeleteBulk struct {
+	IDs       []_const.MessageId `json:"ids"`
+	ChannelId _const.ChannelId   `json:"channel_id"`
+	GuildId   _const.GuildId     `json:"guild_id,omitempty"`
+}
 type MessageEdit struct {
 	Content         string                `json:"content"`
 	Embeds          []Dependencies2.Embed `json:"embeds,omitempty"`
@@ -57,8 +61,8 @@ type MessageEdit struct {
 }
 
 type MessageReference struct {
-	ChannelId Type2.ChannelId `json:"channel_id,omitempty"`
-	MessageId Type2.MessageId `json:"message_id,omitempty"`
+	ChannelId _const.ChannelId `json:"channel_id,omitempty"`
+	MessageId _const.MessageId `json:"message_id,omitempty"`
 }
 
 func NewMessage() *SendMessage {
@@ -88,7 +92,7 @@ func (m *SendMessage) AddReferencedMessage(message *GetMessage) *SendMessage {
 	}
 	return m
 }
-func (m *SendMessage) AddReference(channelId Type2.ChannelId, messageId Type2.MessageId) *SendMessage {
+func (m *SendMessage) AddReference(channelId _const.ChannelId, messageId _const.MessageId) *SendMessage {
 	m.ReferencedMessage = &MessageReference{
 		ChannelId: channelId,
 		MessageId: messageId,

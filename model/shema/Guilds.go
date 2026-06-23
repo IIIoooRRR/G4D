@@ -67,3 +67,15 @@ type Guild struct {
 	VoiceStates []dependencies.VoiceState  `json:"voice_states,omitempty"`
 	Threads     []Channel                  `json:"threads,omitempty"`
 }
+type GuildBanAdd struct {
+	GuildId _const.GuildId    `json:"guild_id"`
+	User    dependencies.User `json:"user"`
+}
+type GuildBanRemove struct {
+	GuildId _const.GuildId    `json:"guild_id"`
+	User    dependencies.User `json:"user"`
+}
+type GuildEmojisUpdate struct {
+	GuildId _const.GuildId       `json:"guild_id"`
+	Emoji   []dependencies.Emoji `json:"emoji"`
+}

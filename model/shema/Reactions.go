@@ -30,3 +30,13 @@ type MessageReactionRemove struct {
 	GuildID   Type2.GuildId      `json:"guild_id,omitempty"`
 	Emoji     dependencies.Emoji `json:"emoji,omitempty"`
 }
+type MessageReactionRemoveAll struct {
+	ChannelID string `json:"channel_id"`
+	MessageID string `json:"message_id"`
+	GuildID   string `json:"guild_id"`
+}
+type MessageReactionRemoveEmoji struct {
+	ChannelID string             `json:"channel_id"`
+	GuildID   string             `json:"guild_id"`
+	Emoji     dependencies.Emoji `json:"emoji"`
+}

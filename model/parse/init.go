@@ -20,13 +20,13 @@ Thank you if you read this.
 var (
 	Marshal   func(any) ([]byte, error)
 	Unmarshal func([]byte, any) error
-	logger = zap.Must(zap.NewProduction()).Named("parser")
+	logger    = zap.Must(zap.NewProduction()).Named("parser")
 )
 
 func init() {
 	if runtime.GOARCH == "amd64" {
 		Marshal = sonic.Marshal
-		Unmarshal = sonic.Unmarshal
+		Unmarshal = sonic.ConfigFastest.Unmarshal
 		logger.Info("Encoder: sonic")
 	} else {
 		Marshal = json.Marshal

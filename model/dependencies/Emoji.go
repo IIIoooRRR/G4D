@@ -6,6 +6,7 @@ type Emoji struct {
 	Roles         []string `json:"roles,omitempty"`
 	RequireColons bool     `json:"require_colons,omitempty"`
 	Managed       bool     `json:"managed,omitempty"`
+	User          *User    `json:"user,omitempty"`
 	Animated      bool     `json:"animated,omitempty"`
 	Available     bool     `json:"available,omitempty"`
 }

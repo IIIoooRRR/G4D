@@ -12,15 +12,16 @@ import (
 )
 
 type Bot struct {
-	Token         string
-	Gateway       *gw.Receiver
-	Prefix        string
-	CommandBuffer []CommandTemplate
-	appId         string
-	Context       context.Context
-	PanicHandler  PanicHandler
-	commandMu     sync.Mutex
-	Logger        *zap.Logger
+	Token              string
+	Gateway            *gw.Receiver
+	Prefix             string
+	CommandBuffer      []CommandTemplate
+	appId              string
+	Context            context.Context
+	PanicHandler       PanicHandler
+	commandMu          sync.Mutex
+	Logger             *zap.Logger
+	cacheProcessorOnce sync.Once
 }
 type PanicHandler interface {
 	OnPanic(event *gateway.RawEvent, cmd *CommandTemplate, r any, stack []byte)
