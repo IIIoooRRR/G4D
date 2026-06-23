@@ -7,7 +7,8 @@ on:
     branches: [ main ]
   schedule:
     - cron: '0 0 * * 0'
-
+env:
+  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
 jobs:
   test:
     name: Test (${{ matrix.os }} / Go ${{ matrix.go-version }})
@@ -28,7 +29,13 @@ jobs:
 
       - name: Run tests
         shell: bash
+        if: matrix.go-version != '1.24'
         run: go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
+
+      - name: Run Test for 1.24
+        shell: bash
+        if: matrix.go-version == '1.24'
+        run: go test -v -race ./...
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v7
@@ -63,11 +70,9 @@ jobs:
         with:
           version: v1.64
 
-      # Проверка уязвимостей
       - name: Govulncheck
         uses: golang/govulncheck-action@v1.0.4
 
-      # Поиск захардкоженных секретов/токенов (очень важно для OSS, куда пишут посторонние)
       - name: Gosec Security Scanner
         uses: securego/gosec@master
         with:
