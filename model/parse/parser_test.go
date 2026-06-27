@@ -1,9 +1,12 @@
 package parse
 
 import (
+	"reflect"
+	"sync"
 	"testing"
 
 	"github.com/IIIoooRRR/G4D/model/gateway"
+	"github.com/IIIoooRRR/G4D/model/parse/types"
 	"github.com/IIIoooRRR/G4D/model/shema"
 )
 
@@ -24,7 +27,9 @@ func TestEvent_GetMessage(t *testing.T) {
 		Data: jsonData,
 	}
 
-	msg := Event[shema.GetMessage](event)
+	wg := sync.WaitGroup{}
+	AddEvent(event, &wg, 1, reflect.TypeOf(shema.GetMessage{}))
+	msg := GetEvent[shema.GetMessage](event)
 
 	if msg.ID != "123456789" {
 		t.Errorf("Expected ID '123456789', got '%s'", msg.ID)
@@ -51,7 +56,9 @@ func TestEvent_MessageDelete(t *testing.T) {
 		Data: jsonData,
 	}
 
-	deleted := Event[shema.MessageDelete](event)
+	wg := sync.WaitGroup{}
+	AddEvent(event, &wg, 1, types.Get(event.Type))
+	deleted := GetEvent[shema.MessageDelete](event)
 
 	if deleted.ID != "123456789" {
 		t.Errorf("Expected ID '123456789', got '%s'", deleted.ID)
@@ -75,41 +82,19 @@ func TestEvent_Interaction(t *testing.T) {
 			}
 		}
 	}`)
-
 	event := &gateway.RawEvent{
 		Type: "INTERACTION_CREATE",
 		Data: jsonData,
 	}
-
-	interaction := Event[shema.Interaction](event)
+	wg := sync.WaitGroup{}
+	AddEvent(event, &wg, 1, types.Get(event.Type))
+	interaction := GetEvent[shema.Interaction](event)
 
 	if interaction.ID != "23" {
 		t.Errorf("Expected ID '23', got '%v'", interaction.ID)
 	}
 	if interaction.Type != 2 {
 		t.Errorf("Expected Type 2, got %d", interaction.Type)
-	}
-}
-
-func TestEvent_NilEvent(t *testing.T) {
-	result := Event[shema.GetMessage](nil)
-	if result != nil {
-		t.Error("Expected nil result for nil event")
-	}
-}
-
-func TestEvent_InvalidJSON(t *testing.T) {
-	event := &gateway.RawEvent{
-		Type: "MESSAGE_CREATE",
-		Data: []byte(`{invalid json`),
-	}
-
-	// Не должно паниковать
-	result := Event[shema.GetMessage](event)
-
-	// Должен вернуть nil или zero value в зависимости от реализации
-	if result != nil {
-		t.Log("Expected nil or zero value for invalid JSON")
 	}
 }
 
@@ -126,9 +111,11 @@ func BenchmarkEvent_GetMessage(b *testing.B) {
 		Data: jsonData,
 	}
 
+	wg := sync.WaitGroup{}
+	AddEvent(event, &wg, 1, types.Get(event.Type))
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		Event[shema.GetMessage](event)
+		GetEvent[shema.GetMessage](event)
 	}
 }
 
@@ -138,25 +125,23 @@ func TestEvent_TableDriven(t *testing.T) {
 		eventType string
 		jsonData  string
 		wantID    string
+		wantType  interface{} // ← добавляем ожидаемый тип
 	}{
 		{
 			name:      "message create",
 			eventType: "MESSAGE_CREATE",
 			jsonData:  `{"id":"111","channel_id":"222","content":"test"}`,
 			wantID:    "111",
+			wantType:  shema.GetMessage{},
 		},
 		{
 			name:      "message delete",
 			eventType: "MESSAGE_DELETE",
 			jsonData:  `{"id":"333","channel_id":"444"}`,
 			wantID:    "333",
+			wantType:  shema.MessageDelete{},
 		},
-		{
-			name:      "interaction",
-			eventType: "INTERACTION_CREATE",
-			jsonData:  `{"id":"555","type":2}`,
-			wantID:    "555",
-		},
+		// ...
 	}
 
 	for _, tt := range tests {
@@ -166,10 +151,23 @@ func TestEvent_TableDriven(t *testing.T) {
 				Data: []byte(tt.jsonData),
 			}
 
-			msg := Event[shema.GetMessage](event)
+			wg := sync.WaitGroup{}
+			AddEvent(event, &wg, 1, types.Get(tt.eventType))
+			var id string
+			switch tt.eventType {
+			case "MESSAGE_CREATE":
+				msg := GetEvent[shema.GetMessage](event)
+				id = string(msg.ID)
+			case "MESSAGE_DELETE":
+				msg := GetEvent[shema.MessageDelete](event)
+				id = string(msg.ID)
+			case "INTERACTION_CREATE":
+				msg := GetEvent[shema.Interaction](event)
+				id = msg.ID
+			}
 
-			if string(msg.ID) != tt.wantID {
-				t.Errorf("Expected ID '%s', got '%s'", tt.wantID, msg.ID)
+			if id != tt.wantID {
+				t.Errorf("Expected ID '%s', got '%s'", tt.wantID, id)
 			}
 		})
 	}

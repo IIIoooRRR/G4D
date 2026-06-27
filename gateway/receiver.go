@@ -3,6 +3,7 @@ package gateway
 import (
 	"context"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/IIIoooRRR/G4D/model/customize"
@@ -16,7 +17,7 @@ type Receiver struct {
 	Intents   int
 	connectWS *websocket.Conn
 	sessionID string
-	lastSeq   int
+	lastSeq   atomic.Int64
 	interval  time.Duration
 	resumeURL string
 	Queue     chan *gateway.RawEvent

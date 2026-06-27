@@ -6,7 +6,7 @@
 
 ## ✨ Features
 - **Bot-oriented architecture**: Centralized management of all modules through the basic bot structure
-- **Isolated gateway and API **: Network logic is strictly separated from interaction methods to simplify maintenance and refactoring.
+- **Isolated gateway and API**: Network logic is strictly separated from interaction methods to simplify maintenance and refactoring.
 - **Enterprise approach**: Earlier I promised no magic. Now I retract my words. g4d is a library that will focus on best-practice solutions. The library supports *.yaml configs, and also works on zap, godot, sonic
 ## 📦 Installation
 
@@ -78,7 +78,7 @@ func main() {
 ```go
 
 func Menu(event *gateway.RawEvent) error {
-	d := parse.Event[shema.GetMessage](event)
+	d := parse.GetEvent[shema.GetMessage](event)
 	if d.Content != "menu" {
 		return nil
 	}
@@ -89,7 +89,7 @@ func Menu(event *gateway.RawEvent) error {
 	return api.SendMessage(d.ChannelID, msg)
 }
 func Button(event *gateway.RawEvent) error {
-	d := parse.Event[shema.GetMessage](event)
+	d := parse.GetEvent[shema.GetMessage](event)
 	if d.Content != "button" {
 		return nil
 	}
@@ -100,7 +100,7 @@ func Button(event *gateway.RawEvent) error {
 }
 
 func ButtonReaction(event *gateway.RawEvent) error {
-	d := parse.Event[shema.Interaction](event)
+	d := parse.GetEvent[shema.Interaction](event)
 	if d.Data.ComponentType != _const.ButtonType && d.Data.ComponentCustomID == "button" {
 		return nil
 	}
@@ -117,11 +117,11 @@ The project follows a modular hierarchy inspired by structured programming:
 - `gateway/` — Low-level WebSocket (Gateway) and network handling.
 - `model/` — Specialized packages for parsing and typifying Discord data structures.
 ## Philosophy
-- ** You are in control of the situation ** - G4D does not hide the complexity. You manage events, caching, and errors yourself.
-- ** Strict typing ** - helps to avoid mistakes, but does not limit you.
-- ** No magic ** - what you write happens. Every HTTP request, every WebSocket message is visible.
-- ** A framework with obvious limitations** - g4d has abandoned full modularity. some functions can still be rebuilt, but the most important is hidden. Read the source code
-- **Functionality ** - creation of an optimized (fast) library that will be safe for working with the discord api.
+- **You are in control of the situation** - G4D does not hide the complexity. You manage events, caching, and errors yourself.
+- **Strict typing** - helps to avoid mistakes, but does not limit you.
+- **No magic** - what you write happens. Every HTTP request, every WebSocket message is visible.
+- **A framework with obvious limitations** - g4d has abandoned full modularity. some functions can still be rebuilt, but the most important is hidden. Read the source code
+- **Functionality** - creation of an optimized (fast) library that will be safe for working with the discord api.
 ## 🤝 Contributing
 
 Contributions are welcome! Feel free to:

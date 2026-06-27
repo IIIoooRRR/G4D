@@ -32,6 +32,6 @@ func (r *Receiver) dispatch(event json.Payload) error {
 			Data: event.D,
 		}
 	}
-	r.lastSeq = event.S
+	r.lastSeq.Store(int64(event.S))
 	return nil
 }

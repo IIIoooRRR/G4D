@@ -18,7 +18,7 @@ func (r *Receiver) resume() error {
 		Data := json2.Resume{
 			Token:     *r.token,
 			SessionID: r.sessionID,
-			Sequence:  r.lastSeq,
+			Sequence:  int(r.lastSeq.Load()),
 		}
 		DataBytes, err := json.Marshal(&Data)
 		if err != nil {

@@ -44,15 +44,20 @@ func TestBotCreate(t *testing.T) {
 		{Trigger: _const.EventMessageCreate, Name: "hello", Action: BotHello},
 	})
 	go bot.StaticEventProcessor(34)
-	go bot.Run()
+	go func() {
+		err := bot.Run()
+		if err != nil {
+			t.Error(err)
+		}
+	}()
 	time.Sleep(30 * time.Second)
 
 	t.Log("Bot ran for 30 seconds, test passed")
 }
 
 func BotHello(event *gateway2.RawEvent) error {
-	d := parse.Event[shema.GetMessage](event)
-	if d == nil || d.Content != "!hello" {
+	d := parse.GetEvent[shema.GetMessage](event)
+	if d.Content != "!hello" {
 		return nil
 	}
 	return api.SendMessage(d.ChannelID, shema.NewMessage().AddContent("hello world"))

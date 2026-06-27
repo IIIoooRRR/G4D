@@ -2,8 +2,11 @@ package g4d
 
 import (
 	"runtime/debug"
+	"sync"
 
 	"github.com/IIIoooRRR/G4D/model/gateway"
+	"github.com/IIIoooRRR/G4D/model/parse"
+	"github.com/IIIoooRRR/G4D/model/parse/types"
 	"go.uber.org/zap"
 )
 
@@ -19,7 +22,7 @@ func (b *Bot) InitCommand(command CommandTemplate, event *gateway.RawEvent, logg
 	defer func() {
 		if r := recover(); r != nil {
 			if b.PanicHandler != nil {
-				b.PanicHandler.OnPanic(event, &command, r, debug.Stack())
+				(*b.PanicHandler).OnPanic(event, &command, r, debug.Stack())
 			}
 		}
 	}()
@@ -29,41 +32,54 @@ func (b *Bot) InitCommand(command CommandTemplate, event *gateway.RawEvent, logg
 	}
 }
 
-func (b *Bot) StaticEventProcessor(limitSize int) {
-	logger := b.Logger.Named("eventProcessor")
+func (b *Bot) StaticEventProcessor(limitSize uint) {
 	limiter := make(chan struct{}, limitSize)
-	commands := prepareCommand(b.CommandBuffer)
-
+	cmdMap := prepareCommand(b.CommandBuffer)
 	for event := range b.Gateway.Queue {
-		for _, command := range commands[event.Type] {
-			limiter <- struct{}{}
-			go func(command CommandTemplate, event *gateway.RawEvent) {
-				defer func() { <-limiter }()
-				b.InitCommand(command, event, logger)
-			}(command, event)
+		wg := sync.WaitGroup{}
+		eventType := types.Get(event.Type)
+		if eventType == nil {
+			continue
 		}
+		parse.AddEvent(event, &wg, len(cmdMap[event.Type]), eventType)
+
+		for _, cmd := range cmdMap[event.Type] {
+			limiter <- struct{}{}
+			go func(cmd CommandTemplate, event *gateway.RawEvent) {
+				defer func() { <-limiter }()
+				b.InitCommand(cmd, event, b.Logger)
+			}(cmd, event)
+		}
+		wg.Wait()
+		parse.DeleteEvent(event)
 	}
 }
-
-func (b *Bot) DynamicEventProcessor(limitSize int) {
-	logger := b.Logger.Named("eventProcessor")
+func (b *Bot) DynamicEventProcessor(limitSize uint) {
 	limiter := make(chan struct{}, limitSize)
-
 	for event := range b.Gateway.Queue {
-		var activeCmds []CommandTemplate
+		wg := sync.WaitGroup{}
+		eventType := types.Get(event.Type)
+		if eventType == nil {
+			continue
+		}
+		var activeCmd []CommandTemplate
 		b.commandMu.Lock()
-		for _, command := range b.CommandBuffer {
-			if event.Type == command.Trigger {
-				activeCmds = append(activeCmds, command)
+		for _, cmd := range b.CommandBuffer {
+			if cmd.Trigger != event.Type {
+				continue
 			}
+			activeCmd = append(activeCmd, cmd)
 		}
 		b.commandMu.Unlock()
-		for _, command := range activeCmds {
+		parse.AddEvent(event, &wg, len(activeCmd), eventType)
+		for _, cmd := range activeCmd {
 			limiter <- struct{}{}
-			go func(localCmd CommandTemplate, event *gateway.RawEvent) {
+			go func() {
 				defer func() { <-limiter }()
-				b.InitCommand(localCmd, event, logger)
-			}(command, event)
+				b.InitCommand(cmd, event, b.Logger)
+			}()
 		}
+		wg.Wait()
+		parse.DeleteEvent(event)
 	}
 }

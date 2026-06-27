@@ -27,8 +27,13 @@ func (r *Receiver) connect(ParentCtx context.Context) error {
 	if err != nil {
 		return err
 	}
-	go r.heartbeat(r.ctx) // tell the program to send heartbeat messages every n seconds.
-	err = r.identify()    // sending identification messages to discord
+	go func() {
+		err := r.heartbeat(r.ctx) // tell the program to send heartbeat messages every n seconds.
+		if err != nil {
+			r.logger.Error("heartbeat", zap.Error(err))
+		}
+	}()
+	err = r.identify() // sending identification messages to discord
 	if err != nil {
 		return err
 	}
@@ -72,7 +77,7 @@ func (r *Receiver) listen(ctx context.Context, logger *zap.Logger) error {
 				r.connMutex.Lock()
 				err = r.connectWS.WriteJSON(json.Payload{ // it tells you what interval heartbeat.go should work with.
 					Op: 1,
-					S:  r.lastSeq,
+					S:  int(r.lastSeq.Load()),
 				})
 				r.connMutex.Unlock()
 				if err != nil {

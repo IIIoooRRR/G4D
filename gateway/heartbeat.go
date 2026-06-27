@@ -22,7 +22,7 @@ func (r *Receiver) heartbeat(ctx context.Context) error {
 			err := r.connectWS.WriteJSON(
 				json.Payload{
 					Op: 1,
-					S:  r.lastSeq,
+					S:  int(r.lastSeq.Load()),
 				})
 			r.connMutex.Unlock()
 			if err != nil {

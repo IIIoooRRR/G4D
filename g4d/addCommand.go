@@ -43,7 +43,7 @@ func (b *Bot) AddSlashCommand(cmd SlashCommandTemplate) error {
 	}
 	defer resp.Body.Close()
 	body, _ := io.ReadAll(resp.Body)
-	b.Logger.Info("[DISCORD INTERACTION] slash-command response:",
+	b.Logger.Info("add slash-command response:",
 		zap.ByteString("body:", body))
 	b.AddCommand(cmd.CommandTemplate)
 	return nil
