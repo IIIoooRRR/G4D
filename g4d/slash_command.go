@@ -13,8 +13,3 @@ type SlashCommandOption struct {
 	Description string `json:"description"`
 	Required    bool   `json:"required"`
 }
-
-const (
-	Number = 4
-	String = 3
-)

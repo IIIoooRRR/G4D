@@ -4,10 +4,12 @@ import (
 	"github.com/IIIoooRRR/G4D/model/_const"
 	"github.com/IIIoooRRR/G4D/model/customize"
 	"github.com/IIIoooRRR/G4D/model/dependencies"
+	"github.com/IIIoooRRR/G4D/model/gateway"
 )
 
-func NewGateway() *Receiver {
+func NewGateway(size uint) *Receiver {
 	return &Receiver{
+		Queue: make(chan *gateway.RawEvent, size),
 		Presence: &customize.PresenceUpdate{
 			Since:      0,
 			Activities: []customize.Activity{},
@@ -36,10 +38,5 @@ func (r *Receiver) WithDescription(description string, emoji dependencies.Emoji)
 		Name: description,
 		Type: 4,
 	})
-	return r
-}
-
-func (r *Receiver) WithQueueSize(size int) *Receiver {
-	r.QueueSize = size
 	return r
 }

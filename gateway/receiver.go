@@ -22,7 +22,6 @@ type Receiver struct {
 	resumeURL string
 	Queue     chan *gateway.RawEvent
 	cancel    context.CancelFunc
-	QueueSize int
 	connMutex sync.Mutex
 	ctx       context.Context
 	Presence  *customize.PresenceUpdate

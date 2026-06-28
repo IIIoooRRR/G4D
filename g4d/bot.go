@@ -19,7 +19,7 @@ type Bot struct {
 	appId         string
 	Context       context.Context
 	PanicHandler  *PanicHandler
-	commandMu     sync.Mutex
+	CommandMu     sync.Mutex
 	Logger        *zap.Logger
 }
 type PanicHandler interface {
@@ -44,7 +44,7 @@ func (b *Bot) Run() error {
 	} else if !strings.Contains(name, "bot") {
 		b.Logger = b.Logger.Named("bot")
 	}
-	err := b.Gateway.CreateBot(b.Context, b.Logger.Named("gateway"), &b.Token)
+	err := b.Gateway.CreateGateway(b.Context, b.Logger.Named("gateway"), &b.Token)
 	if err != nil {
 		return err
 	}

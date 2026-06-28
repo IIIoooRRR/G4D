@@ -1,7 +1,10 @@
 package g4d
 
 import (
+	"runtime/debug"
+
 	"github.com/IIIoooRRR/G4D/model/gateway"
+	"go.uber.org/zap"
 )
 
 type CommandTemplate struct {
@@ -14,7 +17,17 @@ type SlashCommandTemplate struct {
 	Form            SlashCreateCommand
 	CommandTemplate CommandTemplate
 }
-type ToCommand func(*gateway.RawEvent) error //объявляет любую функцию Execute, которая подъодит по условию
-func (f ToCommand) Execute(event *gateway.RawEvent) error {
-	return f(event)
+
+func (b *Bot) initCommand(command CommandTemplate, event *gateway.RawEvent, logger *zap.Logger) {
+	defer func() {
+		if r := recover(); r != nil {
+			if b.PanicHandler != nil {
+				(*b.PanicHandler).OnPanic(event, &command, r, debug.Stack())
+			}
+		}
+	}()
+	err := command.Action.Execute(event)
+	if err != nil {
+		logger.Error("cmd execution error ", zap.Error(err))
+	}
 }

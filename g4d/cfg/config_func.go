@@ -1,10 +1,11 @@
-package g4d
+package cfg
 
 import (
 	"context"
 	"io/fs"
 	"os"
 
+	"github.com/IIIoooRRR/G4D/g4d"
 	gateway2 "github.com/IIIoooRRR/G4D/gateway"
 	"github.com/IIIoooRRR/G4D/model/_const"
 	"github.com/IIIoooRRR/G4D/model/customize"
@@ -50,15 +51,14 @@ func MustLoadCfg(path string) *Config {
 	return cfg
 }
 
-func (cfg *Config) NewBot(logger *zap.Logger, ctx context.Context, panicHandler *PanicHandler) (*Bot, error) {
-	gateway := gateway2.NewGateway().
+func (cfg *Config) NewBot(logger *zap.Logger, ctx context.Context, panicHandler *g4d.PanicHandler) (*g4d.Bot, error) {
+	gateway := gateway2.NewGateway(23).
 		WithNetStatus(cfg.GatewayConfig.PresenceUpdate.Status).
-		WithIntents(cfg.GatewayConfig.Intents).
-		WithQueueSize(cfg.GatewayConfig.QueueSize)
+		WithIntents(cfg.GatewayConfig.Intents)
 	if cfg.GatewayConfig.PresenceUpdate.Activities != nil {
 		gateway = gateway.WithActivity(cfg.GatewayConfig.PresenceUpdate.Activities...)
 	}
-	bot := &Bot{
+	bot := &g4d.Bot{
 		Token:        cfg.BotConfig.Token,
 		Gateway:      gateway,
 		Prefix:       cfg.BotConfig.Prefix,

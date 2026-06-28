@@ -1,4 +1,4 @@
-package g4d
+package cfg
 
 import "github.com/IIIoooRRR/G4D/model/customize"
 

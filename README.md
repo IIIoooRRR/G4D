@@ -32,12 +32,12 @@ var activity = customize.Activity{
 var token = ""
 var bot = g4d.Bot{
     Token:   token,
-    Gateway: gateway.NewGateway().WithActivity(activity).WithNetStatus(_const.NetStatusOnline).WithIntents(34307).WithQueueSize(100),
+    Gateway: gateway.NewGateway(100 /*limit queue size*/).WithActivity(activity).WithNetStatus(_const.NetStatusOnline).WithIntents(34307),
     Context: context.Background(),
     Prefix:  "!",
 }
 func main() {
-	bot.SetBotDescription("Example Bot").
+	go bot.SetBotDescription("Example Bot").
 		AddCommands([]g4d.CommandTemplate{
 			{Trigger: _const.EventMessageCreate, Name: "Hello", Action: cmd.Hello},
 			{Trigger: _const.EventMessageDelete, Name: "Bye", Action: cmd.Bye},
@@ -45,8 +45,7 @@ func main() {
 			{Trigger: _const.EventMessageCreate, Name: "Button", Action: Button},
 			{Trigger: _const.EventGuildCreate, Name: "Input", Action: Input},
 			{Trigger: _const.EventInteractionCreate, Name: "ButtonInteraction", Action: ButtonReaction},
-		})
-	go bot.StaticEventProcessor()
+		}).InitProcessors(g4d.StaticEventProcessor, 3, 35)
 	bot.Run()
 }
 ```

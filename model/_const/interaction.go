@@ -19,3 +19,8 @@ const (
 const (
 	FlagsEphemeral = 1 << 6
 )
+
+const (
+	InteractionNumber = 4
+	InteractionString = 3
+)
