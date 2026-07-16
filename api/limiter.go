@@ -69,7 +69,7 @@ func (l *clientWithLimiter) GetBucket(uri string) (*limiter, bool) {
 }
 func (l *clientWithLimiter) DeleteBucket() {
 	for {
-		time.Sleep(10 * time.Millisecond)
+		time.Sleep(10 * time.Minute)
 		for {
 			ptr := l.buckets.Load()
 			newMap := maps.Clone(*ptr)
