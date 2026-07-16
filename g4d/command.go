@@ -26,7 +26,7 @@ func (b *Bot) initCommand(command CommandTemplate, event *gateway.RawEvent, logg
 			}
 		}
 	}()
-	err := command.Action.Execute(event)
+	err := command.Action(event)
 	if err != nil {
 		logger.Error("cmd execution error ", zap.Error(err))
 	}

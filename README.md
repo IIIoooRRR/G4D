@@ -52,7 +52,7 @@ func main() {
 ## OR
 ```go
 func main() {
-	cfg := g4d.MustLoadCfg("config.yaml")    // see documentation/config.yaml
+	cfg := g4d.MustLoadCfg("internal.yaml")    // see documentation/internal.yaml
 	logger, err := zap.NewDevelopment()
 	if err != nil {
 		logger.Error("Error initializing logger", zap.Error(err))

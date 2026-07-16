@@ -41,6 +41,7 @@ func Get(s string) reflect.Type {
 func Add(s string, t reflect.Type) {
 	r := features[s]
 	if r != nil {
+
 		return
 	}
 	features[s] = t

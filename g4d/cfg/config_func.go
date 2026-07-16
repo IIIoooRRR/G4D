@@ -21,8 +21,7 @@ func defaultConfig() *Config {
 			Description: "",
 		},
 		GatewayConfig: GatewayConfig{
-			Intents:   34307,
-			QueueSize: 50,
+			Intents: 34307,
 			PresenceUpdate: &customize.PresenceUpdate{
 				Activities: nil,
 				Status:     _const.NetStatusOnline,
@@ -52,7 +51,7 @@ func MustLoadCfg(path string) *Config {
 }
 
 func (cfg *Config) NewBot(logger *zap.Logger, ctx context.Context, panicHandler *g4d.PanicHandler) (*g4d.Bot, error) {
-	gateway := gateway2.NewGateway(23).
+	gateway := gateway2.NewGateway(cfg.GatewayConfig.QueueSize).
 		WithNetStatus(cfg.GatewayConfig.PresenceUpdate.Status).
 		WithIntents(cfg.GatewayConfig.Intents)
 	if cfg.GatewayConfig.PresenceUpdate.Activities != nil {

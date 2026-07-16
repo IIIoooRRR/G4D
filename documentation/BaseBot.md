@@ -3,7 +3,7 @@ the creation of a bot via is presented .yaml config with the addition of my pers
 to add links to cdn photos according to the criteria of rarity, fandom, name (parsed from the path that a certain channel is sent)
 ```go
 func main() {
-cfg := g4d.MustLoadCfg("config.locale.yaml")
+cfg := g4d.MustLoadCfg("internal.locale.yaml")
 logger, err := zap.NewDevelopment()
 if err != nil {
     logger.Error("Error initializing logger", zap.Error(err))

@@ -28,9 +28,8 @@ func TestBotCreate(t *testing.T) {
 		t.Skip("CI_TOKEN not set, skipping integration test")
 	}
 
-	gw := gateway.NewGateway().
+	gw := gateway.NewGateway(23).
 		WithNetStatus(_const.NetStatusIDLE).
-		WithQueueSize(300).
 		WithIntents(34307)
 
 	bot := &g4d.Bot{
@@ -43,7 +42,7 @@ func TestBotCreate(t *testing.T) {
 	bot.AddCommands([]g4d.CommandTemplate{
 		{Trigger: _const.EventMessageCreate, Name: "hello", Action: BotHello},
 	})
-	go bot.StaticEventProcessor(34)
+	go bot.InitProcessors(g4d.StaticEventProcessor, 2, 25)
 	go func() {
 		err := bot.Run()
 		if err != nil {

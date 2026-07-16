@@ -20,5 +20,6 @@
     </inspection_tool>
     <inspection_tool class="GoUnreachableCode" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="GoUnusedConst" enabled="false" level="WARNING" enabled_by_default="false" />
+    <inspection_tool class="GoVetCopyLock" enabled="false" level="WARNING" enabled_by_default="false" />
   </profile>
 </component>
