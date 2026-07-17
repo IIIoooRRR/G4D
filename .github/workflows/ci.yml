@@ -46,10 +46,10 @@ jobs:
 
       - name: Upload coverage to Codecov
         if: matrix.go-version != '1.24' && matrix.os == 'ubuntu-latest'
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v7
         continue-on-error: true
         with:
-          file: ./coverage.out
+          files: ./coverage.out
           flags: unittests
 
   check-benchmarks:
@@ -84,7 +84,7 @@ jobs:
       - name: Linter (golangci-lint)
         uses: golangci/golangci-lint-action@v6
         with:
-          version: v2.0.2
+          version: v1.64.8
 
       - name: Check vulnerabilities
         uses: golang/govulncheck-action@v1.0.4

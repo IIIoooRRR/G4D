@@ -2,3 +2,4 @@
 *.*.locale
 *.locale.yaml
 ./config.locale.yaml
+/test
