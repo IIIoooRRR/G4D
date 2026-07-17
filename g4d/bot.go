@@ -12,13 +12,13 @@ import (
 )
 
 type Bot struct {
+	PanicHandler
 	Token         string
 	Gateway       *gw.Receiver
 	Prefix        string
 	CommandBuffer []CommandTemplate
 	appId         string
 	Context       context.Context
-	PanicHandler  *PanicHandler
 	CommandMu     sync.Mutex
 	Logger        *zap.Logger
 }
@@ -38,6 +38,10 @@ func (b *Bot) Run() error {
 	botMu.Lock()
 	bot = b
 	botMu.Unlock()
+	if b.PanicHandler == nil {
+		b.Logger.Panic("No panic handler. Initialize b.PanicHandler")
+		return nil
+	}
 	name := b.Logger.Name()
 	if name == "" || name == "root" { // дефолтное имя
 		b.Logger = b.Logger.Named("bot")

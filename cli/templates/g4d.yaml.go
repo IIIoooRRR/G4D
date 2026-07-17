@@ -1,0 +1,18 @@
+package templates
+
+var Yaml = `bot:
+  token: "your-token"
+  prefix: "!"
+  description: "hello!!"  # sets the bio of the bot
+gateway:
+  intents: 34307    # the intentions that will be transmitted to discord. You can view the required intents on the discord developer website.
+  queue_size: 50    # the size of the queue that the gateway accepts
+  presence_update:
+    status: "idle" # sets the network status of the bot. all constants can be viewed in _const.customize
+    activities:
+      - name: "Coding"  # sets the description of the bot (text status)
+        type: 0     # _const.customize(streaming, gaming, listening)
+        details: "go to codding"
+        # url: "any url" for streaming
+        state: "Believe"
+        afk: false`

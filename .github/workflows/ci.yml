@@ -7,50 +7,64 @@ on:
     branches: [ main ]
   schedule:
     - cron: '0 0 * * 0'
-env:
-  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
+
 jobs:
   test:
     name: Test (${{ matrix.os }} / Go ${{ matrix.go-version }})
     strategy:
       matrix:
         os: [ ubuntu-latest, macos-latest, windows-latest ]
-        go-version: [ '1.26', '1.25', '1.24' ]
+        go-version: [ '1.24', '1.25', '1.26' ]
       fail-fast: false
     runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-go@v5
+      - name: Set up Go
+        uses: actions/setup-go@v5
         with:
           go-version: ${{ matrix.go-version }}
           cache: true
 
-      - name: Run tests
-        shell: bash
-        if: matrix.go-version != '1.24'
-        run: go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
-
-      - name: Run Test for 1.24
-        shell: bash
+      - name: Run tests without coverage (Go 1.24)
         if: matrix.go-version == '1.24'
         run: go test -v -race ./...
 
+      - name: Run tests with coverage (Go 1.26+)
+        if: matrix.go-version != '1.24'
+        run: |
+          go test -v -race -cover -coverprofile=coverage.out ./...
+          go tool cover -func=coverage.out
+
+      - name: Test CLI
+        run: |
+          cd cli
+          go mod tidy
+          go test -v ./...
+
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v7
+        if: matrix.go-version != '1.24' && matrix.os == 'ubuntu-latest'
+        uses: codecov/codecov-action@v5
         continue-on-error: true
         with:
-          use_oidc: true
+          file: ./coverage.out
+          flags: unittests
+
   check-benchmarks:
     name: Check Benchmarks Compilation
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
         with:
           go-version: '1.26'
           cache: true
+
       - name: Compile benchmarks
         run: go test -bench=. -benchtime=1x -run=^$ ./...
 
@@ -58,22 +72,24 @@ jobs:
     name: Quality & Security
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-go@v5
+      - name: Set up Go
+        uses: actions/setup-go@v5
         with:
-          go-version: '1.26'
+          go-version: '1.24'
           cache: true
 
-      - name: Linter
+      - name: Linter (golangci-lint)
         uses: golangci/golangci-lint-action@v6
         with:
-          version: v1.64
+          version: v2.0.2
 
-      - name: Govulncheck
+      - name: Check vulnerabilities
         uses: golang/govulncheck-action@v1.0.4
 
-      - name: Gosec Security Scanner
+      - name: Security scanner
         uses: securego/gosec@master
         with:
           args: ./...

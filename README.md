@@ -8,10 +8,16 @@
 - **Bot-oriented architecture**: Centralized management of all modules through the basic bot structure
 - **Isolated gateway and API**: Network logic is strictly separated from interaction methods to simplify maintenance and refactoring.
 - **Enterprise approach**: Earlier I promised no magic. Now I retract my words. g4d is a library that will focus on best-practice solutions. The library supports *.yaml configs, and also works on zap, godot, sonic
+- **CLI-utils**: Since recent patches, I have started developing CLI utilities for working with the library.
 ## 📦 Installation
 
 ```bash
+# Install the library
 go get github.com/IIIoooRRR/G4D
+# Install the CLI tool
+go install github.com/IIIoooRRR/G4D/cli@latest
+# Add ~/go/bin to PATH (if not already)
+export PATH=$PATH:$(go env GOPATH)/
 ```
 
 ## 🚀 Quick Start
@@ -52,7 +58,7 @@ func main() {
 ## OR
 ```go
 func main() {
-	cfg := g4d.MustLoadCfg("internal.yaml")    // see documentation/internal.yaml
+	cfg := g4d.MustLoadCfg("config.yaml")    // see documentation/config.yaml
 	logger, err := zap.NewDevelopment()
 	if err != nil {
 		logger.Error("Error initializing logger", zap.Error(err))
@@ -112,9 +118,16 @@ func ButtonReaction(event *gateway.RawEvent) error {
 ## 🛠 Project Structure
 
 The project follows a modular hierarchy inspired by structured programming:
-- `g4d/` — Core logic, command management, and lifecycle.
-- `gateway/` — Low-level WebSocket (Gateway) and network handling.
-- `model/` — Specialized packages for parsing and typifying Discord data structures.
+G4D/
+├── api/           # REST API client
+├── g4d/           # Core logic, commands, processors
+├── gateway/       # WebSocket connection
+├── model/         # Data structures and parsing
+│   ├── parse/     # Event cache and parsing
+│   ├── other...
+│   └── shema/     # Discord API structures
+├── cli/           # CLI tool (separate module)
+└── test/          # Tests and examples
 ## Philosophy
 - **You are in control of the situation** - G4D does not hide the complexity. You manage events, caching, and errors yourself.
 - **Strict typing** - helps to avoid mistakes, but does not limit you.

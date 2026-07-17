@@ -24,6 +24,9 @@ without touching the client after it has initialized, in order to avoid panics i
 This module is not built into the main library for better performance
 (read the code /model/parse/... for this). to work with it, write your own wrappers yourself.
 I've provided a convenient API (method, uri, body), so it won't be difficult.
+I’m not sure about the cleanup process; if you have a large bot, frequently adding URIs might interfere with CAS operations.
+I’m thinking of replacing CAS with a standard swap to reduce conflicts.
+However, this could lead to data loss in the limiters—triggering a panic—and working with copies is extremely costly.
 */
 
 var GlobalClient = newLimiter(5)

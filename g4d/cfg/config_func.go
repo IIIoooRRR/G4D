@@ -50,7 +50,7 @@ func MustLoadCfg(path string) *Config {
 	return cfg
 }
 
-func (cfg *Config) NewBot(logger *zap.Logger, ctx context.Context, panicHandler *g4d.PanicHandler) (*g4d.Bot, error) {
+func (cfg *Config) NewBot(logger *zap.Logger, ctx context.Context, panicHandler g4d.PanicHandler) (*g4d.Bot, error) {
 	gateway := gateway2.NewGateway(cfg.GatewayConfig.QueueSize).
 		WithNetStatus(cfg.GatewayConfig.PresenceUpdate.Status).
 		WithIntents(cfg.GatewayConfig.Intents)

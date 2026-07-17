@@ -21,9 +21,7 @@ type SlashCommandTemplate struct {
 func (b *Bot) initCommand(command CommandTemplate, event *gateway.RawEvent, logger *zap.Logger) {
 	defer func() {
 		if r := recover(); r != nil {
-			if b.PanicHandler != nil {
-				(*b.PanicHandler).OnPanic(event, &command, r, debug.Stack())
-			}
+			b.OnPanic(event, &command, r, debug.Stack())
 		}
 	}()
 	err := command.Action(event)
