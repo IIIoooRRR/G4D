@@ -1,18 +1,17 @@
 package global_test
 
 import (
-	"context"
 	"os"
 	"testing"
 	"time" // добавить
 
-	"github.com/IIIoooRRR/G4D/api"
 	"github.com/IIIoooRRR/G4D/g4d"
 	"github.com/IIIoooRRR/G4D/gateway"
 	"github.com/IIIoooRRR/G4D/model/_const"
+	"github.com/IIIoooRRR/G4D/model/ctx"
 	gateway2 "github.com/IIIoooRRR/G4D/model/gateway"
 	"github.com/IIIoooRRR/G4D/model/parse"
-	"github.com/IIIoooRRR/G4D/model/shema"
+	"github.com/IIIoooRRR/G4D/model/schema"
 	"github.com/joho/godotenv"
 	"go.uber.org/zap"
 )
@@ -35,12 +34,11 @@ func TestBotCreate(t *testing.T) {
 	bot := &g4d.Bot{
 		Token:   token,
 		Gateway: gw,
-		Context: context.Background(),
 		Logger:  zap.Must(zap.NewProduction()).Named("bot"),
 	}
 
 	bot.AddCommands([]g4d.CommandTemplate{
-		{Trigger: _const.EventMessageCreate, Name: "hello", Action: BotHello},
+		{Trigger: _const.EventMessageCreate, Name: "hello", Execute: BotHello},
 	})
 	go bot.InitProcessors(g4d.StaticEventProcessor, 2, 25)
 	go func() {
@@ -54,10 +52,10 @@ func TestBotCreate(t *testing.T) {
 	t.Log("Bot ran for 30 seconds, test passed")
 }
 
-func BotHello(event *gateway2.RawEvent) error {
-	d := parse.GetEvent[shema.GetMessage](event)
+func BotHello(event *gateway2.RawEvent, ctx *ctx.Context) error {
+	d := parse.GetEvent[schema.GetMessage](event)
 	if d.Content != "!hello" {
 		return nil
 	}
-	return api.SendMessage(d.ChannelID, shema.NewMessage().AddContent("hello world"))
+	return ctx.SendMessage(d.ChannelID, schema.NewMessage().AddContent("hello world"))
 }

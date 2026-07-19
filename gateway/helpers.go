@@ -3,13 +3,12 @@ package gateway
 import (
 	"github.com/IIIoooRRR/G4D/model/_const"
 	"github.com/IIIoooRRR/G4D/model/customize"
-	"github.com/IIIoooRRR/G4D/model/dependencies"
 	"github.com/IIIoooRRR/G4D/model/gateway"
 )
 
-func NewGateway(size uint) *Receiver {
+func NewGateway(bufferSize uint) *Receiver {
 	return &Receiver{
-		Queue: make(chan *gateway.RawEvent, size),
+		Queue: make(chan *gateway.RawEvent, bufferSize),
 		Presence: &customize.PresenceUpdate{
 			Since:      0,
 			Activities: []customize.Activity{},
@@ -33,7 +32,7 @@ func (r *Receiver) WithNetStatus(netStatus string) *Receiver {
 	r.Presence.Status = netStatus
 	return r
 }
-func (r *Receiver) WithDescription(description string, emoji dependencies.Emoji) *Receiver {
+func (r *Receiver) WithDescription(description string) *Receiver {
 	r.Presence.Activities = append(r.Presence.Activities, customize.Activity{
 		Name: description,
 		Type: 4,

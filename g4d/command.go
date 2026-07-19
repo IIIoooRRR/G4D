@@ -3,6 +3,7 @@ package g4d
 import (
 	"runtime/debug"
 
+	"github.com/IIIoooRRR/G4D/model/ctx"
 	"github.com/IIIoooRRR/G4D/model/gateway"
 	"go.uber.org/zap"
 )
@@ -10,22 +11,22 @@ import (
 type CommandTemplate struct {
 	Trigger string
 	Name    string
-	Action  ToCommand
+	Execute
 }
 
 type SlashCommandTemplate struct {
-	Form            SlashCreateCommand
-	CommandTemplate CommandTemplate
+	CommandTemplate
+	Form SlashCreateCommand
 }
 
-func (b *Bot) initCommand(command CommandTemplate, event *gateway.RawEvent, logger *zap.Logger) {
+func (b *Bot) initCommand(command CommandTemplate, event *gateway.RawEvent, ctx *ctx.Context) {
 	defer func() {
 		if r := recover(); r != nil {
 			b.OnPanic(event, &command, r, debug.Stack())
 		}
 	}()
-	err := command.Action(event)
+	err := command.Execute(event, ctx)
 	if err != nil {
-		logger.Error("cmd execution error ", zap.Error(err))
+		b.Logger.Error("cmd execution error ", zap.Error(err))
 	}
 }

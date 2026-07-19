@@ -10,18 +10,22 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/IIIoooRRR/G4D/g4d"
 	"github.com/IIIoooRRR/G4D/model/_const"
-	"github.com/IIIoooRRR/G4D/model/shema"
+	"github.com/IIIoooRRR/G4D/model/schema"
 )
 
-func SendImage(toChannel _const.ChannelId, msg shema.SendMessage, path string) error {
+func (c *DiscordClient) SendImage(toChannel _const.ChannelId, msg schema.SendMessage, path string) error {
 	var url = fmt.Sprintf("https://discord.com/api/v10/channels/%s/messages", toChannel)
 	file, err := os.Open(path)
 	if err != nil {
 		return err
 	}
-	defer file.Close()
+	defer func(file *os.File) {
+		err := file.Close()
+		if err != nil {
+
+		}
+	}(file)
 	body := bytes.Buffer{}
 	writer := multipart.NewWriter(&body)
 
@@ -55,14 +59,19 @@ func SendImage(toChannel _const.ChannelId, msg shema.SendMessage, path string) e
 	}
 
 	req.Header.Set("Content-Type", writer.FormDataContentType())
-	req.Header.Set("Authorization", "Bot "+g4d.CurrentBot().Token)
+	req.Header.Set("Authorization", "Bot "+*c.token)
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+
+		}
+	}(resp.Body)
 
 	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusCreated {
 		respBody, _ := io.ReadAll(resp.Body)

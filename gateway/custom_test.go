@@ -4,7 +4,6 @@ import (
 	"github.com/IIIoooRRR/G4D/gateway"
 	"github.com/IIIoooRRR/G4D/model/_const"
 	"github.com/IIIoooRRR/G4D/model/customize"
-	"github.com/IIIoooRRR/G4D/model/dependencies"
 )
 
 // Example_customization demonstrates all gateway customization options
@@ -32,8 +31,8 @@ func Example_customization() {
 func Example_customStatus() {
 
 	gateway := gateway.NewGateway(23).
-		WithDescription("Building a bot 💗", dependencies.Emoji{}). // Custom status text
-		WithNetStatus(_const.NetStatusIDLE)                        // DND status
+		WithDescription("Building a bot 💗"). // Custom status text
+		WithNetStatus(_const.NetStatusIDLE)  // DND status
 
 	_ = gateway
 }

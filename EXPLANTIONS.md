@@ -1,0 +1,1 @@
+## sometimes there will be explanations of some of the decisions that I made in the process of writing the library.

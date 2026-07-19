@@ -7,7 +7,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func (r *Receiver) CreateGateway(parentCtx context.Context, logger *zap.Logger, token *string) error {
+func (r *Receiver) InitGateway(parentCtx context.Context, logger *zap.Logger, token *string) error {
 	r.logger = logger                        // root for gateway
 	r.dLogger = r.logger.Named("dispatcher") // dispatch.go logger
 

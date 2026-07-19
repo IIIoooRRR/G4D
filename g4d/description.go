@@ -2,13 +2,14 @@ package g4d
 
 import (
 	"bytes"
+	"io"
 	"net/http"
 
 	"github.com/IIIoooRRR/G4D/model/parse"
 	"go.uber.org/zap"
 )
 
-func (b *Bot) SetBotDescription(description string) *Bot {
+func (b *Bot) SetBotBio(description string) *Bot {
 	url := "https://discord.com/api/v10/applications/@me"
 
 	payload := map[string]string{"description": description}
@@ -23,7 +24,12 @@ func (b *Bot) SetBotDescription(description string) *Bot {
 		b.Logger.Error("set description err:", zap.Error(err))
 		return nil
 	}
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+
+		}
+	}(resp.Body)
 
 	return b
 }

@@ -7,7 +7,7 @@ import (
 	"sync/atomic"
 
 	"github.com/IIIoooRRR/G4D/model/gateway"
-	"github.com/IIIoooRRR/G4D/model/shema"
+	"github.com/IIIoooRRR/G4D/model/schema"
 	"go.uber.org/zap"
 )
 
@@ -95,8 +95,8 @@ func casAdd[V any](m *atomic.Pointer[map[*gateway.RawEvent]V], event *gateway.Ra
 }
 
 /* Channel */
-func ToChannel(body []byte) (*shema.Channel, error) {
-	var channel *shema.Channel
+func ToChannel(body []byte) (*schema.Channel, error) {
+	var channel *schema.Channel
 	err := Unmarshal(body, channel)
 	if err != nil {
 		return nil, err

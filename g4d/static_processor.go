@@ -19,6 +19,7 @@ func prepareCommand(cmds []CommandTemplate) map[string][]CommandTemplate {
 func staticEventProcessor(b *Bot, limitSize uint) {
 	limiter := make(chan struct{}, limitSize)
 	cmdMap := prepareCommand(b.CommandBuffer)
+
 	for event := range b.Gateway.Queue {
 		wg := sync.WaitGroup{}
 		eventType := types.Get(event.Type)
@@ -26,15 +27,16 @@ func staticEventProcessor(b *Bot, limitSize uint) {
 			continue
 		}
 		parse.AddEvent(event, &wg, len(cmdMap[event.Type]), eventType)
-
+		ctx := b.newCtx()
 		for _, cmd := range cmdMap[event.Type] {
 			limiter <- struct{}{}
 			go func(cmd CommandTemplate, event *gateway.RawEvent) {
 				defer func() { <-limiter }()
-				b.initCommand(cmd, event, b.Logger)
+				b.initCommand(cmd, event, &ctx)
 			}(cmd, event)
 		}
 		wg.Wait()
 		parse.DeleteEvent(event)
+		ctx.Cancel()
 	}
 }

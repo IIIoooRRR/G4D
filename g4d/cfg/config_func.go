@@ -1,10 +1,10 @@
 package cfg
 
 import (
-	"context"
 	"io/fs"
 	"os"
 
+	"github.com/IIIoooRRR/G4D/api"
 	"github.com/IIIoooRRR/G4D/g4d"
 	gateway2 "github.com/IIIoooRRR/G4D/gateway"
 	"github.com/IIIoooRRR/G4D/model/_const"
@@ -28,7 +28,7 @@ func defaultConfig() *Config {
 			}},
 	}
 }
-func LoadConfig(path string) (*Config, error) {
+func loadConfig(path string) (*Config, error) {
 	cfg := defaultConfig()
 	root := os.DirFS(".")
 	data, err := fs.ReadFile(root, path)
@@ -42,15 +42,16 @@ func LoadConfig(path string) (*Config, error) {
 	return cfg, nil
 }
 
-func MustLoadCfg(path string) *Config {
-	cfg, err := LoadConfig(path)
+func mustLoadCfg(path string) *Config {
+	cfg, err := loadConfig(path)
 	if err != nil {
 		panic(err)
 	}
 	return cfg
 }
 
-func (cfg *Config) NewBot(logger *zap.Logger, ctx context.Context, panicHandler g4d.PanicHandler) (*g4d.Bot, error) {
+func LoadBot(paths string, logger *zap.Logger, panicHandler g4d.PanicHandler) *g4d.Bot {
+	cfg := mustLoadCfg(paths)
 	gateway := gateway2.NewGateway(cfg.GatewayConfig.QueueSize).
 		WithNetStatus(cfg.GatewayConfig.PresenceUpdate.Status).
 		WithIntents(cfg.GatewayConfig.Intents)
@@ -62,9 +63,9 @@ func (cfg *Config) NewBot(logger *zap.Logger, ctx context.Context, panicHandler 
 		Gateway:      gateway,
 		Prefix:       cfg.BotConfig.Prefix,
 		Logger:       logger,
-		Context:      ctx,
 		PanicHandler: panicHandler,
+		Client:       api.NewClient(&cfg.BotConfig.Token, 10, logger.Named("http client")),
 	}
-	bot.SetBotDescription(cfg.BotConfig.Description)
-	return bot, nil
+	bot.SetBotBio(cfg.BotConfig.Description)
+	return bot
 }

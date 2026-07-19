@@ -5,40 +5,40 @@ import (
 
 	"github.com/IIIoooRRR/G4D/model/_const"
 	"github.com/IIIoooRRR/G4D/model/parse"
-	"github.com/IIIoooRRR/G4D/model/shema"
+	"github.com/IIIoooRRR/G4D/model/schema"
 )
 
-func SendInteractionMessage(event *shema.Interaction, msg shema.InteractionResponse) error {
+func (c *DiscordClient) SendInteractionMessage(event *schema.Interaction, msg schema.InteractionResponse) error {
 	uri := fmt.Sprintf("/interactions/%v/%s/callback", event.ID, event.Token)
 	jsonData, err := parse.Marshal(msg)
 	if err != nil {
 		return err
 	}
-	_, err = DoDiscordRequest("POST", uri, jsonData)
+	_, err = c.DoDiscordRequest("POST", uri, jsonData)
 	return err
 }
 
-func SendMessage(ToChannel _const.ChannelId, msg *shema.SendMessage) error {
+func (c *DiscordClient) SendMessage(ToChannel _const.ChannelId, msg *schema.SendMessage) error {
 	uri := fmt.Sprintf("/channels/%s/messages", ToChannel)
 	body := msg
 	jsonBody, err := parse.Marshal(body) //delaem жсон из message
 	if err != nil {
 		return err
 	}
-	_, err = DoDiscordRequest("POST", uri, jsonBody)
+	_, err = c.DoDiscordRequest("POST", uri, jsonBody)
 	return err
 }
-func EditMessage(ToChannel _const.ChannelId, msgId _const.MessageId, msg *shema.MessageEdit) error {
+func (c *DiscordClient) EditMessage(ToChannel _const.ChannelId, msgId _const.MessageId, msg *schema.MessageEdit) error {
 	uri := fmt.Sprintf("/channels/%s/messages/%s", ToChannel, msgId)
 	jsonBody, err := parse.Marshal(msg)
 	if err != nil {
 		return err
 	}
-	_, err = DoDiscordRequest("PATCH", uri, jsonBody)
+	_, err = c.DoDiscordRequest("PATCH", uri, jsonBody)
 	return err
 }
-func DeleteMessage(ToChannel _const.ChannelId, msgId _const.MessageId) error {
+func (c *DiscordClient) DeleteMessage(ToChannel _const.ChannelId, msgId _const.MessageId) error {
 	uri := fmt.Sprintf("/channels/%s/messages/%s", ToChannel, msgId)
-	_, err := DoDiscordRequest("DELETE", uri, []byte{})
+	_, err := c.DoDiscordRequest("DELETE", uri, []byte{})
 	return err
 }

@@ -5,42 +5,42 @@ import (
 
 	"github.com/IIIoooRRR/G4D/model/_const"
 	"github.com/IIIoooRRR/G4D/model/parse"
-	"github.com/IIIoooRRR/G4D/model/shema"
+	"github.com/IIIoooRRR/G4D/model/schema"
 )
 
-func CreateChannel(guildId _const.GuildId, channel *shema.Channel) error {
+func (c *DiscordClient) CreateChannel(guildId _const.GuildId, channel *schema.Channel) error {
 	jsonBody, err := parse.Marshal(channel)
 	if err != nil {
 		return err
 	}
 	endpoint := fmt.Sprintf("/channels/%s", guildId)
-	_, err = DoDiscordRequest("POST", endpoint, jsonBody)
+	_, err = c.DoDiscordRequest("POST", endpoint, jsonBody)
 	return err
 }
 
-func DeleteChannel(channelId _const.ChannelId, channel *shema.Channel) error {
+func (c *DiscordClient) DeleteChannel(channelId _const.ChannelId, channel *schema.Channel) error {
 	jsonBody, err := parse.Marshal(channel)
 	if err != nil {
 		return err
 	}
 	endpoint := fmt.Sprintf("/channels/%s", channelId)
-	_, err = DoDiscordRequest("DELETE", endpoint, jsonBody)
+	_, err = c.DoDiscordRequest("DELETE", endpoint, jsonBody)
 	return err
 }
 
-func ChangeChannels(channelId _const.ChannelId, channel *shema.Channel) error {
+func (c *DiscordClient) ChangeChannels(channelId _const.ChannelId, channel *schema.Channel) error {
 	jsonBody, err := parse.Marshal(channel)
 	if err != nil {
 		return err
 	}
 	endpoint := fmt.Sprintf("/channels/%s", channelId)
-	_, err = DoDiscordRequest("PATCH", endpoint, jsonBody)
+	_, err = c.DoDiscordRequest("PATCH", endpoint, jsonBody)
 	return err
 }
 
-func GetChannel(channelId _const.ChannelId) (*shema.Channel, error) {
+func (c DiscordClient) GetChannel(channelId _const.ChannelId) (*schema.Channel, error) {
 	endpoint := fmt.Sprintf("/channels/%s", channelId)
-	abstract, err := DoDiscordRequest("GET", endpoint, []byte{})
+	abstract, err := c.DoDiscordRequest("GET", endpoint, []byte{})
 	if err != nil {
 		return nil, err
 	}

@@ -7,7 +7,7 @@ import (
 
 	"github.com/IIIoooRRR/G4D/model/gateway"
 	"github.com/IIIoooRRR/G4D/model/parse/types"
-	"github.com/IIIoooRRR/G4D/model/shema"
+	"github.com/IIIoooRRR/G4D/model/schema"
 )
 
 func TestEvent_GetMessage(t *testing.T) {
@@ -28,8 +28,8 @@ func TestEvent_GetMessage(t *testing.T) {
 	}
 
 	wg := sync.WaitGroup{}
-	AddEvent(event, &wg, 1, reflect.TypeOf(shema.GetMessage{}))
-	msg := GetEvent[shema.GetMessage](event)
+	AddEvent(event, &wg, 1, reflect.TypeOf(schema.GetMessage{}))
+	msg := GetEvent[schema.GetMessage](event)
 
 	if msg.ID != "123456789" {
 		t.Errorf("Expected ID '123456789', got '%s'", msg.ID)
@@ -58,7 +58,7 @@ func TestEvent_MessageDelete(t *testing.T) {
 
 	wg := sync.WaitGroup{}
 	AddEvent(event, &wg, 1, types.Get(event.Type))
-	deleted := GetEvent[shema.MessageDelete](event)
+	deleted := GetEvent[schema.MessageDelete](event)
 
 	if deleted.ID != "123456789" {
 		t.Errorf("Expected ID '123456789', got '%s'", deleted.ID)
@@ -88,7 +88,7 @@ func TestEvent_Interaction(t *testing.T) {
 	}
 	wg := sync.WaitGroup{}
 	AddEvent(event, &wg, 1, types.Get(event.Type))
-	interaction := GetEvent[shema.Interaction](event)
+	interaction := GetEvent[schema.Interaction](event)
 
 	if interaction.ID != "23" {
 		t.Errorf("Expected ID '23', got '%v'", interaction.ID)
@@ -115,7 +115,7 @@ func BenchmarkEvent_GetMessage(b *testing.B) {
 	AddEvent(event, &wg, 1, types.Get(event.Type))
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		GetEvent[shema.GetMessage](event)
+		GetEvent[schema.GetMessage](event)
 	}
 }
 
@@ -132,14 +132,14 @@ func TestEvent_TableDriven(t *testing.T) {
 			eventType: "MESSAGE_CREATE",
 			jsonData:  `{"id":"111","channel_id":"222","content":"test"}`,
 			wantID:    "111",
-			wantType:  shema.GetMessage{},
+			wantType:  schema.GetMessage{},
 		},
 		{
 			name:      "message delete",
 			eventType: "MESSAGE_DELETE",
 			jsonData:  `{"id":"333","channel_id":"444"}`,
 			wantID:    "333",
-			wantType:  shema.MessageDelete{},
+			wantType:  schema.MessageDelete{},
 		},
 		// ...
 	}
@@ -156,13 +156,13 @@ func TestEvent_TableDriven(t *testing.T) {
 			var id string
 			switch tt.eventType {
 			case "MESSAGE_CREATE":
-				msg := GetEvent[shema.GetMessage](event)
+				msg := GetEvent[schema.GetMessage](event)
 				id = string(msg.ID)
 			case "MESSAGE_DELETE":
-				msg := GetEvent[shema.MessageDelete](event)
+				msg := GetEvent[schema.MessageDelete](event)
 				id = string(msg.ID)
 			case "INTERACTION_CREATE":
-				msg := GetEvent[shema.Interaction](event)
+				msg := GetEvent[schema.Interaction](event)
 				id = msg.ID
 			}
 

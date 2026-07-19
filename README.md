@@ -7,7 +7,7 @@
 ## ✨ Features
 - **Bot-oriented architecture**: Centralized management of all modules through the basic bot structure
 - **Isolated gateway and API**: Network logic is strictly separated from interaction methods to simplify maintenance and refactoring.
-- **Enterprise approach**: Earlier I promised no magic. Now I retract my words. g4d is a library that will focus on best-practice solutions. The library supports *.yaml configs, and also works on zap, godot, sonic
+- **Enterprise approach**: Earlier I promised no magic. Now I retract my words. g4d is a library that will focus on best-practice solutions. The library supports *.yaml configs, and also works on zap, Godot, sonic
 - **CLI-utils**: Since recent patches, I have started developing CLI utilities for working with the library.
 ## 📦 Installation
 
@@ -26,108 +26,109 @@ Here is an example of a simple bot that responds to the basic command:
 
 
 ```go
-var details = "Go to codding"
-var state = "Believe"
-var activity = customize.Activity{
-    Name:    "Codding",
-    Type:    _const.ActivityStreaming,
-    Details: &details,
-    State:   &state,
-}
-
-var token = ""
-var bot = g4d.Bot{
-    Token:   token,
-    Gateway: gateway.NewGateway(100 /*limit queue size*/).WithActivity(activity).WithNetStatus(_const.NetStatusOnline).WithIntents(34307),
-    Context: context.Background(),
-    Prefix:  "!",
-}
 func main() {
-	go bot.SetBotDescription("Example Bot").
-		AddCommands([]g4d.CommandTemplate{
-			{Trigger: _const.EventMessageCreate, Name: "Hello", Action: cmd.Hello},
-			{Trigger: _const.EventMessageDelete, Name: "Bye", Action: cmd.Bye},
-			{Trigger: _const.EventMessageCreate, Name: "Menu", Action: Menu},
-			{Trigger: _const.EventMessageCreate, Name: "Button", Action: Button},
-			{Trigger: _const.EventGuildCreate, Name: "Input", Action: Input},
-			{Trigger: _const.EventInteractionCreate, Name: "ButtonInteraction", Action: ButtonReaction},
-		}).InitProcessors(g4d.StaticEventProcessor, 3, 35)
+	var token string
+	gateway := gateway2.NewGateway(10).WithIntents(34307).WithNetStatus(_const.NetStatusIDLE).WithDescription("hello!")
+	logger := zap.Must(zap.NewProduction()).Named("bot")
+	bot := &g4d.Bot{
+		PanicHandler: PanicHandler{},
+		Token:        token,
+		Gateway:      gateway,
+		Prefix:       "r.",
+		Logger:       logger,
+		CtxTimeout:   10,
+		Client:       api.NewClient(&token, 15, logger.Named("http client")),
+	}
+	go func() {
+		bot.SetBotBio("test bot").AddCommands([]g4d.CommandTemplate{
+			{_const.EventMessageCreate, "", Button},
+			{_const.EventInteractionCreate, "", ButtonReaction},
+		}).InitProcessors(processor, 2, 15)
+	}()
 	bot.Run()
 }
+
+type PanicHandler struct {
+    g4d.PanicHandler
+    Logger *zap.Logger
+}
+
+func (p PanicHandler) OnPanic(event *gateway.RawEvent, cmd *g4d.CommandTemplate, r any, stack []byte) {
+    p.Logger.Panic("cmd:", zap.Any("cmd", cmd), zap.String("stack", string(stack)), zap.Any("r:", r))
+}
+
 ```
 ## OR
 ```go
+var processor = g4d.StaticEventProcessor // or g4d.DynamicEventProcessor
+
 func main() {
-	cfg := g4d.MustLoadCfg("config.yaml")    // see documentation/config.yaml
-	logger, err := zap.NewDevelopment()
-	if err != nil {
-		logger.Error("Error initializing logger", zap.Error(err))
-	}
-	bot, err := cfg.NewBot(logger, context.Background())
-	go func() {
-		bot.AddCommands([]g4d.CommandTemplate{
-			{_const.EventMessageCreate, "", Menu},
-			{_const.EventMessageCreate, "", Button},
-			{_const.EventMessageUpdate, "", ButtonReaction},
-		})
-	}()
-	if err != nil {
-		logger.Error("Error initializing bot", zap.Error(err))
-	}
-	if err := bot.Run(); err != nil {
-		logger.Error("Error bot run", zap.Error(err))
-	}
+    logger, err := zap.NewDevelopment()
+    bot := cfg.LoadBot("config.yaml", logger, PanicHandler{Logger: bot.Logger.Named("panic handler")})
+    if err != nil {
+        logger.Error("Error initializing logger", zap.Error(err))
+    }
+    go func() {
+        bot.AddCommands([]g4d.CommandTemplate{
+            {_const.EventMessageCreate, "", Button},
+            {_const.EventInteractionCreate, "", ButtonReaction},
+        }).InitProcessors(processor, 3, 34)
+    }()
+    if err := bot.Run(); err != nil {
+    logger.Error("Error bot run", zap.Error(err))
+    }
+}
+
+type PanicHandler struct {
+    g4d.PanicHandler
+    Logger *zap.Logger
+}
+
+func (p PanicHandler) OnPanic(event *gateway.RawEvent, cmd *g4d.CommandTemplate, r any, stack []byte) {
+    p.Logger.Panic("cmd:", zap.Any("cmd", cmd), zap.String("stack", string(stack)), zap.Any("r:", r))
 }
 ```
-## Commands: 
+## Commands:
 ```go
 
-func Menu(event *gateway.RawEvent) error {
-	d := parse.GetEvent[shema.GetMessage](event)
-	if d.Content != "menu" {
-		return nil
-	}
-	menu := ui.NewMenu("test")
-	menu.Options = append(menu.Options, ui.NewSelectOption("test", "12").SetDescription("test1"))
-	row := ui.NewActionRow().AddComponents(menu)
-	msg := shema.NewMessage().AddActionRow(row).AddContent("gello")
-	return api.SendMessage(d.ChannelID, msg)
-}
-func Button(event *gateway.RawEvent) error {
+func Button(event *gateway.RawEvent, ctx *ctx.Context) error {
 	d := parse.GetEvent[shema.GetMessage](event)
 	if d.Content != "button" {
 		return nil
 	}
+
 	button := ui.NewButton("button").SetLabel("button").SetStyle(1)
 	row := ui.NewActionRow().AddComponents(button)
 	msg := shema.NewMessage().AddActionRow(row).AddContent("buttooonn!!!!")
-	return api.SendMessage(d.ChannelID, msg)
+
+	return ctx.SendMessage(d.ChannelID, msg)
 }
 
-func ButtonReaction(event *gateway.RawEvent) error {
+func ButtonReaction(event *gateway.RawEvent, ctx *ctx.Context) error {
 	d := parse.GetEvent[shema.Interaction](event)
-	if d.Data.ComponentType != _const.ButtonType && d.Data.ComponentCustomID == "button" {
+	if d.Data.ComponentType != _const.ButtonType && d.Data.CustomID == "button" {
 		return nil
 	}
-	data := shema.NewInteractionResponseData("hihi!")
-	response := shema.NewInteractionResponse(_const.InteractionApplicationCommandAutocomplete).SetData(*data)
-	return api.SendInteractionMessage(d, response)
-}
 
+	data := shema.NewInteractionResponseData("hihi!")
+	response := shema.NewInteractionResponse(_const.ResponseChannelMessageWithSource).SetData(*data)
+
+	return ctx.SendInteractionMessage(&d, response)
+}
 ```
 ## 🛠 Project Structure
 
 The project follows a modular hierarchy inspired by structured programming:
-G4D/
-├── api/           # REST API client
-├── g4d/           # Core logic, commands, processors
-├── gateway/       # WebSocket connection
-├── model/         # Data structures and parsing
-│   ├── parse/     # Event cache and parsing
-│   ├── other...
-│   └── shema/     # Discord API structures
-├── cli/           # CLI tool (separate module)
-└── test/          # Tests and examples
+G4D/\
+├── api/           # REST API client\
+├── g4d/           # Core logic, commands, processors\
+├── gateway/       # WebSocket connection\
+├── model/         # Data structures and parsing\
+│   ├── parse/     # Event cache and parsing\
+│   ├── other...\
+│   └── schema/     # Discord API structures\
+├── cli/           # CLI tool (separate module)\
+└── test/          # Tests and examples\
 ## Philosophy
 - **You are in control of the situation** - G4D does not hide the complexity. You manage events, caching, and errors yourself.
 - **Strict typing** - helps to avoid mistakes, but does not limit you.
@@ -142,7 +143,7 @@ Contributions are welcome! Feel free to:
 3. Improve documentation and examples.
 
 ---
-godoc: https://pkg.go.dev/github.com/IIIoooRRR/G4D
+go-doc: https://pkg.go.dev/github.com/IIIoooRRR/G4D
 ---
 **Author:** [IIIoooRRR](https://github.com)
 ---

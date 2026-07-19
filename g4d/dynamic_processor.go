@@ -24,15 +24,17 @@ func dynamicEventProcessor(b *Bot, limitSize uint) {
 			activeCmd = append(activeCmd, cmd)
 		}
 		b.CommandMu.Unlock()
+		ctx := b.newCtx()
 		parse.AddEvent(event, &wg, len(activeCmd), eventType)
 		for _, cmd := range activeCmd {
 			limiter <- struct{}{}
 			go func() {
 				defer func() { <-limiter }()
-				b.initCommand(cmd, event, b.Logger)
+				b.initCommand(cmd, event, &ctx)
 			}()
 		}
 		wg.Wait()
 		parse.DeleteEvent(event)
+		ctx.Cancel()
 	}
 }

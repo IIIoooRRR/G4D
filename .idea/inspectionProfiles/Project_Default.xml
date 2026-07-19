@@ -9,6 +9,8 @@
     <inspection_tool class="GoCommentStart" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
     <inspection_tool class="GoCyclicImports" enabled="false" level="ERROR" enabled_by_default="false" />
     <inspection_tool class="GoDeprecation" enabled="false" level="WARNING" enabled_by_default="false" />
+    <inspection_tool class="GoExportedFuncWithUnexportedType" enabled="false" level="WARNING" enabled_by_default="false" />
+    <inspection_tool class="GoImportUsedAsName" enabled="true" level="INFORMATION" enabled_by_default="true" />
     <inspection_tool class="GoMixedReceiverTypes" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
     <inspection_tool class="GoResourceLeak" enabled="true" level="WARNING" enabled_by_default="true">
       <functions>
@@ -23,6 +25,8 @@
     </inspection_tool>
     <inspection_tool class="GoUnreachableCode" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="GoUnusedConst" enabled="false" level="WARNING" enabled_by_default="false" />
+    <inspection_tool class="GoUnusedExportedFunction" enabled="false" level="WARNING" enabled_by_default="false" />
+    <inspection_tool class="GoUnusedGlobalVariable" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="GoVetCopyLock" enabled="false" level="WARNING" enabled_by_default="false" />
   </profile>
 </component>

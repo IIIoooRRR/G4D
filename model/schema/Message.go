@@ -1,4 +1,4 @@
-package shema
+package schema
 
 import (
 	_const "github.com/IIIoooRRR/G4D/model/_const"
@@ -24,7 +24,7 @@ type GetMessage struct {
 	Embeds          []Dependencies2.Embed      `json:"embeds,omitempty"`
 	Type            int                        `json:"type,omitempty"`
 	// ReferencedMessage - reply
-	//put the shema result here.ToMessage(), if you use the MessageCreate type
+	//put the schema result here.ToMessage(), if you use the MessageCreate type
 	ReferencedMessage *MessageReference `json:"message_reference,omitempty"`
 }
 type SendMessage struct {
@@ -35,7 +35,7 @@ type SendMessage struct {
 	Type        int                        `json:"type,omitempty"`
 	Components  []ui.ActionRow             `json:"components,omitempty"`
 	// ReferencedMessage - reply
-	//put the shema result here.ToMessage(), if you use the MessageCreate type
+	//put the schema result here.ToMessage(), if you use the MessageCreate type
 	ReferencedMessage *MessageReference `json:"message_reference,omitempty"`
 }
 

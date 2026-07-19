@@ -1,4 +1,4 @@
-package shema
+package schema
 
 import (
 	"github.com/IIIoooRRR/G4D/model/_const"
