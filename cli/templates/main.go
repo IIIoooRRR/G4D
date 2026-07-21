@@ -1,9 +1,12 @@
 package templates
 
 var Main = `
+package main
+
 import (
+	"github.com/IIIoooRRR/G4D/api"
 	"github.com/IIIoooRRR/G4D/g4d"
-	"github.com/IIIoooRRR/G4D/g4d/cfg"
+	gateway2 "github.com/IIIoooRRR/G4D/gateway"
 	"github.com/IIIoooRRR/G4D/model/_const"
 	"github.com/IIIoooRRR/G4D/model/ctx"
 	"github.com/IIIoooRRR/G4D/model/dependencies/ui"
@@ -16,34 +19,37 @@ import (
 var processor = g4d.StaticEventProcessor // or g4d.DynamicEventProcessor
 
 func main() {
-	logger, err := zap.NewDevelopment()
-
-	bot := cfg.LoadBot("g4d.yaml", logger, PanicHandler{})
-	if err != nil {
-		logger.Error("Error initializing logger", zap.Error(err))
+	var token string
+	gateway := gateway2.NewGateway(10).WithIntents(34307).WithNetStatus(_const.NetStatusIDLE).WithDescription("hello!")
+	logger := zap.Must(zap.NewProduction()).Named("bot")
+	bot := &g4d.Bot{
+		PanicHandler: PanicHandler{},
+		Token:        token,
+		Gateway:      gateway,
+		Prefix:       "r.",
+		Logger:       logger,
+		Client:       api.NewClient(&token, 10, logger.Named("http client")),
 	}
 	go func() {
-		bot.AddCommands([]g4d.CommandTemplate{
+		bot.SetBotBio("test bot").AddCommands([]g4d.CommandTemplate{
 			{_const.EventMessageCreate, "", Button},
 			{_const.EventInteractionCreate, "", ButtonReaction},
-		}).InitProcessors(processor, 3, 34)
+		}).InitProcessors(processor, 2, 15)
 	}()
-	if err := bot.Run(); err != nil {
-		logger.Error("Error bot run", zap.Error(err))
-	}
+	bot.Run()
 }
 
 func Button(event *gateway.RawEvent, ctx *ctx.Context) error {
 	d := parse.GetEvent[shema.GetMessage](event)
-	if d.Content != "button" {
+	if d.Content != ctx.Prefix+"button" {
 		return nil
 	}
+	defer ctx.Info("button cmd has finished") // ctx has api.Logger and api.DiscordClient
 
 	button := ui.NewButton("button").SetLabel("button").SetStyle(1)
 	row := ui.NewActionRow().AddComponents(button)
 	msg := shema.NewMessage().AddActionRow(row).AddContent("buttooonn!!!!")
-
-	return ctx.SendMessage(d.ChannelID, msg)
+	return ctx.SendMessageWithLimit(d.ChannelID, msg)
 }
 
 func ButtonReaction(event *gateway.RawEvent, ctx *ctx.Context) error {

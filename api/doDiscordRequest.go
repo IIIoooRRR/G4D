@@ -19,8 +19,7 @@ func (c *DiscordClient) DoDiscordRequest(method, uri string, body []byte) ([]byt
 	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bot "+*c.token)
-	client := &http.Client{}
-	resp, err := client.Do(req)
+	resp, err := c.client.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -31,7 +30,7 @@ func (c *DiscordClient) DoDiscordRequest(method, uri string, body []byte) ([]byt
 		}
 	}(resp.Body)
 	if resp.StatusCode >= 400 || resp.StatusCode < 200 {
-		c.Logger.Info("response status", zap.String("", resp.Status))
+		c.logger.Info("response status", zap.String("", resp.Status))
 		return nil, errors.New("bad Request")
 	}
 	respBody, err := io.ReadAll(resp.Body)
@@ -41,15 +40,12 @@ func (c *DiscordClient) DoDiscordRequest(method, uri string, body []byte) ([]byt
 	return respBody, nil
 }
 
-func (c *DiscordClient) DoDiscordLimitRequest(method, uri string, body []byte) ([]byte, error) {
+func (c *DiscordClient) DoDiscordLimitRequest(ctx context.Context, method, uri string, body []byte) ([]byte, error) {
 	url := fmt.Sprintf("https://discord.com/api/v10%s", uri)
-	limiter, ok := c.GetBucket(uri)
+	limiter, ok := c.getBucket(uri)
 	if !ok {
-		limiter = c.NewBucket(uri)
+		limiter = c.newBucket(uri)
 	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), c.Timeout)
-	defer cancel()
 	if err := limiter.Wait(ctx); err != nil {
 		return nil, err
 	}
@@ -59,7 +55,7 @@ func (c *DiscordClient) DoDiscordLimitRequest(method, uri string, body []byte) (
 	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bot "+*c.token)
-	resp, err := c.Client.Do(req)
+	resp, err := c.client.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +66,7 @@ func (c *DiscordClient) DoDiscordLimitRequest(method, uri string, body []byte) (
 		}
 	}(resp.Body)
 	if resp.StatusCode >= 400 || resp.StatusCode < 200 {
-		c.Logger.Warn("response error", zap.String("uri:", uri), zap.String("status:", resp.Status))
+		c.logger.Warn("response error", zap.String("uri:", uri), zap.String("status:", resp.Status))
 		return nil, errors.New("response error: " + resp.Status)
 	}
 	respBody, err := io.ReadAll(resp.Body)

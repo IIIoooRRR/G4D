@@ -1,10 +1,8 @@
 package api
 
 import (
-	"maps"
 	"net/http"
 	"sync"
-	"sync/atomic"
 	"time"
 
 	"go.uber.org/zap"
@@ -12,80 +10,69 @@ import (
 )
 
 /*
-The limiter provides only a basic set of functions for proper operation with the discord API (safely, without 429 Too Many Requests)
-However, please note: I did not do foolproof and did not add mutexes to the Set, etc.0
-Consequently, you want to perform all configuration operations at the initialization stage,
-without touching the client after it has initialized, in order to avoid panics in runtime.
-This module is not built into the main library for better performance
-(read the code /model/parse/... for this). to work with it, write your own wrappers yourself.
-I've provided a convenient API (method, uri, body), so it won't be difficult.
-I’m not sure about the cleanup process; if you have a large bot, frequently adding URIs might interfere with CAS operations.
-I’m thinking of replacing CAS with a standard swap to reduce conflicts.
-However, this could lead to data loss in the limiters—triggering a panic—and working with copies is extremely costly.
+Limiter provides only a basic set of functions to work properly with the discord API (safely, without 429 Too many requests)
+However, please note: I did not do error protection or add mutexes to the set, etc.
+Therefore, you want to perform all configuration operations at the initialization stage
+without touching the client after initialization to avoid panicking during execution.
+I abandoned cas blocks and operations, because after diagnostics on my own bot,
+I saw how many lines were copied and translated for nothing several times.
+I also switched the structure to a more gentle read-write mutex, which improves performance,
+and also makes reading/writing atomic at the method level, but not at the map level.
 */
-var once sync.Once
-
 type DiscordClient struct {
-	*http.Client
-	buckets atomic.Pointer[map[string]*limiter]
+	client  *http.Client
+	buckets map[string]*limiter
+	rwmu    sync.RWMutex
 	token   *string
-	Logger  *zap.Logger
+	logger  *zap.Logger
+	Timeout time.Duration
 }
 type limiter struct {
 	rate.Limiter
 	TTL time.Time
 }
 
-func NewClient(token *string, contextTimeoutDuration time.Duration, logger *zap.Logger) *DiscordClient {
-	var client *DiscordClient
-	once.Do(func() {
-		mp := make(map[string]*limiter)
-		client = &DiscordClient{
-			token:  token,
-			Client: &http.Client{Timeout: contextTimeoutDuration},
-			Logger: logger,
-		}
-		client.buckets.Store(&mp)
-		go client.deleteBucket()
-	})
+func NewClient(token *string, clientTimeout int, logger *zap.Logger) *DiscordClient {
+	client := &DiscordClient{
+		token:   token,
+		client:  &http.Client{Timeout: time.Duration(clientTimeout) * time.Second},
+		buckets: make(map[string]*limiter),
+		logger:  logger,
+		Timeout: time.Duration(clientTimeout) * time.Second,
+	}
+	go client.deleteBucket()
 	return client
 }
 
-func (c *DiscordClient) NewBucket(uri string) *limiter {
-
+func (c *DiscordClient) newBucket(uri string) *limiter {
+	if lim, ok := c.getBucket(uri); ok {
+		return lim
+	}
 	bucket := &limiter{
 		Limiter: *rate.NewLimiter(rate.Limit(5), 1),
 		TTL:     time.Now().Add(10 * time.Minute),
 	}
-	for {
-		oldptr := c.buckets.Load()
-		newptr := maps.Clone(*oldptr)
-		newptr[uri] = bucket
-		if c.buckets.CompareAndSwap(oldptr, &newptr) {
-			break
-		}
-	}
+	c.rwmu.Lock()
+	c.buckets[uri] = bucket
+	c.rwmu.Unlock()
 	return bucket
 }
-func (c *DiscordClient) GetBucket(uri string) (*limiter, bool) {
-	lim, ok := (*c.buckets.Load())[uri]
-	return lim, ok
+func (c *DiscordClient) getBucket(uri string) (*limiter, bool) {
+	c.rwmu.RLock()
+	defer c.rwmu.RUnlock()
+	bucket, ok := c.buckets[uri]
+	return bucket, ok
 }
 func (c *DiscordClient) deleteBucket() {
 	for {
 		time.Sleep(10 * time.Minute)
-		for {
-			ptr := c.buckets.Load()
-			newMap := maps.Clone(*ptr)
-			for uri, lim := range newMap {
-				if time.Now().After(lim.TTL) {
-					delete(newMap, uri)
-				}
-			}
-			if c.buckets.CompareAndSwap(ptr, &newMap) {
-				break
+		c.rwmu.Lock()
+		for uri, lim := range c.buckets {
+			if time.Now().After(lim.TTL) {
+				delete(c.buckets, uri)
 			}
 		}
+		c.rwmu.Unlock()
 	}
 }
 

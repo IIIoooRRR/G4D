@@ -6,8 +6,7 @@ import (
 	"go.uber.org/zap"
 )
 
-var AbstractLogger, _ = zap.NewProduction()
-var localLogger, _ = AbstractLogger.Named("services")
+var localLogger, _ = zap.NewProduction().Named("services")
 /* example
 var Card = newCardManager(localLogger)
 var Cache = newCacheManager(localLogger)

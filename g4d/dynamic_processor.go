@@ -9,6 +9,7 @@ import (
 
 func dynamicEventProcessor(b *Bot, limitSize uint) {
 	limiter := make(chan struct{}, limitSize)
+	ctx := b.newCtx()
 	for event := range b.Gateway.Queue {
 		wg := sync.WaitGroup{}
 		eventType := types.Get(event.Type)
@@ -24,7 +25,6 @@ func dynamicEventProcessor(b *Bot, limitSize uint) {
 			activeCmd = append(activeCmd, cmd)
 		}
 		b.CommandMu.Unlock()
-		ctx := b.newCtx()
 		parse.AddEvent(event, &wg, len(activeCmd), eventType)
 		for _, cmd := range activeCmd {
 			limiter <- struct{}{}
@@ -35,6 +35,5 @@ func dynamicEventProcessor(b *Bot, limitSize uint) {
 		}
 		wg.Wait()
 		parse.DeleteEvent(event)
-		ctx.Cancel()
 	}
 }

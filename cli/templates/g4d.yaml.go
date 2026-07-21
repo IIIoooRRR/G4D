@@ -1,6 +1,7 @@
 package templates
 
-var Yaml = `bot:
+var Yaml = `
+bot:
   token: "your-token"
   prefix: "!"
   description: "hello!!"  # sets the bio of the bot

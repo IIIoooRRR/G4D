@@ -4,7 +4,6 @@ import (
 	"context"
 	"strings"
 	"sync"
-	"time"
 
 	"github.com/IIIoooRRR/G4D/api"
 	"github.com/IIIoooRRR/G4D/model/gateway"
@@ -25,16 +24,12 @@ type Bot struct {
 	cmdLogger     *zap.Logger
 	Client        *api.DiscordClient // I didn't make the client field private so that you wouldn't have to write crutches to change http.Client
 	// without crutches. It may not be safe, but.. as it turned out. excuse me
-	CtxTimeout time.Duration // if you need a timeout for commands, redefine this field.
 }
 type PanicHandler interface {
 	OnPanic(event *gateway.RawEvent, cmd *CommandTemplate, r any, stack []byte)
 }
 
 func (b *Bot) Run() error {
-	if b.CtxTimeout == 0 {
-		b.CtxTimeout = time.Second * 10
-	}
 	if b.Client == nil {
 		b.Logger.Panic("Discord http client not initialized. set bot.Client = api.NewClient(*bot.token, 10)")
 	}
