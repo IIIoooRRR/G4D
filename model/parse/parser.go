@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"sync"
 	"sync/atomic"
+	"unsafe"
 
 	"github.com/IIIoooRRR/G4D/model/gateway"
 	"github.com/IIIoooRRR/G4D/model/schema"
@@ -34,7 +35,7 @@ var (
 )
 
 type eventEntry struct {
-	Data any
+	Data unsafe.Pointer
 	Wg   *sync.WaitGroup
 }
 
@@ -43,10 +44,10 @@ func init() {
 	cache.Store(&mp)
 
 }
-func GetEvent[T any](event *gateway.RawEvent) T {
-	defer (*cache.Load())[event].Wg.Done()
-	return (*cache.Load())[event].Data.(T)
-
+func GetEvent[T any](event *gateway.RawEvent) *T {
+	cached := (*cache.Load())[event]
+	defer cached.Wg.Done()
+	return (*T)(cached.Data)
 }
 
 func AddEvent(event *gateway.RawEvent, wg *sync.WaitGroup, quantity int, t reflect.Type) {
@@ -62,15 +63,15 @@ func DeleteEvent(event *gateway.RawEvent) {
 	casDelete[eventEntry](&cache, event)
 }
 
-func reflectParsing(event *gateway.RawEvent, t reflect.Type) any {
-	d := reflect.New(t).Interface()
+func reflectParsing(event *gateway.RawEvent, t reflect.Type) unsafe.Pointer {
+	d := reflect.New(t)
 
-	err := Unmarshal(event.Data, d)
+	err := Unmarshal(event.Data, &d)
 	if err != nil {
 		logger.Error("unmarshal raw event", zap.Error(err))
 		return nil
 	}
-	return reflect.ValueOf(d).Elem().Interface()
+	return d.UnsafePointer()
 }
 
 func casDelete[V any](m *atomic.Pointer[map[*gateway.RawEvent]V], event *gateway.RawEvent) {

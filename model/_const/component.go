@@ -6,11 +6,11 @@ const (
 	SelectType    = 3
 )
 const (
-	ButtonPrimary   = 1
-	ButtonSecondary = 2
-	ButtonSuccess   = 3
-	ButtonDanger    = 4
-	ButtonLink      = 5
+	ButtonStylePrimary   = 1
+	ButtonStyleSecondary = 2
+	ButtonStyleSuccess   = 3
+	ButtonStyleDanger    = 4
+	ButtonStyleLink      = 5
 )
 const (
 	InputShort     = 1

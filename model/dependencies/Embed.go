@@ -62,7 +62,7 @@ type Author struct {
 
 type Field struct {
 	Name   string `json:"name"`
-	Value  int    `json:"value"`
+	Value  any    `json:"value"`
 	Inline bool   `json:"inline,omitempty"`
 }
 
