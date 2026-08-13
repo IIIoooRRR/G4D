@@ -51,12 +51,12 @@ func GetEvent[T any](event *gateway.RawEvent) *T {
 }
 
 func AddEvent(event *gateway.RawEvent, wg *sync.WaitGroup, quantity int, t reflect.Type) {
+	wg.Add(quantity)
 	entry := eventEntry{
 		Data: reflectParsing(event, t),
 		Wg:   wg,
 	}
 	casAdd[eventEntry](&cache, event, entry)
-	wg.Add(quantity)
 }
 
 func DeleteEvent(event *gateway.RawEvent) {
@@ -64,14 +64,13 @@ func DeleteEvent(event *gateway.RawEvent) {
 }
 
 func reflectParsing(event *gateway.RawEvent, t reflect.Type) unsafe.Pointer {
-	d := reflect.New(t)
-
-	err := Unmarshal(event.Data, &d)
+	d := reflect.New(t).Interface()
+	err := Unmarshal(event.Data, d)
 	if err != nil {
 		logger.Error("unmarshal raw event", zap.Error(err))
 		return nil
 	}
-	return d.UnsafePointer()
+	return (*eface)(unsafe.Pointer(&d)).data
 }
 
 func casDelete[V any](m *atomic.Pointer[map[*gateway.RawEvent]V], event *gateway.RawEvent) {
