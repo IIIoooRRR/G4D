@@ -3,7 +3,7 @@ package gateway
 import (
 	"runtime"
 
-	json2 "github.com/IIIoooRRR/G4D/model/codec"
+	"github.com/IIIoooRRR/G4D/gateway/internal"
 	"github.com/IIIoooRRR/G4D/model/parse"
 )
 
@@ -12,10 +12,10 @@ the very first event in the entire web socket
 sends data about what kind of bot, where and how it connects
 */
 func (r *Receiver) identify() error {
-	Data := json2.Identify{
+	Data := json.Identify{
 		Token:   *r.token,
-		Intents: r.Intents,
-		Properties: json2.IdentifyProperties{
+		Intents: int(r.Intents),
+		Properties: json.IdentifyProperties{
 			OS:      runtime.GOOS,
 			Browser: "g4d",
 			Device:  "g4d",
@@ -27,7 +27,7 @@ func (r *Receiver) identify() error {
 		r.logger.Info("marshalling data error in identify")
 		return err
 	}
-	identify := json2.Payload{
+	identify := json.Payload{
 		Op: 2,
 		D:  DataBytes,
 	}
@@ -35,7 +35,6 @@ func (r *Receiver) identify() error {
 	err = r.connectWS.WriteJSON(&identify)
 	r.connMutex.Unlock()
 	if err != nil {
-		r.Stop()
 		return err
 
 	}

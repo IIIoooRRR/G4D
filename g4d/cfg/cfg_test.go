@@ -5,7 +5,7 @@ import (
 
 	"github.com/IIIoooRRR/G4D/g4d"
 	"github.com/IIIoooRRR/G4D/g4d/cfg"
-	"github.com/IIIoooRRR/G4D/model/gateway"
+	"github.com/IIIoooRRR/G4D/model/parse"
 	"go.uber.org/zap"
 )
 
@@ -19,6 +19,6 @@ type panicHandler struct {
 	Logger *zap.Logger
 }
 
-func (p panicHandler) OnPanic(event *gateway.RawEvent, cmd *g4d.CommandTemplate, r any, stack []byte) {
+func (p panicHandler) OnPanic(event *parse.RawEvent, cmd *g4d.CommandTemplate, r any, stack []byte) {
 	p.Logger.Panic("cmd:", zap.Any("cmd", cmd), zap.String("stack", string(stack)), zap.Any("r:", r), zap.Any("event", event))
 }

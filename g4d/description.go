@@ -2,7 +2,6 @@ package g4d
 
 import (
 	"bytes"
-	"io"
 	"net/http"
 
 	"github.com/IIIoooRRR/G4D/model/parse"
@@ -24,12 +23,7 @@ func (b *Bot) SetBotBio(description string) *Bot {
 		b.Logger.Error("set description err:", zap.Error(err))
 		return nil
 	}
-	defer func(Body io.ReadCloser) {
-		err := Body.Close()
-		if err != nil {
-
-		}
-	}(resp.Body)
+	defer resp.Body.Close()
 
 	return b
 }

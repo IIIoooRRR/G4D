@@ -1,97 +1,69 @@
 package parse
 
 import (
-	"maps"
 	"reflect"
 	"sync"
-	"sync/atomic"
 	"unsafe"
 
-	"github.com/IIIoooRRR/G4D/model/gateway"
+	"github.com/IIIoooRRR/G4D/model/_const"
 	"github.com/IIIoooRRR/G4D/model/schema"
 	"go.uber.org/zap"
 )
 
 /*
-I hope this code doesn't terrify you because of its curvature.
-I wanted to speed up the program so that each team would not parse the message on its own and, most importantly,
-WOULD NOT WAIT for other readers. so that all operations are isolated from each other. I solved it through:
-1. Waiting groups. all commands must call GetEvent, which itself does wg.Done.
-This is done as a weak protection of the tos discord and so that the entire bot does not get up in anticipation
-if some command carries heavy calculation logic.
-2. Atomic pointers to the map.
-All insertion/deletion operations are done via cas (compare and swap operations).
-this is the most advantageous strategy with < 10 processor instances for events.
-Although, I think you won't need it.
-3. Reflection. I hate her with all my heart,
-I'm sorry. however, without it,there would be a lot of boiler-plate (switch-case, function wrapping),
-however, it is used once per parsing (easy reflection) and during compilation.
-I WOULD LIKE TO POINT OUT,
-so if you want to add some structure that I didn't implement (by accident) or forgot to do it for parsing, use the methods in parse/types.
-I wanted to be a bore, so use add to add this - it will add a new structure, and change to change it, you can only replace it without adding
+I hope this code doesn’t scare you with its complexity.
+I wanted to speed up the program so that each command wouldn’t parse the message on its own and, most importantly,
+would NOT WAIT for other readers. so that all operations would be isolated from each other. I solved this using:
+1. Wait groups. all commands must call GetEvent, which in itself makes wg.Done.
+This is done as a weak defense against TOS Discord and to prevent the entire bot from freezing while waiting if some command contains complex calculation logic.
+2. The parser itself. Starting from this commit, each bot has its own parser inside it. It is initialized during the Run function. All work is done without mutexes, since each processor is allocated its own cell during initialization. It works strictly with that cell.
+3. Reflection. I hate it with all my heart.
+I'm sorry. However, without it, there would be a lot of boilerplate code (switch-case, function wrapping),
+but it is used only during parsing (simple reflection) and during compilation.
+I WOULD LIKE TO POINT OUT
+that if you want to add some structure that I didn’t implement (by accident) or forgot to do for parsing, use the methods in parse/types.
+I wanted to be a stickler, so use add to add a new structure, and change to modify it. You can only replace it without adding.
 */
-var (
-	cache atomic.Pointer[map[*gateway.RawEvent]eventEntry]
-)
 
-type eventEntry struct {
+type Cache struct {
+	Entry  []EventEntry
+	noCopy noCopy
+}
+type EventEntry struct {
 	Data unsafe.Pointer
 	Wg   *sync.WaitGroup
 }
 
-func init() {
-	mp := make(map[*gateway.RawEvent]eventEntry)
-	cache.Store(&mp)
-
-}
-func GetEvent[T any](event *gateway.RawEvent) *T {
-	cached := (*cache.Load())[event]
-	defer cached.Wg.Done()
-	return (*T)(cached.Data)
+func InitCache(quantity _const.Quantity) *Cache {
+	return &Cache{
+		Entry: make([]EventEntry, quantity),
+	}
 }
 
-func AddEvent(event *gateway.RawEvent, wg *sync.WaitGroup, quantity int, t reflect.Type) {
+func GetEvent[T any](event *RawEvent) *T {
+	defer (*event.cache)[event.idx].Wg.Done()
+	return (*T)(
+		(*event.cache)[event.idx].Data)
+}
+
+func (c *Cache) AddEvent(event *RawEvent, wg *sync.WaitGroup, seq, quantity int, t reflect.Type) {
 	wg.Add(quantity)
-	entry := eventEntry{
+	c.Entry[seq] = EventEntry{
 		Data: reflectParsing(event, t),
 		Wg:   wg,
 	}
-	casAdd[eventEntry](&cache, event, entry)
+	//We set the values for the hidden fields so that we can retrieve the parsing values during reading.
+	event.cache, event.idx = &c.Entry, seq
 }
-
-func DeleteEvent(event *gateway.RawEvent) {
-	casDelete[eventEntry](&cache, event)
-}
-
-func reflectParsing(event *gateway.RawEvent, t reflect.Type) unsafe.Pointer {
-	d := reflect.New(t).Interface()
-	err := Unmarshal(event.Data, d)
+func reflectParsing(event *RawEvent, t reflect.Type) unsafe.Pointer {
+	d := reflect.New(t)
+	err := Unmarshal(event.Data, d.Interface())
 	if err != nil {
 		logger.Error("unmarshal raw event", zap.Error(err))
 		return nil
 	}
-	return (*eface)(unsafe.Pointer(&d)).data
-}
-
-func casDelete[V any](m *atomic.Pointer[map[*gateway.RawEvent]V], event *gateway.RawEvent) {
-	for {
-		oldMapPtr := m.Load()
-		newMap := maps.Clone(*oldMapPtr)
-		delete(newMap, event)
-		if m.CompareAndSwap(oldMapPtr, &newMap) {
-			break
-		}
-	}
-}
-func casAdd[V any](m *atomic.Pointer[map[*gateway.RawEvent]V], event *gateway.RawEvent, val V) {
-	for {
-		oldMapPtr := m.Load()
-		newMap := maps.Clone(*oldMapPtr)
-		newMap[event] = val
-		if m.CompareAndSwap(oldMapPtr, &newMap) {
-			break
-		}
-	}
+	// #nosec G103
+	return d.UnsafePointer()
 }
 
 /* Channel */

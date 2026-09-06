@@ -2,28 +2,20 @@ package gateway
 
 import (
 	"context"
-	"time"
 
-	"github.com/IIIoooRRR/G4D/model/codec"
-	"github.com/gorilla/websocket"
+	"github.com/IIIoooRRR/G4D/gateway/internal"
 	"go.uber.org/zap"
 )
 
 func (r *Receiver) connect(ParentCtx context.Context) error {
-	sleep := 1
+	defer r.Stop()                                  // if there is an error, we roll back the ones specified in r.Stop parts of sockets
 	r.ctx, r.cancel = context.WithCancel(ParentCtx) //creating a context based on the parent
-	for {
-		err := r.gateway()
-		if err == nil {
-			break
-		}
-		time.Sleep(1 * time.Second)
-		if sleep < 60 {
-			sleep = sleep * 2
-		}
+	err := r.gateway()
+	if err != nil {
+		return err
 	}
 
-	err := r.helloDiscord()
+	err = r.helloDiscord()
 	if err != nil {
 		return err
 	}
@@ -41,14 +33,13 @@ func (r *Receiver) connect(ParentCtx context.Context) error {
 	if err != nil {
 		return err
 	}
-	r.Stop() // if there is an error, we roll back the ones specified in r.Stop parts of sockets
 	return nil
 }
 
 func (r *Receiver) listen(ctx context.Context, logger *zap.Logger) error {
-	defer func(connectWS *websocket.Conn) {
-		_ = connectWS.Close()
-	}(r.connectWS)
+	defer func() {
+		_ = r.connectWS.Close()
+	}()
 	for {
 		select {
 		case <-ctx.Done():
@@ -67,12 +58,12 @@ func (r *Receiver) listen(ctx context.Context, logger *zap.Logger) error {
 					you should use go func to quickly release the main thread,
 					since the processes themselves can be very long or slow down the program itself (affecting 10+ events per second
 				*/
-				go func() {
-					err = r.dispatch(event) // all basic events have opcode == 0, we transfer control to dispatch
+				go func(event json.Payload) {
+					err := r.dispatch(event) // all basic events have opcode == 0, we transfer control to dispatch
 					if err != nil {
 						logger.Error("case 0 error", zap.Error(err))
 					}
-				}()
+				}(event)
 			case 1:
 				r.connMutex.Lock()
 				err = r.connectWS.WriteJSON(json.Payload{ // it tells you what interval heartbeat.go should work with.

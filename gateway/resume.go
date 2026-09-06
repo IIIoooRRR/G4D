@@ -1,9 +1,8 @@
 package gateway
 
 import (
-	"encoding/json"
-
-	json2 "github.com/IIIoooRRR/G4D/model/codec"
+	"github.com/IIIoooRRR/G4D/gateway/internal"
+	"github.com/IIIoooRRR/G4D/model/parse"
 	"go.uber.org/zap"
 )
 
@@ -15,20 +14,20 @@ Discord will simply send events from the last sequence provided to you by discor
 func (r *Receiver) resume() error {
 	logger := r.logger.Named("resume")
 	if r.sessionID != "" {
-		Data := json2.Resume{
+		Data := json.Resume{
 			Token:     *r.token,
 			SessionID: r.sessionID,
 			Sequence:  int(r.lastSeq.Load()),
 		}
-		DataBytes, err := json.Marshal(&Data)
+		dataBytes, err := parse.Marshal(&Data)
 		if err != nil {
 			logger.Error("marshal error:", zap.Error(err))
 			return err
 		}
 		answerToDiscord :=
-			json2.Payload{
+			json.Payload{
 				Op: 6,
-				D:  DataBytes,
+				D:  dataBytes,
 			}
 		r.connMutex.Lock()
 		err = r.connectWS.WriteJSON(&answerToDiscord)

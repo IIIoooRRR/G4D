@@ -12,7 +12,7 @@ type GuildMemberAdd struct {
 	JoinedAt     string            `json:"joined_at"`
 	Nick         string            `json:"nick,omitempty"`
 	Avatar       string            `json:"avatar,omitempty"`
-	Pending      bool              `json:"pending,omitempty"` // Прошел ли верификацию
+	Pending      bool              `json:"pending,omitempty"` // Has it been verified?
 	PremiumSince string            `json:"premium_since,omitempty"`
 }
 type GuildMemberRemove struct {

@@ -2,7 +2,6 @@ package api
 
 import (
 	"context"
-	"fmt"
 	"net/url"
 
 	"github.com/IIIoooRRR/G4D/model/_const"
@@ -10,31 +9,31 @@ import (
 
 func (c *DiscordClient) AddReaction(channelId _const.ChannelId, messageId _const.MessageId, reactionId string) error {
 	encodedReaction := url.QueryEscape(reactionId)
-	uri := fmt.Sprintf("/channels/%s/messages/%s/reactions/%s/@me", channelId, messageId, encodedReaction)
+	uri := GetURI("/channels/", string(channelId), "/messages/", string(messageId), "/reactions/", encodedReaction, "/@me")
 	_, err := c.DoDiscordRequest("PUT", uri, nil)
 	return err
 }
 func (c *DiscordClient) DeleteReaction(channelId _const.ChannelId, messageId _const.MessageId, reactionId string) error {
 	encodedReaction := url.QueryEscape(reactionId)
-	uri := fmt.Sprintf("/channels/%s/messages/%s/reactions/%s/@me", channelId, messageId, encodedReaction)
+	uri := GetURI("/channels/", string(channelId), "/messages/", string(messageId), "/reactions/", encodedReaction, "/@me")
 	_, err := c.DoDiscordRequest("DELETE", uri, nil)
 	return err
 }
 func (c *DiscordClient) DeleteAllReactions(channelId _const.ChannelId, messageId _const.MessageId) error {
-	uri := fmt.Sprintf("/channels/%s/messages/%s/reactions", channelId, messageId)
+	uri := GetURI("/channels/", string(channelId), "/messages/", string(messageId), "/reactions")
 	_, err := c.DoDiscordRequest("DELETE", uri, nil)
 	return err
 }
 func (c *DiscordClient) DeleteAllReactionsForEmoji(channelId _const.ChannelId, messageId _const.MessageId, reactionId string) error {
 	encodedReaction := url.QueryEscape(reactionId)
-	uri := fmt.Sprintf("/channels/%s/messages/%s/reactions/%s", channelId, messageId, encodedReaction)
+	uri := GetURI("/channels/", string(channelId), "/messages/", string(messageId), "/reactions/", encodedReaction)
 	_, err := c.DoDiscordRequest("DELETE", uri, nil)
 	return err
 }
 
 func (c *DiscordClient) AddReactionWithLimit(channelId _const.ChannelId, messageId _const.MessageId, reactionId string) error {
 	encodedReaction := url.QueryEscape(reactionId)
-	uri := fmt.Sprintf("/channels/%s/messages/%s/reactions/%s/@me", channelId, messageId, encodedReaction)
+	uri := GetURI("/channels/", string(channelId), "/messages/", string(messageId), "/reactions/", encodedReaction, "/@me")
 	ctx, cancel := context.WithTimeout(context.Background(), c.Timeout)
 	defer cancel()
 	_, err := c.DoDiscordLimitRequest(ctx, "PUT", uri, nil)
@@ -42,14 +41,14 @@ func (c *DiscordClient) AddReactionWithLimit(channelId _const.ChannelId, message
 }
 func (c *DiscordClient) DeleteReactionWithLimit(channelId _const.ChannelId, messageId _const.MessageId, reactionId string) error {
 	encodedReaction := url.QueryEscape(reactionId)
-	uri := fmt.Sprintf("/channels/%s/messages/%s/reactions/%s/@me", channelId, messageId, encodedReaction)
+	uri := GetURI("/channels/", string(channelId), "/messages/", string(messageId), "/reactions/", encodedReaction, "/@me")
 	ctx, cancel := context.WithTimeout(context.Background(), c.Timeout)
 	defer cancel()
 	_, err := c.DoDiscordLimitRequest(ctx, "DELETE", uri, nil)
 	return err
 }
 func (c *DiscordClient) DeleteAllReactionsWithLimit(channelId _const.ChannelId, messageId _const.MessageId) error {
-	uri := fmt.Sprintf("/channels/%s/messages/%s/reactions", channelId, messageId)
+	uri := GetURI("/channels/", string(channelId), "/messages/", string(messageId), "/reactions/")
 	ctx, cancel := context.WithTimeout(context.Background(), c.Timeout)
 	defer cancel()
 	_, err := c.DoDiscordLimitRequest(ctx, "DELETE", uri, nil)
@@ -57,7 +56,7 @@ func (c *DiscordClient) DeleteAllReactionsWithLimit(channelId _const.ChannelId, 
 }
 func (c *DiscordClient) DeleteAllReactionsForEmojiWithLimit(channelId _const.ChannelId, messageId _const.MessageId, reactionId string) error {
 	encodedReaction := url.QueryEscape(reactionId)
-	uri := fmt.Sprintf("/channels/%s/messages/%s/reactions/%s", channelId, messageId, encodedReaction)
+	uri := GetURI("/channels/", string(channelId), "/messages/", string(messageId), "/reactions/", encodedReaction)
 	ctx, cancel := context.WithTimeout(context.Background(), c.Timeout)
 	defer cancel()
 	_, err := c.DoDiscordLimitRequest(ctx, "DELETE", uri, nil)

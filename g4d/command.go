@@ -4,9 +4,11 @@ import (
 	"runtime/debug"
 
 	"github.com/IIIoooRRR/G4D/model/ctx"
-	"github.com/IIIoooRRR/G4D/model/gateway"
+	"github.com/IIIoooRRR/G4D/model/parse"
 	"go.uber.org/zap"
 )
+
+type Execute func(event *parse.RawEvent, ctx *ctx.Context) error
 
 type CommandTemplate struct {
 	Trigger string
@@ -19,7 +21,7 @@ type SlashCommandTemplate struct {
 	Form SlashCreateCommand
 }
 
-func (b *Bot) initCommand(command CommandTemplate, event *gateway.RawEvent, ctx *ctx.Context) {
+func (b *Bot) initCommand(command CommandTemplate, event *parse.RawEvent, ctx *ctx.Context) {
 	defer func() {
 		if r := recover(); r != nil {
 			b.OnPanic(event, &command, r, debug.Stack())

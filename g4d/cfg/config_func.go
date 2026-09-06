@@ -6,7 +6,7 @@ import (
 
 	"github.com/IIIoooRRR/G4D/api"
 	"github.com/IIIoooRRR/G4D/g4d"
-	gateway2 "github.com/IIIoooRRR/G4D/gateway"
+	way "github.com/IIIoooRRR/G4D/gateway"
 	"github.com/IIIoooRRR/G4D/model/_const"
 	"github.com/IIIoooRRR/G4D/model/customize"
 	"go.uber.org/zap"
@@ -52,19 +52,23 @@ func mustLoadCfg(path string) *Config {
 
 func LoadBot(paths string, logger *zap.Logger, panicHandler g4d.PanicHandler) *g4d.Bot {
 	cfg := mustLoadCfg(paths)
-	gateway := gateway2.NewGateway(cfg.GatewayConfig.QueueSize).
-		WithNetStatus(cfg.GatewayConfig.PresenceUpdate.Status).
-		WithIntents(cfg.GatewayConfig.Intents)
+	var activity []customize.Activity
 	if cfg.GatewayConfig.PresenceUpdate.Activities != nil {
-		gateway = gateway.WithActivity(cfg.GatewayConfig.PresenceUpdate.Activities...)
+		activity = cfg.GatewayConfig.PresenceUpdate.Activities
 	}
+	gateway := way.NewGateway(
+		way.BufferSize(cfg.GatewayConfig.QueueSize),
+		way.Intents(cfg.GatewayConfig.Intents),
+		way.Activity(activity...),
+		way.NetStatus(cfg.GatewayConfig.PresenceUpdate.Status),
+	)
 	bot := &g4d.Bot{
 		Token:        cfg.BotConfig.Token,
 		Gateway:      gateway,
 		Prefix:       cfg.BotConfig.Prefix,
 		Logger:       logger,
 		PanicHandler: panicHandler,
-		Client:       api.NewClient(&cfg.BotConfig.Token, 10, logger.Named("http client")),
+		Client:       api.NewClient(&cfg.BotConfig.Token, 10),
 	}
 	bot.SetBotBio(cfg.BotConfig.Description)
 	return bot

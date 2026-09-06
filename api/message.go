@@ -2,15 +2,15 @@ package api
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/IIIoooRRR/G4D/model/_const"
 	"github.com/IIIoooRRR/G4D/model/parse"
 	"github.com/IIIoooRRR/G4D/model/schema"
+	"go.uber.org/zap"
 )
 
 func (c *DiscordClient) SendInteractionMessage(event *schema.Interaction, msg schema.InteractionResponse) error {
-	uri := fmt.Sprintf("/interactions/%v/%s/callback", event.ID, event.Token)
+	uri := GetURI("/interactions/", event.ID, "/", event.Token, "/callback")
 	jsonData, err := parse.Marshal(msg)
 	if err != nil {
 		return err
@@ -19,18 +19,19 @@ func (c *DiscordClient) SendInteractionMessage(event *schema.Interaction, msg sc
 	return err
 }
 
-func (c *DiscordClient) SendMessage(ToChannel _const.ChannelId, msg *schema.SendMessage) error {
-	uri := fmt.Sprintf("/channels/%s/messages", ToChannel)
+func (c *DiscordClient) SendMessage(toChannel _const.ChannelId, msg *schema.SendMessage) error {
+	uri := GetURI("/channels/", string(toChannel), "/messages")
+	c.logger.Info("size:", zap.Int("len", len(uri)))
 	body := msg
-	jsonBody, err := parse.Marshal(body) //delaem жсон из message
+	jsonBody, err := parse.Marshal(body)
 	if err != nil {
 		return err
 	}
 	_, err = c.DoDiscordRequest("POST", uri, jsonBody)
 	return err
 }
-func (c *DiscordClient) EditMessage(ToChannel _const.ChannelId, msgId _const.MessageId, msg *schema.MessageEdit) error {
-	uri := fmt.Sprintf("/channels/%s/messages/%s", ToChannel, msgId)
+func (c *DiscordClient) EditMessage(toChannel _const.ChannelId, msgId _const.MessageId, msg *schema.MessageEdit) error {
+	uri := GetURI("/channels/", string(toChannel), "/messages/", string(msgId))
 	jsonBody, err := parse.Marshal(msg)
 	if err != nil {
 		return err
@@ -38,16 +39,17 @@ func (c *DiscordClient) EditMessage(ToChannel _const.ChannelId, msgId _const.Mes
 	_, err = c.DoDiscordRequest("PATCH", uri, jsonBody)
 	return err
 }
-func (c *DiscordClient) DeleteMessage(ToChannel _const.ChannelId, msgId _const.MessageId) error {
-	uri := fmt.Sprintf("/channels/%s/messages/%s", ToChannel, msgId)
-	_, err := c.DoDiscordRequest("DELETE", uri, []byte{})
+func (c *DiscordClient) DeleteMessage(toChannel _const.ChannelId, msgId _const.MessageId) error {
+	uri := GetURI("/channels/", string(toChannel), "/messages/", string(msgId))
+	_, err := c.DoDiscordRequest("DELETE", uri, nil)
 	return err
 }
 
-func (c *DiscordClient) SendMessageWithLimit(ToChannel _const.ChannelId, msg *schema.SendMessage) error {
-	uri := fmt.Sprintf("/channels/%s/messages", ToChannel)
+func (c *DiscordClient) SendMessageWithLimit(toChannel _const.ChannelId, msg *schema.SendMessage) error {
+	uri := GetURI("/channels/", string(toChannel), "/messages")
+	c.logger.Info("size:", zap.Int("len", len(uri)))
 	body := msg
-	jsonBody, err := parse.Marshal(body) //delaem жсон из message
+	jsonBody, err := parse.Marshal(body)
 	if err != nil {
 		return err
 	}
@@ -56,8 +58,8 @@ func (c *DiscordClient) SendMessageWithLimit(ToChannel _const.ChannelId, msg *sc
 	_, err = c.DoDiscordLimitRequest(ctx, "POST", uri, jsonBody)
 	return err
 }
-func (c *DiscordClient) EditMessageWithLimit(ToChannel _const.ChannelId, msgId _const.MessageId, msg *schema.MessageEdit) error {
-	uri := fmt.Sprintf("/channels/%s/messages/%s", ToChannel, msgId)
+func (c *DiscordClient) EditMessageWithLimit(toChannel _const.ChannelId, msgId _const.MessageId, msg *schema.MessageEdit) error {
+	uri := GetURI("/channels/", string(toChannel), "/messages/", string(msgId))
 	jsonBody, err := parse.Marshal(msg)
 	if err != nil {
 		return err
@@ -67,10 +69,10 @@ func (c *DiscordClient) EditMessageWithLimit(ToChannel _const.ChannelId, msgId _
 	_, err = c.DoDiscordLimitRequest(ctx, "PATCH", uri, jsonBody)
 	return err
 }
-func (c *DiscordClient) DeleteMessageWithLimit(ToChannel _const.ChannelId, msgId _const.MessageId) error {
-	uri := fmt.Sprintf("/channels/%s/messages/%s", ToChannel, msgId)
+func (c *DiscordClient) DeleteMessageWithLimit(toChannel _const.ChannelId, msgId _const.MessageId) error {
+	uri := GetURI("/channels/", string(toChannel), "/messages/", string(msgId))
 	ctx, cancel := context.WithTimeout(context.Background(), c.Timeout)
 	defer cancel()
-	_, err := c.DoDiscordLimitRequest(ctx, "POST", uri, nil)
+	_, err := c.DoDiscordLimitRequest(ctx, "DELETE", uri, nil)
 	return err
 }

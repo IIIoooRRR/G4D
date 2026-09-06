@@ -4,7 +4,6 @@ import (
 	"github.com/IIIoooRRR/G4D/model/dependencies"
 )
 
-// Hello получает бот при подключении
 type Hello struct {
 	HeartbeatInterval int `json:"heartbeat_interval"`
 }

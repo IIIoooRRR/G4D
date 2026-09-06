@@ -1,6 +1,8 @@
 package cfg
 
-import "github.com/IIIoooRRR/G4D/model/customize"
+import (
+	"github.com/IIIoooRRR/G4D/model/customize"
+)
 
 /*
 documentation on the structure .The YAML file is located in the documentation/

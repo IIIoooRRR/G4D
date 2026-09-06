@@ -1,13 +1,13 @@
 package gateway_test
 
 import (
-	"github.com/IIIoooRRR/G4D/gateway"
+	way "github.com/IIIoooRRR/G4D/gateway"
 	"github.com/IIIoooRRR/G4D/model/_const"
 	"github.com/IIIoooRRR/G4D/model/customize"
 )
 
-// Example_customization demonstrates all gateway customization options
-func Example_customization() {
+// Example_receiver init gateway
+func ExampleReceiver_InitGateway() {
 	// Custom activity (streaming/game)
 	details := "Go to coding"
 	state := "Believe"
@@ -20,34 +20,9 @@ func Example_customization() {
 	}
 
 	// Build gateway with all options
-	gateway := gateway.NewGateway(23).
-		WithActivity(activity).
-		WithNetStatus(_const.NetStatusDND)
-
-	_ = gateway
-}
-
-// Example_customStatus demonstrates custom status (text + emoji)
-func Example_customStatus() {
-
-	gateway := gateway.NewGateway(23).
-		WithDescription("Building a bot 💗"). // Custom status text
-		WithNetStatus(_const.NetStatusIDLE)  // DND status
-
-	_ = gateway
-}
-
-// Example_multipleActivities demonstrates rich presence with multiple activities
-func Example_multipleActivities() {
-
-	listening := customize.Activity{
-		Name: "Lo-Fi Beats",
-		Type: _const.ActivityListening,
-	}
-
-	gateway := gateway.NewGateway(23).
-		WithActivity(listening).
-		WithNetStatus(_const.NetStatusDND)
-
+	gateway := way.NewGateway(way.BufferSize(15),
+		way.Intents(34307),
+		way.Activity(activity),
+		way.NetStatus(_const.NetStatusIDLE)).WithDescription("hello!")
 	_ = gateway
 }

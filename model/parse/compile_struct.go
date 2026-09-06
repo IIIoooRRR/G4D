@@ -1,8 +1,17 @@
 package parse
 
-import "unsafe"
+import (
+	"encoding/json"
+)
 
-type eface struct {
-	_type unsafe.Pointer
-	data  unsafe.Pointer
+type noCopy struct{}
+
+func (*noCopy) Lock()   {}
+func (*noCopy) Unlock() {}
+
+type RawEvent struct {
+	Type  string          `json:"t"`
+	Data  json.RawMessage `json:"d"`
+	idx   int
+	cache *[]EventEntry
 }

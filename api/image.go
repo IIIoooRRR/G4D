@@ -12,18 +12,19 @@ import (
 
 	"github.com/IIIoooRRR/G4D/model/_const"
 	"github.com/IIIoooRRR/G4D/model/schema"
+	"go.uber.org/zap"
 )
 
 func (c *DiscordClient) SendImage(toChannel _const.ChannelId, msg schema.SendMessage, path string) error {
-	var url = fmt.Sprintf("https://discord.com/api/v10/channels/%s/messages", toChannel)
-	file, err := os.Open(path)
+	var url = GetURI("https://discord.com/api/v10/channels/", string(toChannel), "/messages")
+	file, err := os.Open(filepath.Clean(path))
 	if err != nil {
 		return err
 	}
 	defer func(file *os.File) {
 		err := file.Close()
 		if err != nil {
-
+			c.logger.Warn("failed to close file", zap.Error(err))
 		}
 	}(file)
 	body := bytes.Buffer{}
@@ -75,7 +76,7 @@ func (c *DiscordClient) SendImage(toChannel _const.ChannelId, msg schema.SendMes
 
 	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusCreated {
 		respBody, _ := io.ReadAll(resp.Body)
-		return fmt.Errorf("discord error %d: %s", resp.StatusCode, string(respBody))
+		return fmt.Errorf("discord returned a non-200 status code: %d (%s)", resp.StatusCode, string(respBody))
 	}
 
 	return nil

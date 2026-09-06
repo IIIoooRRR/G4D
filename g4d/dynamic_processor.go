@@ -7,16 +7,17 @@ import (
 	"github.com/IIIoooRRR/G4D/model/parse/types"
 )
 
-func dynamicEventProcessor(b *Bot, limitSize uint) {
-	limiter := make(chan struct{}, limitSize)
-	ctx := b.newCtx()
+func (b *Bot) dynamicEventProcessor(seq int, limiter *chan struct{}) {
 	for event := range b.Gateway.Queue {
+		ctx := b.newCtx()
 		wg := sync.WaitGroup{}
+
 		eventType := types.Get(event.Type)
 		if eventType == nil {
 			continue
 		}
 		var activeCmd []CommandTemplate
+
 		b.CommandMu.Lock()
 		for _, cmd := range b.CommandBuffer {
 			if cmd.Trigger != event.Type {
@@ -25,15 +26,16 @@ func dynamicEventProcessor(b *Bot, limitSize uint) {
 			activeCmd = append(activeCmd, cmd)
 		}
 		b.CommandMu.Unlock()
-		parse.AddEvent(event, &wg, len(activeCmd), eventType)
+
+		b.eventCache.AddEvent(event, &wg, seq, len(activeCmd), eventType)
 		for _, cmd := range activeCmd {
-			limiter <- struct{}{}
-			go func() {
-				defer func() { <-limiter }()
+			go func(cmd CommandTemplate, event *parse.RawEvent) {
+				*limiter <- struct{}{}
+				defer func() { <-*limiter }()
 				b.initCommand(cmd, event, &ctx)
-			}()
+			}(cmd, event)
 		}
+
 		wg.Wait()
-		parse.DeleteEvent(event)
 	}
 }

@@ -1,11 +1,6 @@
 package g4d
 
 import (
-	"bytes"
-	"fmt"
-	"io"
-	"net/http"
-
 	"github.com/IIIoooRRR/G4D/model/parse"
 	"go.uber.org/zap"
 )
@@ -26,23 +21,11 @@ func (b *Bot) AddSlashCommand(cmd SlashCommandTemplate) error {
 	jsonData, err := parse.Marshal(cmd.Form)
 	if err != nil {
 
-		return err
 	}
-
-	url := fmt.Sprintf("https://discord.com/api/v10/applications/%s/commands", b.appId)
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
+	body, err := b.Client.DoDiscordRequest("POST", "/api/v10/applications/%s/commands", jsonData)
 	if err != nil {
 		return err
 	}
-	req.Header.Add("Authorization", "g4d "+b.Token)
-	req.Header.Add("Content-Type", "application/json")
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	body, _ := io.ReadAll(resp.Body)
 	b.Logger.Info("add slash-command response:",
 		zap.ByteString("body:", body))
 	b.AddCommand(cmd.CommandTemplate)

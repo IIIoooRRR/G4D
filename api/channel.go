@@ -2,7 +2,6 @@ package api
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/IIIoooRRR/G4D/model/_const"
 	"github.com/IIIoooRRR/G4D/model/parse"
@@ -14,7 +13,7 @@ func (c *DiscordClient) CreateChannel(guildId _const.GuildId, channel *schema.Ch
 	if err != nil {
 		return err
 	}
-	endpoint := fmt.Sprintf("/channels/%s", guildId)
+	endpoint := GetURI("/channels/", string(guildId))
 	_, err = c.DoDiscordRequest("POST", endpoint, jsonBody)
 	return err
 }
@@ -24,7 +23,7 @@ func (c *DiscordClient) DeleteChannel(channelId _const.ChannelId, channel *schem
 	if err != nil {
 		return err
 	}
-	endpoint := fmt.Sprintf("/channels/%s", channelId)
+	endpoint := GetURI("/channels/", string(channelId))
 	_, err = c.DoDiscordRequest("DELETE", endpoint, jsonBody)
 	return err
 }
@@ -34,13 +33,13 @@ func (c *DiscordClient) ChangeChannels(channelId _const.ChannelId, channel *sche
 	if err != nil {
 		return err
 	}
-	endpoint := fmt.Sprintf("/channels/%s", channelId)
+	endpoint := GetURI("/channels/", string(channelId))
 	_, err = c.DoDiscordRequest("PATCH", endpoint, jsonBody)
 	return err
 }
 
 func (c DiscordClient) GetChannel(channelId _const.ChannelId) (*schema.Channel, error) {
-	endpoint := fmt.Sprintf("/channels/%s", channelId)
+	endpoint := GetURI("/channels/", string(channelId))
 	abstract, err := c.DoDiscordRequest("GET", endpoint, []byte{})
 	if err != nil {
 		return nil, err
@@ -53,14 +52,14 @@ func (c *DiscordClient) CreateChannelWithLimit(guildId _const.GuildId, channel *
 	if err != nil {
 		return err
 	}
-	endpoint := fmt.Sprintf("/channels/%s", guildId)
+	endpoint := GetURI("/channels/", string(guildId))
 	ctx, cancel := context.WithTimeout(context.Background(), c.Timeout)
 	defer cancel()
 	_, err = c.DoDiscordLimitRequest(ctx, "POST", endpoint, jsonBody)
 	return err
 }
 func (c DiscordClient) GetChannelWithLimit(channelId _const.ChannelId) (*schema.Channel, error) {
-	endpoint := fmt.Sprintf("/channels/%s", channelId)
+	endpoint := GetURI("/channels/", string(channelId))
 	ctx, cancel := context.WithTimeout(context.Background(), c.Timeout)
 	defer cancel()
 	abstract, err := c.DoDiscordLimitRequest(ctx, "GET", endpoint, []byte{})
@@ -75,7 +74,7 @@ func (c *DiscordClient) DeleteChannelWithLimit(channelId _const.ChannelId, chann
 	if err != nil {
 		return err
 	}
-	endpoint := fmt.Sprintf("/channels/%s", channelId)
+	endpoint := GetURI("/channels/", string(channelId))
 	ctx, cancel := context.WithTimeout(context.Background(), c.Timeout)
 	defer cancel()
 	_, err = c.DoDiscordLimitRequest(ctx, "DELETE", endpoint, jsonBody)
@@ -87,7 +86,7 @@ func (c *DiscordClient) ChangeChannelsWithLimit(channelId _const.ChannelId, chan
 	if err != nil {
 		return err
 	}
-	endpoint := fmt.Sprintf("/channels/%s", channelId)
+	endpoint := GetURI("/channels/", string(channelId))
 	ctx, cancel := context.WithTimeout(context.Background(), c.Timeout)
 	defer cancel()
 	_, err = c.DoDiscordLimitRequest(ctx, "PATCH", endpoint, jsonBody)

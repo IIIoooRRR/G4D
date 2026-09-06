@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/IIIoooRRR/G4D/model/codec"
+	"github.com/IIIoooRRR/G4D/gateway/internal"
 )
 
 /*

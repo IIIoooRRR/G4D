@@ -3,6 +3,7 @@ package api
 import (
 	"net/http"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"go.uber.org/zap"
@@ -29,15 +30,14 @@ type DiscordClient struct {
 }
 type limiter struct {
 	rate.Limiter
-	TTL time.Time
+	TTL atomic.Int64
 }
 
-func NewClient(token *string, clientTimeout int, logger *zap.Logger) *DiscordClient {
+func NewClient(token *string, clientTimeout int) *DiscordClient {
 	client := &DiscordClient{
 		token:   token,
 		client:  &http.Client{Timeout: time.Duration(clientTimeout) * time.Second},
 		buckets: make(map[string]*limiter),
-		logger:  logger,
 		Timeout: time.Duration(clientTimeout) * time.Second,
 	}
 	go client.deleteBucket()
@@ -48,9 +48,11 @@ func (c *DiscordClient) newBucket(uri string) *limiter {
 	if lim, ok := c.getBucket(uri); ok {
 		return lim
 	}
+	var ttl atomic.Int64
+	ttl.Store(time.Now().Add(10 * time.Minute).UnixNano())
 	bucket := &limiter{
 		Limiter: *rate.NewLimiter(rate.Limit(5), 1),
-		TTL:     time.Now().Add(10 * time.Minute),
+		TTL:     ttl,
 	}
 	c.rwmu.Lock()
 	c.buckets[uri] = bucket
@@ -68,7 +70,7 @@ func (c *DiscordClient) deleteBucket() {
 		time.Sleep(10 * time.Minute)
 		c.rwmu.Lock()
 		for uri, lim := range c.buckets {
-			if time.Now().After(lim.TTL) {
+			if time.Now().UnixNano() > lim.TTL.Load()+int64(time.Minute*10) {
 				delete(c.buckets, uri)
 			}
 		}
@@ -78,4 +80,7 @@ func (c *DiscordClient) deleteBucket() {
 
 func (c *DiscordClient) SetTimeout(timeout time.Duration) {
 	c.Timeout = timeout
+}
+func (c *DiscordClient) SetLogger(logger *zap.Logger) {
+	c.logger = logger
 }

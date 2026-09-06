@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"fmt"
 	"io"
 	"net/http"
 
@@ -12,7 +11,7 @@ import (
 )
 
 func (c *DiscordClient) DoDiscordRequest(method, uri string, body []byte) ([]byte, error) {
-	url := fmt.Sprintf("https://discord.com/api/v10%s", uri)
+	url := GetURL("https://discord.com/api/v10", uri)
 	req, err := http.NewRequest(method, url, bytes.NewBuffer(body))
 	if err != nil {
 		return nil, err
@@ -41,7 +40,7 @@ func (c *DiscordClient) DoDiscordRequest(method, uri string, body []byte) ([]byt
 }
 
 func (c *DiscordClient) DoDiscordLimitRequest(ctx context.Context, method, uri string, body []byte) ([]byte, error) {
-	url := fmt.Sprintf("https://discord.com/api/v10%s", uri)
+	url := GetURL("https://discord.com/api/v10", uri)
 	limiter, ok := c.getBucket(uri)
 	if !ok {
 		limiter = c.newBucket(uri)

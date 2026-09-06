@@ -3,34 +3,36 @@ package gateway
 import (
 	"github.com/IIIoooRRR/G4D/model/_const"
 	"github.com/IIIoooRRR/G4D/model/customize"
-	"github.com/IIIoooRRR/G4D/model/gateway"
+	"github.com/IIIoooRRR/G4D/model/parse"
 )
 
-func NewGateway(bufferSize uint) *Receiver {
+func NewGateway(bufferSize _const.BufferSize, intents _const.Intents, activity []customize.Activity, netStatus _const.NetStatus) *Receiver {
 	return &Receiver{
-		Queue: make(chan *gateway.RawEvent, bufferSize),
+		Queue: make(chan *parse.RawEvent, bufferSize),
 		Presence: &customize.PresenceUpdate{
 			Since:      0,
-			Activities: []customize.Activity{},
-			Status:     _const.NetStatusOnline,
+			Activities: activity,
+			Status:     netStatus,
 			Afk:        false,
 		},
+		Intents: intents,
 	}
 }
 
-func (r *Receiver) WithIntents(intents int) *Receiver {
-	r.Intents = intents
-	return r
+func Intents(intents ...int) _const.Intents {
+	var intent int
+	for _, i := range intents {
+		intent = intent | i
+	}
+	return _const.Intents(intent)
 }
 
-func (r *Receiver) WithActivity(activity ...customize.Activity) *Receiver {
-	r.Presence.Activities = append(r.Presence.Activities, activity...)
-	return r
+func Activity(activity ...customize.Activity) []customize.Activity {
+	return activity
 }
 
-func (r *Receiver) WithNetStatus(netStatus string) *Receiver {
-	r.Presence.Status = netStatus
-	return r
+func NetStatus(netStatus _const.NetStatus) _const.NetStatus {
+	return netStatus
 }
 func (r *Receiver) WithDescription(description string) *Receiver {
 	r.Presence.Activities = append(r.Presence.Activities, customize.Activity{
@@ -38,4 +40,7 @@ func (r *Receiver) WithDescription(description string) *Receiver {
 		Type: 4,
 	})
 	return r
+}
+func BufferSize(size uint) _const.BufferSize {
+	return _const.BufferSize(size)
 }

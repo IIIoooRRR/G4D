@@ -1,15 +1,15 @@
 package g4d
 
 import (
-	"context"
+	"errors"
 	"strings"
 	"sync"
 
 	"github.com/IIIoooRRR/G4D/api"
-	"github.com/IIIoooRRR/G4D/model/gateway"
-	"go.uber.org/zap"
-
 	gw "github.com/IIIoooRRR/G4D/gateway"
+	"github.com/IIIoooRRR/G4D/model/_const"
+	"github.com/IIIoooRRR/G4D/model/parse"
+	"go.uber.org/zap"
 )
 
 type Bot struct {
@@ -24,29 +24,40 @@ type Bot struct {
 	cmdLogger     *zap.Logger
 	Client        *api.DiscordClient // I didn't make the client field private so that you wouldn't have to write crutches to change http.Client
 	// without crutches. It may not be safe, but.. as it turned out. excuse me
+	processorsOnce sync.Once
+	eventCache     *parse.Cache
 }
 type PanicHandler interface {
-	OnPanic(event *gateway.RawEvent, cmd *CommandTemplate, r any, stack []byte)
+	OnPanic(event *parse.RawEvent, cmd *CommandTemplate, r any, stack []byte)
 }
 
-func (b *Bot) Run() error {
+func (b *Bot) Run(qnt _const.Quantity, limit _const.SemaphoreLimit, processorType _const.ProcessorType) error {
+	if b.Logger == nil {
+		return errors.New("logger is nil")
+	}
 	if b.Client == nil {
-		b.Logger.Panic("Discord http client not initialized. set bot.Client = api.NewClient(*bot.token, 10)")
+		return errors.New("discord http client not initialized. set bot.Client = api.NewClient(*bot.token, 10)")
 	}
+	b.Client.SetLogger(b.Logger.Named("http-client"))
 	if b.PanicHandler == nil {
-		b.Logger.Panic("No panic handler. Initialize b.PanicHandler")
-		return nil
+		return errors.New("no panic handler. Initialize b.PanicHandler")
 	}
-	name := b.Logger.Name()
-	if name == "" || name == "root" { // дефолтное имя
-		b.Logger = b.Logger.Named("bot")
-	} else if !strings.Contains(name, "bot") {
-		b.Logger = b.Logger.Named("bot")
-	}
-	b.cmdLogger = b.Logger.Named("command")
-	err := b.Gateway.InitGateway(context.Background(), b.Logger.Named("gateway"), &b.Token)
-	if err != nil {
+	b.initLogger()
+	b.initCache(qnt)
+	b.initProcessors(processorType, qnt, limit)
+	if err := b.Gateway.InitGateway(b.Logger.Named("gateway"), &b.Token); err != nil {
 		return err
 	}
 	return nil
+}
+
+func (b *Bot) initLogger() {
+	name := b.Logger.Name()
+	if !strings.Contains(name, "bot") {
+		b.Logger = b.Logger.Named("bot")
+	}
+	b.cmdLogger = b.Logger.Named("command")
+}
+func (b *Bot) initCache(qnt _const.Quantity) {
+	b.eventCache = parse.InitCache(qnt)
 }

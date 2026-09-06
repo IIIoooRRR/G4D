@@ -1,16 +1,16 @@
 package _const
 
 const (
-	ActivityGame      = 0
-	ActivityStreaming = 1
-	ActivityListening = 2
-	ActivityWatching  = 3
-	ActivityCompeting = 5
+	ActivityGame      Activity = 0
+	ActivityStreaming Activity = 1
+	ActivityListening Activity = 2
+	ActivityWatching  Activity = 3
+	ActivityCompeting Activity = 5
 )
 const (
-	NetStatusDND       = "dnd"
-	NetStatusIDLE      = "idle"
-	NetStatusOnline    = "online"
-	NetStatusOffline   = "offline"
-	NetStatusInvisible = "invisible"
+	NetStatusDND       NetStatus = "dnd"
+	NetStatusIDLE      NetStatus = "idle"
+	NetStatusOnline    NetStatus = "online"
+	NetStatusOffline   NetStatus = "offline"
+	NetStatusInvisible NetStatus = "invisible"
 )

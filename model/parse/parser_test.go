@@ -5,12 +5,13 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/IIIoooRRR/G4D/model/gateway"
+	"github.com/IIIoooRRR/G4D/model/_const"
 	"github.com/IIIoooRRR/G4D/model/parse/types"
 	"github.com/IIIoooRRR/G4D/model/schema"
 )
 
 func TestEvent_GetMessage(t *testing.T) {
+	cache := InitCache(6)
 	jsonData := []byte(`{
 		"id": "123456789",
 		"channel_id": "987654321",
@@ -22,13 +23,13 @@ func TestEvent_GetMessage(t *testing.T) {
 		}
 	}`)
 
-	event := &gateway.RawEvent{
+	event := &RawEvent{
 		Type: "MESSAGE_CREATE",
 		Data: jsonData,
 	}
 
 	wg := sync.WaitGroup{}
-	AddEvent(event, &wg, 1, reflect.TypeOf(schema.GetMessage{}))
+	cache.AddEvent(event, &wg, 0, 1, reflect.TypeOf(schema.GetMessage{}))
 	msg := GetEvent[schema.GetMessage](event)
 
 	if msg.ID != "123456789" {
@@ -46,18 +47,19 @@ func TestEvent_GetMessage(t *testing.T) {
 }
 
 func TestEvent_MessageDelete(t *testing.T) {
+	cache := InitCache(6)
 	jsonData := []byte(`{
 		"id": "123456789",
 		"channel_id": "987654321"
 	}`)
 
-	event := &gateway.RawEvent{
+	event := &RawEvent{
 		Type: "MESSAGE_DELETE",
 		Data: jsonData,
 	}
 
 	wg := sync.WaitGroup{}
-	AddEvent(event, &wg, 1, types.Get(event.Type))
+	cache.AddEvent(event, &wg, 1, 1, types.Get(event.Type))
 	deleted := GetEvent[schema.MessageDelete](event)
 
 	if deleted.ID != "123456789" {
@@ -69,6 +71,7 @@ func TestEvent_MessageDelete(t *testing.T) {
 }
 
 func TestEvent_Interaction(t *testing.T) {
+	cache := InitCache(6)
 	jsonData := []byte(`{
 		"id": "23",
 		"type": 2,
@@ -82,12 +85,12 @@ func TestEvent_Interaction(t *testing.T) {
 			}
 		}
 	}`)
-	event := &gateway.RawEvent{
+	event := &RawEvent{
 		Type: "INTERACTION_CREATE",
 		Data: jsonData,
 	}
 	wg := sync.WaitGroup{}
-	AddEvent(event, &wg, 1, types.Get(event.Type))
+	cache.AddEvent(event, &wg, 2, 1, types.Get(event.Type))
 	interaction := GetEvent[schema.Interaction](event)
 
 	if interaction.ID != "23" {
@@ -99,6 +102,7 @@ func TestEvent_Interaction(t *testing.T) {
 }
 
 func BenchmarkEvent_GetMessage(b *testing.B) {
+	cache := InitCache(6)
 	jsonData := []byte(`{
 		"id": "123456789",
 		"channel_id": "987654321",
@@ -106,26 +110,27 @@ func BenchmarkEvent_GetMessage(b *testing.B) {
 		"author": {"id": "111222333", "username": "TestUser"}
 	}`)
 
-	event := &gateway.RawEvent{
-		Type: "MESSAGE_CREATE",
+	event := &RawEvent{
+		Type: _const.EventMessageCreate,
 		Data: jsonData,
 	}
 
 	wg := sync.WaitGroup{}
-	AddEvent(event, &wg, 1, types.Get(event.Type))
+	cache.AddEvent(event, &wg, 3, b.N, types.Get(event.Type))
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		GetEvent[schema.GetMessage](event)
+		_ = GetEvent[schema.GetMessage](event)
 	}
 }
 
 func TestEvent_TableDriven(t *testing.T) {
+	cache := InitCache(6)
 	tests := []struct {
 		name      string
 		eventType string
 		jsonData  string
 		wantID    string
-		wantType  interface{} // ← добавляем ожидаемый тип
+		wantType  interface{}
 	}{
 		{
 			name:      "message create",
@@ -146,13 +151,13 @@ func TestEvent_TableDriven(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			event := &gateway.RawEvent{
+			event := &RawEvent{
 				Type: tt.eventType,
 				Data: []byte(tt.jsonData),
 			}
 
 			wg := sync.WaitGroup{}
-			AddEvent(event, &wg, 1, types.Get(tt.eventType))
+			cache.AddEvent(event, &wg, 4, 1, types.Get(tt.eventType))
 			var id string
 			switch tt.eventType {
 			case "MESSAGE_CREATE":

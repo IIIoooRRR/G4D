@@ -5,7 +5,7 @@ import (
 )
 
 func (r *Receiver) Stop() {
-	if r.ctx != nil || r.cancel != nil {
+	if r.ctx != nil && r.cancel != nil {
 		r.cancel()
 	}
 	if r.connectWS != nil {
