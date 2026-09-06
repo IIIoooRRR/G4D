@@ -12,7 +12,7 @@ type Execute func(event *parse.RawEvent, ctx *ctx.Context) error
 
 type CommandTemplate struct {
 	Trigger string
-	Path    string
+	Name    string
 	Execute
 }
 
