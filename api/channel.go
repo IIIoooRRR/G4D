@@ -38,7 +38,7 @@ func (c *DiscordClient) ChangeChannels(channelId _const.ChannelId, channel *sche
 	return err
 }
 
-func (c DiscordClient) GetChannel(channelId _const.ChannelId) (*schema.Channel, error) {
+func (c *DiscordClient) GetChannel(channelId _const.ChannelId) (*schema.Channel, error) {
 	endpoint := GetURI("/channels/", string(channelId))
 	abstract, err := c.DoDiscordRequest("GET", endpoint, []byte{})
 	if err != nil {
@@ -53,14 +53,14 @@ func (c *DiscordClient) CreateChannelWithLimit(guildId _const.GuildId, channel *
 		return err
 	}
 	endpoint := GetURI("/channels/", string(guildId))
-	ctx, cancel := context.WithTimeout(context.Background(), c.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), c.timeout)
 	defer cancel()
 	_, err = c.DoDiscordLimitRequest(ctx, "POST", endpoint, jsonBody)
 	return err
 }
-func (c DiscordClient) GetChannelWithLimit(channelId _const.ChannelId) (*schema.Channel, error) {
+func (c *DiscordClient) GetChannelWithLimit(channelId _const.ChannelId) (*schema.Channel, error) {
 	endpoint := GetURI("/channels/", string(channelId))
-	ctx, cancel := context.WithTimeout(context.Background(), c.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), c.timeout)
 	defer cancel()
 	abstract, err := c.DoDiscordLimitRequest(ctx, "GET", endpoint, []byte{})
 	if err != nil {
@@ -75,7 +75,7 @@ func (c *DiscordClient) DeleteChannelWithLimit(channelId _const.ChannelId, chann
 		return err
 	}
 	endpoint := GetURI("/channels/", string(channelId))
-	ctx, cancel := context.WithTimeout(context.Background(), c.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), c.timeout)
 	defer cancel()
 	_, err = c.DoDiscordLimitRequest(ctx, "DELETE", endpoint, jsonBody)
 	return err
@@ -87,7 +87,7 @@ func (c *DiscordClient) ChangeChannelsWithLimit(channelId _const.ChannelId, chan
 		return err
 	}
 	endpoint := GetURI("/channels/", string(channelId))
-	ctx, cancel := context.WithTimeout(context.Background(), c.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), c.timeout)
 	defer cancel()
 	_, err = c.DoDiscordLimitRequest(ctx, "PATCH", endpoint, jsonBody)
 	return err

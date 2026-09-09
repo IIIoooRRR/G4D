@@ -1,5 +1,4 @@
-.*.locale
-*.*.locale
-*.locale.yaml
-./config.locale.yaml
 /test
+main.go
+coverage.out
+.env.locale

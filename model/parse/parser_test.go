@@ -11,7 +11,7 @@ import (
 )
 
 func TestEvent_GetMessage(t *testing.T) {
-	cache := InitCache(6)
+	cache := InitCache(6, nil)
 	jsonData := []byte(`{
 		"id": "123456789",
 		"channel_id": "987654321",
@@ -47,7 +47,7 @@ func TestEvent_GetMessage(t *testing.T) {
 }
 
 func TestEvent_MessageDelete(t *testing.T) {
-	cache := InitCache(6)
+	cache := InitCache(6, nil)
 	jsonData := []byte(`{
 		"id": "123456789",
 		"channel_id": "987654321"
@@ -71,7 +71,7 @@ func TestEvent_MessageDelete(t *testing.T) {
 }
 
 func TestEvent_Interaction(t *testing.T) {
-	cache := InitCache(6)
+	cache := InitCache(6, nil)
 	jsonData := []byte(`{
 		"id": "23",
 		"type": 2,
@@ -102,7 +102,7 @@ func TestEvent_Interaction(t *testing.T) {
 }
 
 func BenchmarkEvent_GetMessage(b *testing.B) {
-	cache := InitCache(6)
+	cache := InitCache(6, nil)
 	jsonData := []byte(`{
 		"id": "123456789",
 		"channel_id": "987654321",
@@ -124,7 +124,7 @@ func BenchmarkEvent_GetMessage(b *testing.B) {
 }
 
 func TestEvent_TableDriven(t *testing.T) {
-	cache := InitCache(6)
+	cache := InitCache(6, nil)
 	tests := []struct {
 		name      string
 		eventType string

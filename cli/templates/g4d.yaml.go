@@ -16,4 +16,5 @@ gateway:
         details: "go to codding"
         # url: "any url" for streaming
         state: "Believe"
-        afk: false`
+        afk: false
+`

@@ -26,7 +26,7 @@ type DiscordClient struct {
 	rwmu    sync.RWMutex
 	token   *string
 	logger  *zap.Logger
-	Timeout time.Duration
+	timeout time.Duration
 }
 type limiter struct {
 	rate.Limiter
@@ -38,7 +38,7 @@ func NewClient(token *string, clientTimeout int) *DiscordClient {
 		token:   token,
 		client:  &http.Client{Timeout: time.Duration(clientTimeout) * time.Second},
 		buckets: make(map[string]*limiter),
-		Timeout: time.Duration(clientTimeout) * time.Second,
+		timeout: time.Duration(clientTimeout) * time.Second,
 	}
 	go client.deleteBucket()
 	return client
@@ -48,12 +48,11 @@ func (c *DiscordClient) newBucket(uri string) *limiter {
 	if lim, ok := c.getBucket(uri); ok {
 		return lim
 	}
-	var ttl atomic.Int64
-	ttl.Store(time.Now().Add(10 * time.Minute).UnixNano())
 	bucket := &limiter{
 		Limiter: *rate.NewLimiter(rate.Limit(5), 1),
-		TTL:     ttl,
+		TTL:     atomic.Int64{},
 	}
+	bucket.TTL.Store(time.Now().Add(10 * time.Minute).UnixNano())
 	c.rwmu.Lock()
 	c.buckets[uri] = bucket
 	c.rwmu.Unlock()
@@ -79,7 +78,7 @@ func (c *DiscordClient) deleteBucket() {
 }
 
 func (c *DiscordClient) SetTimeout(timeout time.Duration) {
-	c.Timeout = timeout
+	c.timeout = timeout
 }
 func (c *DiscordClient) SetLogger(logger *zap.Logger) {
 	c.logger = logger

@@ -1,6 +1,9 @@
 package g4d
 
 import (
+	"context"
+
+	"github.com/IIIoooRRR/G4D/api"
 	"github.com/IIIoooRRR/G4D/model/parse"
 	"go.uber.org/zap"
 )
@@ -11,23 +14,22 @@ func (b *Bot) AddCommand(cmd CommandTemplate) {
 	b.CommandMu.Unlock()
 }
 func (b *Bot) AddCommands(cmds []CommandTemplate) *Bot {
-	for _, cmd := range cmds {
-		b.AddCommand(cmd)
-	}
+	b.CommandMu.Lock()
+	b.CommandBuffer = append(b.CommandBuffer, cmds...)
+	b.CommandMu.Unlock()
 	return b
 }
 func (b *Bot) AddSlashCommand(cmd SlashCommandTemplate) error {
-
-	jsonData, err := parse.Marshal(cmd.Form)
+	data, err := parse.Marshal(cmd.Form)
 	if err != nil {
-
+		return err
 	}
-	body, err := b.Client.DoDiscordRequest("POST", "/api/v10/applications/%s/commands", jsonData)
+	resp, err := b.Client.DoDiscordLimitRequest(context.Background(), "POST", api.GetURI("/applications/", b.appId, "/commands"), data)
 	if err != nil {
 		return err
 	}
 	b.Logger.Info("add slash-command response:",
-		zap.ByteString("body:", body))
+		zap.ByteString("body:", resp))
 	b.AddCommand(cmd.CommandTemplate)
 	return nil
 }

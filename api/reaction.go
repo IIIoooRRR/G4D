@@ -34,7 +34,7 @@ func (c *DiscordClient) DeleteAllReactionsForEmoji(channelId _const.ChannelId, m
 func (c *DiscordClient) AddReactionWithLimit(channelId _const.ChannelId, messageId _const.MessageId, reactionId string) error {
 	encodedReaction := url.QueryEscape(reactionId)
 	uri := GetURI("/channels/", string(channelId), "/messages/", string(messageId), "/reactions/", encodedReaction, "/@me")
-	ctx, cancel := context.WithTimeout(context.Background(), c.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), c.timeout)
 	defer cancel()
 	_, err := c.DoDiscordLimitRequest(ctx, "PUT", uri, nil)
 	return err
@@ -42,14 +42,14 @@ func (c *DiscordClient) AddReactionWithLimit(channelId _const.ChannelId, message
 func (c *DiscordClient) DeleteReactionWithLimit(channelId _const.ChannelId, messageId _const.MessageId, reactionId string) error {
 	encodedReaction := url.QueryEscape(reactionId)
 	uri := GetURI("/channels/", string(channelId), "/messages/", string(messageId), "/reactions/", encodedReaction, "/@me")
-	ctx, cancel := context.WithTimeout(context.Background(), c.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), c.timeout)
 	defer cancel()
 	_, err := c.DoDiscordLimitRequest(ctx, "DELETE", uri, nil)
 	return err
 }
 func (c *DiscordClient) DeleteAllReactionsWithLimit(channelId _const.ChannelId, messageId _const.MessageId) error {
 	uri := GetURI("/channels/", string(channelId), "/messages/", string(messageId), "/reactions/")
-	ctx, cancel := context.WithTimeout(context.Background(), c.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), c.timeout)
 	defer cancel()
 	_, err := c.DoDiscordLimitRequest(ctx, "DELETE", uri, nil)
 	return err
@@ -57,7 +57,7 @@ func (c *DiscordClient) DeleteAllReactionsWithLimit(channelId _const.ChannelId, 
 func (c *DiscordClient) DeleteAllReactionsForEmojiWithLimit(channelId _const.ChannelId, messageId _const.MessageId, reactionId string) error {
 	encodedReaction := url.QueryEscape(reactionId)
 	uri := GetURI("/channels/", string(channelId), "/messages/", string(messageId), "/reactions/", encodedReaction)
-	ctx, cancel := context.WithTimeout(context.Background(), c.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), c.timeout)
 	defer cancel()
 	_, err := c.DoDiscordLimitRequest(ctx, "DELETE", uri, nil)
 	return err

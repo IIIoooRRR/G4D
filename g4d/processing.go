@@ -3,12 +3,10 @@ package g4d
 import (
 	"github.com/IIIoooRRR/G4D/model/_const"
 	"github.com/IIIoooRRR/G4D/model/ctx"
-	"github.com/IIIoooRRR/G4D/model/parse"
 )
 
 func (b *Bot) initProcessors(pType _const.ProcessorType, quantity _const.Quantity, limitSize _const.SemaphoreLimit) {
 	b.processorsOnce.Do(func() {
-		parse.InitCache(quantity)
 		var processor func(int, *chan struct{})
 		if pType == _const.DynamicEventProcessor {
 			processor = b.dynamicEventProcessor

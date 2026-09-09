@@ -32,25 +32,38 @@ type PanicHandler interface {
 }
 
 func (b *Bot) Run(qnt _const.Quantity, limit _const.SemaphoreLimit, processorType _const.ProcessorType) error {
+	if err := b.validate(); err != nil {
+		return err
+	}
+
+	b.initLogger()
+	b.initCache(qnt)
+	b.initClient()
+
+	if err := b.getBotInfo(); err != nil {
+		return err
+	}
+
+	b.initProcessors(processorType, qnt, limit)
+	return b.Gateway.InitGateway(b.Logger.Named("gateway"), &b.Token)
+}
+
+func (b *Bot) validate() error {
 	if b.Logger == nil {
 		return errors.New("logger is nil")
 	}
 	if b.Client == nil {
-		return errors.New("discord http client not initialized. set bot.Client = api.NewClient(*bot.token, 10)")
+		return errors.New("http client not initialized")
 	}
-	b.Client.SetLogger(b.Logger.Named("http-client"))
 	if b.PanicHandler == nil {
-		return errors.New("no panic handler. Initialize b.PanicHandler")
-	}
-	b.initLogger()
-	b.initCache(qnt)
-	b.initProcessors(processorType, qnt, limit)
-	if err := b.Gateway.InitGateway(b.Logger.Named("gateway"), &b.Token); err != nil {
-		return err
+		return errors.New("panic handler not initialized")
 	}
 	return nil
 }
 
+func (b *Bot) initClient() {
+	b.Client.SetLogger(b.Logger.Named("http-client"))
+}
 func (b *Bot) initLogger() {
 	name := b.Logger.Name()
 	if !strings.Contains(name, "bot") {
@@ -59,5 +72,5 @@ func (b *Bot) initLogger() {
 	b.cmdLogger = b.Logger.Named("command")
 }
 func (b *Bot) initCache(qnt _const.Quantity) {
-	b.eventCache = parse.InitCache(qnt)
+	b.eventCache = parse.InitCache(qnt, b.Logger.Named("cache"))
 }

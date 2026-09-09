@@ -1,0 +1,25 @@
+name: security
+
+on:
+  push:
+    branches: [ main, unsafe ]
+  pull_request:
+    branches: [ main, unsafe ]
+  schedule:
+    - cron: '0 0 * * 0'
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26'
+          cache: true
+      - name: govulncheck
+        uses: golang/govulncheck-action@v1.0.4
+      - name: gosec
+        uses: securego/gosec@master
+        with:
+          args: '-exclude=G304 ./...'

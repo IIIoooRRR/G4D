@@ -6,6 +6,7 @@ import (
 	"unsafe"
 
 	"github.com/IIIoooRRR/G4D/model/_const"
+	"github.com/IIIoooRRR/G4D/model/dependencies"
 	"github.com/IIIoooRRR/G4D/model/schema"
 	"go.uber.org/zap"
 )
@@ -28,15 +29,17 @@ I wanted to be a stickler, so use add to add a new structure, and change to modi
 type Cache struct {
 	Entry  []EventEntry
 	noCopy noCopy
+	logger *zap.Logger
 }
 type EventEntry struct {
 	Data unsafe.Pointer
 	Wg   *sync.WaitGroup
 }
 
-func InitCache(quantity _const.Quantity) *Cache {
+func InitCache(quantity _const.Quantity, logger *zap.Logger) *Cache {
 	return &Cache{
-		Entry: make([]EventEntry, quantity),
+		Entry:  make([]EventEntry, quantity),
+		logger: logger,
 	}
 }
 
@@ -49,17 +52,17 @@ func GetEvent[T any](event *RawEvent) *T {
 func (c *Cache) AddEvent(event *RawEvent, wg *sync.WaitGroup, seq, quantity int, t reflect.Type) {
 	wg.Add(quantity)
 	c.Entry[seq] = EventEntry{
-		Data: reflectParsing(event, t),
+		Data: c.reflectParsing(event, t),
 		Wg:   wg,
 	}
 	//We set the values for the hidden fields so that we can retrieve the parsing values during reading.
 	event.cache, event.idx = &c.Entry, seq
 }
-func reflectParsing(event *RawEvent, t reflect.Type) unsafe.Pointer {
+func (c *Cache) reflectParsing(event *RawEvent, t reflect.Type) unsafe.Pointer {
 	d := reflect.New(t)
 	err := Unmarshal(event.Data, d.Interface())
 	if err != nil {
-		logger.Error("unmarshal raw event", zap.Error(err))
+		c.logger.Error("unmarshal raw event", zap.Error(err))
 		return nil
 	}
 	// #nosec G103
@@ -74,4 +77,12 @@ func ToChannel(body []byte) (*schema.Channel, error) {
 		return nil, err
 	}
 	return channel, nil
+}
+func ToUser(body []byte) (*dependencies.User, error) {
+	var user dependencies.User
+	err := Unmarshal(body, &user)
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
 }

@@ -45,7 +45,7 @@ func (c *DiscordClient) BanUserWithLimit(guildId _const.GuildId, userId _const.U
 	if err != nil {
 		return err
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), c.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), c.timeout)
 	defer cancel()
 	_, err = c.DoDiscordLimitRequest(ctx, "PATCH", uri, jsonBody)
 	return err
@@ -60,7 +60,7 @@ func (c *DiscordClient) MuteUserWithLimit(guildId _const.GuildId, userId _const.
 	if err != nil {
 		return err
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), c.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), c.timeout)
 	defer cancel()
 	_, err = c.DoDiscordLimitRequest(ctx, "PATCH", uri, jsonBody)
 	return err

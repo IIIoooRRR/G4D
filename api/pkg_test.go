@@ -9,7 +9,7 @@ import (
 
 const (
 	path1 = "/channel/"
-	path2 = "messages/"
+	path2 = "/messages/"
 )
 
 var GarbageString string
@@ -48,5 +48,15 @@ func BenchmarkConcatination(b *testing.B) {
 	path := "/channels/123456789012345678/messages"
 	for i := 0; i < b.N; i++ {
 		GarbageString = host + path
+	}
+}
+
+func TestGetURI(t *testing.T) {
+	channelId := "1234567"
+	msgId := "1234567876543"
+	finalURI := "/channel/" + channelId + "/messages/" + msgId
+	result := api.GetURI(path1, channelId, path2, msgId)
+	if result != finalURI {
+		t.Errorf("GetURI fail, expected: %s, result: %s", finalURI, result)
 	}
 }

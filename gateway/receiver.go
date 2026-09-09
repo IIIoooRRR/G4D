@@ -28,4 +28,5 @@ type Receiver struct {
 	Presence  *customize.PresenceUpdate
 	logger    *zap.Logger
 	dLogger   *zap.Logger // dispatch.go logger
+	initOnce  sync.Once
 }
