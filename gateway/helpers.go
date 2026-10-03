@@ -34,13 +34,6 @@ func Activity(activity ...customize.Activity) []customize.Activity {
 func NetStatus(netStatus _const.NetStatus) _const.NetStatus {
 	return netStatus
 }
-func (r *Receiver) WithDescription(description string) *Receiver {
-	r.Presence.Activities = append(r.Presence.Activities, customize.Activity{
-		Name: description,
-		Type: 4,
-	})
-	return r
-}
 func BufferSize(size uint) _const.BufferSize {
 	return _const.BufferSize(size)
 }

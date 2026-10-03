@@ -10,7 +10,7 @@ import (
 )
 
 func TestLoadCfg(t *testing.T) {
-	bot := cfg.LoadBot("config.exp.yaml", zap.Must(zap.NewProduction()), panicHandler{})
+	bot := cfg.LoadBot(zap.Must(zap.NewProduction()), panicHandler{})
 	t.Log(bot)
 }
 

@@ -14,7 +14,7 @@ sends data about what kind of bot, where and how it connects
 func (r *Receiver) identify() error {
 	Data := json.Identify{
 		Token:   *r.token,
-		Intents: int(r.Intents),
+		Intents: r.Intents,
 		Properties: json.IdentifyProperties{
 			OS:      runtime.GOOS,
 			Browser: "g4d",
@@ -24,7 +24,7 @@ func (r *Receiver) identify() error {
 	}
 	DataBytes, err := parse.Marshal(&Data)
 	if err != nil {
-		r.logger.Info("marshalling data error in identify")
+		r.logger.Error("marshalling data error")
 		return err
 	}
 	identify := json.Payload{

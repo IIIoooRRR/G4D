@@ -18,20 +18,18 @@ func (c *DiscordClient) BanUser(guildId _const.GuildId, userId _const.UserId, re
 	if err != nil {
 		return err
 	}
-	_, err = c.DoDiscordRequest("PATCH", uri, jsonBody)
+	_, err = c.DoDiscordRequest(_const.Patch, uri, jsonBody)
 	return err
 }
 func (c *DiscordClient) MuteUser(guildId _const.GuildId, userId _const.UserId, dur time.Duration) error {
 	until := time.Now().Add(dur).Format(time.RFC3339)
 	uri := GetURI("/guilds/", string(guildId), "/members/", string(userId))
-	body := map[string]interface{}{
-		"communication_disabled_until": until,
-	}
+	body := Mute{Duration: until}
 	jsonBody, err := parse.Marshal(body)
 	if err != nil {
 
 	}
-	_, err = c.DoDiscordRequest("PATCH", uri, jsonBody)
+	_, err = c.DoDiscordRequest(_const.Patch, uri, jsonBody)
 	return err
 }
 
@@ -47,26 +45,27 @@ func (c *DiscordClient) BanUserWithLimit(guildId _const.GuildId, userId _const.U
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), c.timeout)
 	defer cancel()
-	_, err = c.DoDiscordLimitRequest(ctx, "PATCH", uri, jsonBody)
+	_, err = c.DoDiscordLimitRequest(ctx, _const.Patch, uri, jsonBody)
 	return err
 }
 func (c *DiscordClient) MuteUserWithLimit(guildId _const.GuildId, userId _const.UserId, dur time.Duration) error {
 	until := time.Now().Add(dur).Format(time.RFC3339)
 	uri := GetURI("/guilds/", string(guildId), "/members/", string(userId))
-	body := map[string]interface{}{
-		"communication_disabled_until": until,
-	}
+	body := Mute{Duration: until}
 	jsonBody, err := parse.Marshal(body)
 	if err != nil {
 		return err
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), c.timeout)
 	defer cancel()
-	_, err = c.DoDiscordLimitRequest(ctx, "PATCH", uri, jsonBody)
+	_, err = c.DoDiscordLimitRequest(ctx, _const.Patch, uri, jsonBody)
 	return err
 }
 
 type Ban struct {
 	DeleteMessageSeconds int     `json:"delete_message_seconds"`
 	Reason               *string `json:"reason,omitempty"`
+}
+type Mute struct {
+	Duration string `json:"communication_disabled_until"`
 }

@@ -10,24 +10,24 @@ import (
 func (c *DiscordClient) AddReaction(channelId _const.ChannelId, messageId _const.MessageId, reactionId string) error {
 	encodedReaction := url.QueryEscape(reactionId)
 	uri := GetURI("/channels/", string(channelId), "/messages/", string(messageId), "/reactions/", encodedReaction, "/@me")
-	_, err := c.DoDiscordRequest("PUT", uri, nil)
+	_, err := c.DoDiscordRequest(_const.Put, uri, nil)
 	return err
 }
 func (c *DiscordClient) DeleteReaction(channelId _const.ChannelId, messageId _const.MessageId, reactionId string) error {
 	encodedReaction := url.QueryEscape(reactionId)
 	uri := GetURI("/channels/", string(channelId), "/messages/", string(messageId), "/reactions/", encodedReaction, "/@me")
-	_, err := c.DoDiscordRequest("DELETE", uri, nil)
+	_, err := c.DoDiscordRequest(_const.Delete, uri, nil)
 	return err
 }
 func (c *DiscordClient) DeleteAllReactions(channelId _const.ChannelId, messageId _const.MessageId) error {
 	uri := GetURI("/channels/", string(channelId), "/messages/", string(messageId), "/reactions")
-	_, err := c.DoDiscordRequest("DELETE", uri, nil)
+	_, err := c.DoDiscordRequest(_const.Delete, uri, nil)
 	return err
 }
 func (c *DiscordClient) DeleteAllReactionsForEmoji(channelId _const.ChannelId, messageId _const.MessageId, reactionId string) error {
 	encodedReaction := url.QueryEscape(reactionId)
 	uri := GetURI("/channels/", string(channelId), "/messages/", string(messageId), "/reactions/", encodedReaction)
-	_, err := c.DoDiscordRequest("DELETE", uri, nil)
+	_, err := c.DoDiscordRequest(_const.Delete, uri, nil)
 	return err
 }
 
@@ -36,7 +36,7 @@ func (c *DiscordClient) AddReactionWithLimit(channelId _const.ChannelId, message
 	uri := GetURI("/channels/", string(channelId), "/messages/", string(messageId), "/reactions/", encodedReaction, "/@me")
 	ctx, cancel := context.WithTimeout(context.Background(), c.timeout)
 	defer cancel()
-	_, err := c.DoDiscordLimitRequest(ctx, "PUT", uri, nil)
+	_, err := c.DoDiscordLimitRequest(ctx, _const.Patch, uri, nil)
 	return err
 }
 func (c *DiscordClient) DeleteReactionWithLimit(channelId _const.ChannelId, messageId _const.MessageId, reactionId string) error {
@@ -44,14 +44,14 @@ func (c *DiscordClient) DeleteReactionWithLimit(channelId _const.ChannelId, mess
 	uri := GetURI("/channels/", string(channelId), "/messages/", string(messageId), "/reactions/", encodedReaction, "/@me")
 	ctx, cancel := context.WithTimeout(context.Background(), c.timeout)
 	defer cancel()
-	_, err := c.DoDiscordLimitRequest(ctx, "DELETE", uri, nil)
+	_, err := c.DoDiscordLimitRequest(ctx, _const.Delete, uri, nil)
 	return err
 }
 func (c *DiscordClient) DeleteAllReactionsWithLimit(channelId _const.ChannelId, messageId _const.MessageId) error {
 	uri := GetURI("/channels/", string(channelId), "/messages/", string(messageId), "/reactions/")
 	ctx, cancel := context.WithTimeout(context.Background(), c.timeout)
 	defer cancel()
-	_, err := c.DoDiscordLimitRequest(ctx, "DELETE", uri, nil)
+	_, err := c.DoDiscordLimitRequest(ctx, _const.Delete, uri, nil)
 	return err
 }
 func (c *DiscordClient) DeleteAllReactionsForEmojiWithLimit(channelId _const.ChannelId, messageId _const.MessageId, reactionId string) error {
@@ -59,6 +59,6 @@ func (c *DiscordClient) DeleteAllReactionsForEmojiWithLimit(channelId _const.Cha
 	uri := GetURI("/channels/", string(channelId), "/messages/", string(messageId), "/reactions/", encodedReaction)
 	ctx, cancel := context.WithTimeout(context.Background(), c.timeout)
 	defer cancel()
-	_, err := c.DoDiscordLimitRequest(ctx, "DELETE", uri, nil)
+	_, err := c.DoDiscordLimitRequest(ctx, _const.Delete, uri, nil)
 	return err
 }

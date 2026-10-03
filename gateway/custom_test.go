@@ -23,6 +23,6 @@ func ExampleReceiver_InitGateway() {
 	gateway := way.NewGateway(way.BufferSize(15),
 		way.Intents(34307),
 		way.Activity(activity),
-		way.NetStatus(_const.NetStatusIDLE)).WithDescription("hello!")
+		way.NetStatus(_const.NetStatusIDLE))
 	_ = gateway
 }

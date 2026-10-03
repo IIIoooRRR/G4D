@@ -1,8 +1,9 @@
 package gateway
 
 import (
+	"fmt"
+
 	"github.com/IIIoooRRR/G4D/gateway/internal"
-	"github.com/IIIoooRRR/G4D/model/parse"
 	"go.uber.org/zap"
 )
 
@@ -14,26 +15,27 @@ Discord will simply send events from the last sequence provided to you by discor
 func (r *Receiver) resume() error {
 	logger := r.logger.Named("resume")
 	if r.sessionID != "" {
-		Data := json.Resume{
-			Token:     *r.token,
-			SessionID: r.sessionID,
-			Sequence:  int(r.lastSeq.Load()),
+		resumePackage := json.Resume{
+			Op: 6,
+			Data: json.RData{
+				Token:     *r.token,
+				SessionID: r.sessionID,
+				Sequence:  r.lastSeq.Load(),
+			},
 		}
-		dataBytes, err := parse.Marshal(&Data)
-		if err != nil {
-			logger.Error("marshal error:", zap.Error(err))
-			return err
-		}
-		answerToDiscord :=
-			json.Payload{
-				Op: 6,
-				D:  dataBytes,
-			}
+
 		r.connMutex.Lock()
-		err = r.connectWS.WriteJSON(&answerToDiscord)
-		r.connMutex.Unlock()
-		if err != nil {
-			return err
+		var err error
+		if err = r.connectWS.Close(); err != nil {
+			logger.Warn("close old socket", zap.Error(err))
+		}
+		if err = r.gateway(); err != nil {
+			r.connMutex.Unlock()
+			return fmt.Errorf("gateway: %w", err)
+		}
+		if err := r.connectWS.WriteJSON(resumePackage); err != nil {
+			r.connMutex.Unlock()
+			return fmt.Errorf("write resume: %w", err)
 		}
 	}
 	return nil

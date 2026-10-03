@@ -1,6 +1,7 @@
 package global_test
 
 import (
+	"context"
 	"os"
 	"testing"
 	"time"
@@ -12,16 +13,10 @@ import (
 	"github.com/IIIoooRRR/G4D/model/customize"
 	"github.com/IIIoooRRR/G4D/model/parse"
 	"github.com/IIIoooRRR/G4D/model/schema"
-	"github.com/joho/godotenv"
 	"go.uber.org/zap"
 )
 
 func TestBotCreate(t *testing.T) {
-	err := godotenv.Load(".env.ci")
-	if err != nil {
-		t.Log(".env.ci not found")
-	}
-
 	token := os.Getenv("CI_TOKEN")
 	if token == "" {
 		t.Skip("CI_TOKEN not set, skipping integration test")
@@ -33,8 +28,7 @@ func TestBotCreate(t *testing.T) {
 			Name: "With G4D",
 			Type: _const.ActivityStreaming,
 		}),
-		way.NetStatus(_const.NetStatusIDLE)).WithDescription("hello!")
-
+		way.NetStatus(_const.NetStatusIDLE))
 	bot := &g4d.Bot{
 		Token:   token,
 		Gateway: gw,
@@ -45,7 +39,7 @@ func TestBotCreate(t *testing.T) {
 		{Trigger: _const.EventMessageCreate, Execute: BotHello},
 	})
 	go func() {
-		err := bot.Run(g4d.WithDispQuantity(4), g4d.WithSemaphoreLimit(120), _const.StaticEventProcessor)
+		err := bot.Run(g4d.WithProcessorsQuantity(4), g4d.WithSemaphoreLimit(120), _const.StaticEventProcessor, context.Background())
 		if err != nil {
 			t.Error(err)
 		}
@@ -55,7 +49,7 @@ func TestBotCreate(t *testing.T) {
 	t.Log("Bot ran for 30 seconds, test passed")
 }
 
-func BotHello(event *parse.RawEvent, ctx *ctx.Context) error {
+func BotHello(event *parse.RawEvent, ctx ctx.Context) error {
 	d := parse.GetEvent[schema.GetMessage](event)
 	if d.Content != "!hello" {
 		return nil

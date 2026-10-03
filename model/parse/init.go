@@ -6,6 +6,7 @@ import (
 
 	"github.com/bytedance/sonic"
 	"go.uber.org/zap"
+	"golang.org/x/sys/cpu"
 )
 
 /*
@@ -24,10 +25,14 @@ var (
 )
 
 func init() {
-	if runtime.GOARCH == "amd64" {
+	if runtime.GOARCH == "amd64" && cpu.X86.HasAVX2 {
 		Marshal = sonic.Marshal
 		Unmarshal = sonic.ConfigFastest.Unmarshal
-		logger.Info("Encoder: sonic")
+		logger.Info("Encoder: sonic (amd64/AVX2)")
+	} else if runtime.GOARCH == "arm64" {
+		Marshal = sonic.Marshal
+		Unmarshal = sonic.ConfigFastest.Unmarshal
+		logger.Info("Encoder: sonic (arm64)")
 	} else {
 		Marshal = json.Marshal
 		Unmarshal = json.Unmarshal

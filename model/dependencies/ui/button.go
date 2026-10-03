@@ -22,23 +22,23 @@ func NewButton(customId string) *Button {
 		CustomID: customId,
 	}
 }
-func (b Button) SetStyle(style int) Button {
+func (b *Button) SetStyle(style int) *Button {
 	b.Style = style
 	return b
 }
-func (b Button) SetURL(url string) Button {
+func (b *Button) SetURL(url string) *Button {
 	b.URL = url
 	return b
 }
-func (b Button) SetDisabled(disabled bool) Button {
+func (b *Button) SetDisabled(disabled bool) *Button {
 	b.Disabled = disabled
 	return b
 }
-func (b Button) SetLabel(label string) Button {
+func (b *Button) SetLabel(label string) *Button {
 	b.Label = label
 	return b
 }
-func (b Button) SetEmoji(emoji *dependencies.Emoji) Button {
+func (b *Button) SetEmoji(emoji *dependencies.Emoji) *Button {
 	b.Emoji = emoji
 	return b
 }

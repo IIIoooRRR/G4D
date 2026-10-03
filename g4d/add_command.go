@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/IIIoooRRR/G4D/api"
+	"github.com/IIIoooRRR/G4D/model/_const"
 	"github.com/IIIoooRRR/G4D/model/parse"
 	"go.uber.org/zap"
 )
@@ -24,7 +25,7 @@ func (b *Bot) AddSlashCommand(cmd SlashCommandTemplate) error {
 	if err != nil {
 		return err
 	}
-	resp, err := b.Client.DoDiscordLimitRequest(context.Background(), "POST", api.GetURI("/applications/", b.appId, "/commands"), data)
+	resp, err := b.Client.DoDiscordLimitRequest(context.Background(), _const.Post, api.GetURI("/applications/", b.appId, "/commands"), data)
 	if err != nil {
 		return err
 	}

@@ -28,10 +28,10 @@ func defaultConfig() *Config {
 			}},
 	}
 }
-func loadConfig(path string) (*Config, error) {
+func loadConfig() (*Config, error) {
 	cfg := defaultConfig()
 	root := os.DirFS(".")
-	data, err := fs.ReadFile(root, path)
+	data, err := fs.ReadFile(root, _const.ConfigPath)
 	if err != nil {
 		return nil, err
 	}
@@ -42,16 +42,16 @@ func loadConfig(path string) (*Config, error) {
 	return cfg, nil
 }
 
-func mustLoadCfg(path string) *Config {
-	cfg, err := loadConfig(path)
+func mustLoadCfg() *Config {
+	cfg, err := loadConfig()
 	if err != nil {
 		panic(err)
 	}
 	return cfg
 }
 
-func LoadBot(paths string, logger *zap.Logger, panicHandler g4d.PanicHandler) *g4d.Bot {
-	cfg := mustLoadCfg(paths)
+func LoadBot(logger *zap.Logger, panicHandler g4d.PanicHandler) *g4d.Bot {
+	cfg := mustLoadCfg()
 	var activity []customize.Activity
 	if cfg.GatewayConfig.PresenceUpdate.Activities != nil {
 		activity = cfg.GatewayConfig.PresenceUpdate.Activities

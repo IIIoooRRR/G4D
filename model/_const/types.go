@@ -9,12 +9,14 @@ type ThreadId string
 type ReactionId string
 type ComponentId string
 
-type Quantity uint
-type SemaphoreLimit uint
-type ProcessorType byte
-type BufferSize uint
-type NetStatus string
+type Quantity = uint
+type SemaphoreLimit = uint
+type ProcessorType = byte
+type BufferSize = uint
+type NetStatus = string
 
-type Activity int
+type Activity = int
 
-type Intents int
+type Intents = int
+type Oauth2Scope = string
+type Method int

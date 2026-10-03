@@ -8,7 +8,7 @@ import (
 	"go.uber.org/zap"
 )
 
-type Execute func(event *parse.RawEvent, ctx *ctx.Context) error
+type Execute func(event *parse.RawEvent, ctx ctx.Context) error
 
 type CommandTemplate struct {
 	Trigger string
@@ -21,7 +21,7 @@ type SlashCommandTemplate struct {
 	Form SlashCreateCommand
 }
 
-func (b *Bot) initCommand(command CommandTemplate, event *parse.RawEvent, ctx *ctx.Context) {
+func (b *Bot) initCommand(command CommandTemplate, event *parse.RawEvent, ctx ctx.Context) {
 	defer func() {
 		if r := recover(); r != nil {
 			b.OnPanic(event, &command, r, debug.Stack())

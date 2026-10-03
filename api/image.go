@@ -3,10 +3,8 @@ package api
 import (
 	"bytes"
 	"errors"
-	"fmt"
 	"io"
 	"mime/multipart"
-	"net/http"
 	"os"
 	"path/filepath"
 
@@ -59,30 +57,9 @@ func (c *DiscordClient) SendImage(toChannel _const.ChannelId, msg schema.SendMes
 		return err
 	}
 
-	req, err := http.NewRequest("POST", url, body)
+	_, err = c.DoDiscordRequest(_const.Post, url, body.Bytes())
 	if err != nil {
 		return err
-	}
-
-	req.Header.Set("Content-Type", writer.FormDataContentType())
-	req.Header.Set("Authorization", "Bot "+*c.token)
-
-	resp, err := c.client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer func() {
-		if err := resp.Body.Close(); err != nil {
-			c.logger.Warn("failed to close response body", zap.Error(err))
-		}
-	}()
-
-	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusCreated {
-		respBody, _ := io.ReadAll(resp.Body)
-		if len(respBody) > 1024 {
-			respBody = respBody[:1024]
-		}
-		return fmt.Errorf("discord returned %d: %s", resp.StatusCode, string(respBody))
 	}
 
 	return nil

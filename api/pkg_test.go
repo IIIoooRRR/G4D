@@ -2,6 +2,7 @@ package api_test
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/IIIoooRRR/G4D/api"
@@ -41,13 +42,18 @@ func BenchmarkGetURL(b *testing.B) {
 		GarbageString = api.GetURI(host, path)
 	}
 }
-func BenchmarkConcatination(b *testing.B) {
+
+func BenchmarkStringBuilder(b *testing.B) {
 	b.ReportAllocs()
 	b.ResetTimer()
 	host := "https://discord.com"
 	path := "/channels/123456789012345678/messages"
 	for i := 0; i < b.N; i++ {
-		GarbageString = host + path
+		var builder strings.Builder
+		builder.Grow(len(host) + len(path))
+		builder.WriteString(host)
+		builder.WriteString(path)
+		GarbageString = builder.String()
 	}
 }
 

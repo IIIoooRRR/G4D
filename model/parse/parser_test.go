@@ -2,6 +2,7 @@ package parse
 
 import (
 	"reflect"
+	"runtime"
 	"sync"
 	"testing"
 
@@ -118,9 +119,12 @@ func BenchmarkEvent_GetMessage(b *testing.B) {
 	wg := sync.WaitGroup{}
 	cache.AddEvent(event, &wg, 3, b.N, types.Get(event.Type))
 	b.ResetTimer()
+	var r *schema.GetMessage
 	for i := 0; i < b.N; i++ {
-		_ = GetEvent[schema.GetMessage](event)
+		r = GetEvent[schema.GetMessage](event)
 	}
+	runtime.KeepAlive(r)
+	b.ReportAllocs()
 }
 
 func TestEvent_TableDriven(t *testing.T) {

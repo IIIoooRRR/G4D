@@ -1,15 +1,11 @@
 package gateway
 
 import (
-	"context"
-
 	"github.com/IIIoooRRR/G4D/gateway/internal"
 	"go.uber.org/zap"
 )
 
-func (r *Receiver) connect(ParentCtx context.Context) error {
-	defer r.Stop()                                  // if there is an error, we roll back the ones specified in r.Stop parts of sockets
-	r.ctx, r.cancel = context.WithCancel(ParentCtx) //creating a context based on the parent
+func (r *Receiver) connect() error {
 	err := r.gateway()
 	if err != nil {
 		return err
@@ -20,7 +16,7 @@ func (r *Receiver) connect(ParentCtx context.Context) error {
 		return err
 	}
 	go func() {
-		err := r.heartbeat(r.ctx) // tell the program to send heartbeat messages every n seconds.
+		err := r.heartbeat() // tell the program to send heartbeat messages every n seconds.
 		if err != nil {
 			r.logger.Error("heartbeat", zap.Error(err))
 		}
@@ -29,20 +25,22 @@ func (r *Receiver) connect(ParentCtx context.Context) error {
 	if err != nil {
 		return err
 	}
-	err = r.listen(r.ctx, r.logger.Named("connect")) // start listening and processing events from web sockets (the main program flow)
+	err = r.listen(r.logger.Named("connect")) // start listening and processing events from web sockets (the main program flow)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (r *Receiver) listen(ctx context.Context, logger *zap.Logger) error {
+func (r *Receiver) listen(logger *zap.Logger) error {
 	defer func() {
 		_ = r.connectWS.Close()
 	}()
 	for {
 		select {
-		case <-ctx.Done():
+		case <-r.ctx.Done():
+			close(r.Queue)
+			r.logger.Info("listener stopped")
 			return nil
 		default:
 

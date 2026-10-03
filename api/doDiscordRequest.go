@@ -1,76 +1,61 @@
 package api
 
 import (
-	"bytes"
 	"context"
-	"errors"
-	"io"
+	"encoding/json"
 	"net/http"
+	"time"
 
-	"go.uber.org/zap"
+	"github.com/IIIoooRRR/G4D/model/_const"
+	"github.com/IIIoooRRR/G4D/model/dependencies"
 )
 
-func (c *DiscordClient) DoDiscordRequest(method, uri string, body []byte) ([]byte, error) {
+func (c *DiscordClient) DoDiscordRequest(method _const.Method, uri string, body []byte) ([]byte, error) {
 	url := GetURL("https://discord.com/api/v10", uri)
-	req, err := http.NewRequest(method, url, bytes.NewBuffer(body))
+	code, resp, err := c.doRequest(method, url, body)
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bot "+*c.token)
-	resp, err := c.client.Do(req)
-	if err != nil {
-		return nil, err
+	if code < 200 || code >= 300 {
+		return nil, &discordError{Code: code, Message: resp}
 	}
-	defer func(Body io.ReadCloser) {
-		err := Body.Close()
-		if err != nil {
-
-		}
-	}(resp.Body)
-	if resp.StatusCode >= 400 || resp.StatusCode < 200 {
-		c.logger.Info("response status", zap.String("", resp.Status))
-		return nil, errors.New("bad Request")
-	}
-	respBody, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, errors.New("response body read error")
-	}
-	return respBody, nil
+	return resp, nil
 }
 
-func (c *DiscordClient) DoDiscordLimitRequest(ctx context.Context, method, uri string, body []byte) ([]byte, error) {
+func (c *DiscordClient) DoDiscordLimitRequest(ctx context.Context, method _const.Method, uri string, body []byte) ([]byte, error) {
 	url := GetURL("https://discord.com/api/v10", uri)
-	limiter, ok := c.getBucket(uri)
-	if !ok {
-		limiter = c.newBucket(uri)
-	}
-	if err := limiter.Wait(ctx); err != nil {
-		return nil, err
-	}
-	req, err := http.NewRequestWithContext(ctx, method, url, bytes.NewReader(body))
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bot "+*c.token)
-	resp, err := c.client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer func(Body io.ReadCloser) {
-		err := Body.Close()
-		if err != nil {
-
+	limiter := c.GetOrNewBucket(uri)
+	for at := 0; at < 2; at++ {
+		if err := limiter.Wait(ctx); err != nil {
+			return nil, err
 		}
-	}(resp.Body)
-	if resp.StatusCode >= 400 || resp.StatusCode < 200 {
-		c.logger.Warn("response error", zap.String("uri:", uri), zap.String("status:", resp.Status))
-		return nil, errors.New("response error: " + resp.Status)
+
+		code, resp, err := c.doRequest(method, url, body)
+		if err != nil {
+			return nil, err
+		}
+
+		if code < 200 || code >= 300 {
+			if code == http.StatusTooManyRequests {
+				var retry dependencies.RetryResponse
+				if err := json.Unmarshal(resp, &retry); err == nil {
+					timer := time.NewTimer(retry.After * time.Second)
+
+					select {
+					case <-ctx.Done():
+						timer.Stop()
+						return nil, ctx.Err()
+					case <-timer.C:
+						continue
+					}
+				} else {
+					return nil, err
+				}
+
+			}
+			return nil, &discordError{Code: code, Message: resp}
+		}
+		return resp, nil
 	}
-	respBody, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, errors.New("response body read error")
-	}
-	return respBody, nil
+	return nil, nil
 }

@@ -1,6 +1,7 @@
 package g4d
 
 import (
+	"context"
 	"errors"
 	"strings"
 	"sync"
@@ -26,15 +27,18 @@ type Bot struct {
 	// without crutches. It may not be safe, but.. as it turned out. excuse me
 	processorsOnce sync.Once
 	eventCache     *parse.Cache
+	memReportOnce  sync.Once
+	ctx            context.Context
 }
 type PanicHandler interface {
 	OnPanic(event *parse.RawEvent, cmd *CommandTemplate, r any, stack []byte)
 }
 
-func (b *Bot) Run(qnt _const.Quantity, limit _const.SemaphoreLimit, processorType _const.ProcessorType) error {
+func (b *Bot) Run(qnt _const.Quantity, limit _const.SemaphoreLimit, processorType _const.ProcessorType, ctx context.Context) error {
 	if err := b.validate(); err != nil {
 		return err
 	}
+	b.ctx = ctx
 
 	b.initLogger()
 	b.initCache(qnt)
@@ -44,11 +48,19 @@ func (b *Bot) Run(qnt _const.Quantity, limit _const.SemaphoreLimit, processorTyp
 		return err
 	}
 
-	b.initProcessors(processorType, qnt, limit)
-	return b.Gateway.InitGateway(b.Logger.Named("gateway"), &b.Token)
+	if err := b.initProcessors(processorType, qnt, limit); err != nil {
+		return err
+	}
+	if ctx == nil {
+		b.Logger.Info("the bot context is nil; it is strongly recommended to replace it with a non‑nil value")
+	}
+	return b.Gateway.InitGateway(ctx, b.Logger.Named("gateway"), &b.Token)
 }
 
 func (b *Bot) validate() error {
+	if b.Token == "" {
+		return errors.New("token is empty")
+	}
 	if b.Logger == nil {
 		return errors.New("logger is nil")
 	}
@@ -63,6 +75,9 @@ func (b *Bot) validate() error {
 
 func (b *Bot) initClient() {
 	b.Client.SetLogger(b.Logger.Named("http-client"))
+	b.Client.AppId = &b.appId
+	b.Client.SetContext(b.ctx)
+	go b.Client.RunDelete()
 }
 func (b *Bot) initLogger() {
 	name := b.Logger.Name()

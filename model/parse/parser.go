@@ -44,9 +44,8 @@ func InitCache(quantity _const.Quantity, logger *zap.Logger) *Cache {
 }
 
 func GetEvent[T any](event *RawEvent) *T {
-	defer (*event.cache)[event.idx].Wg.Done()
-	return (*T)(
-		(*event.cache)[event.idx].Data)
+	defer event.cache[event.idx].Wg.Done()
+	return (*T)(event.cache[event.idx].Data)
 }
 
 func (c *Cache) AddEvent(event *RawEvent, wg *sync.WaitGroup, seq, quantity int, t reflect.Type) {
@@ -56,14 +55,13 @@ func (c *Cache) AddEvent(event *RawEvent, wg *sync.WaitGroup, seq, quantity int,
 		Wg:   wg,
 	}
 	//We set the values for the hidden fields so that we can retrieve the parsing values during reading.
-	event.cache, event.idx = &c.Entry, seq
+	event.cache, event.idx = c.Entry, seq
 }
 func (c *Cache) reflectParsing(event *RawEvent, t reflect.Type) unsafe.Pointer {
 	d := reflect.New(t)
 	err := Unmarshal(event.Data, d.Interface())
 	if err != nil {
 		c.logger.Error("unmarshal raw event", zap.Error(err))
-		return nil
 	}
 	// #nosec G103
 	return d.UnsafePointer()

@@ -1,7 +1,6 @@
 package gateway
 
 import (
-	"context"
 	"time"
 
 	"github.com/IIIoooRRR/G4D/gateway/internal"
@@ -11,13 +10,11 @@ import (
 a function that takes every n seconds that were specified when connecting
 It consumes almost no CPU or RAM, as it is almost always waiting.
 */
-func (r *Receiver) heartbeat(ctx context.Context) error {
-	ticker := time.NewTicker(r.interval)
+func (r *Receiver) heartbeat() error {
 	logger := r.logger.Named("heartbeat")
-	defer ticker.Stop()
 	for {
 		select {
-		case <-ticker.C:
+		case <-time.After(r.interval):
 			r.connMutex.Lock()
 			err := r.connectWS.WriteJSON(
 				json.Payload{
@@ -28,8 +25,8 @@ func (r *Receiver) heartbeat(ctx context.Context) error {
 			if err != nil {
 				return err
 			}
-		case <-ctx.Done():
-			logger.Info("done")
+		case <-r.ctx.Done():
+			logger.Info("heartbeat stopped")
 			return nil
 		}
 	}

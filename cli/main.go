@@ -23,12 +23,10 @@ func main() {
 			fmt.Println("Initialized a new G4D project")
 		}},
 		&cobra.Command{
-			Use:   "lint [path...]",
+			Use:   "lint",
 			Short: "Lint a G4D project",
 			Run: func(cmd *cobra.Command, args []string) {
-				if len(args) == 0 {
-					args = []string{"./..."}
-				}
+				args = []string{"./..."}
 				oldArgs := os.Args
 				os.Args = append([]string{"g4d"}, args...)
 				defer func() { os.Args = oldArgs }()
