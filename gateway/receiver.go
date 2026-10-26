@@ -29,4 +29,5 @@ type Receiver struct {
 	logger    *zap.Logger
 	dLogger   *zap.Logger // dispatch.go logger
 	initOnce  sync.Once
+	EventPool *sync.Pool
 }

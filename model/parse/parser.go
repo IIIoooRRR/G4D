@@ -1,13 +1,10 @@
+//go:build !unsafe
+
 package parse
 
 import (
-	"reflect"
 	"sync"
-	"unsafe"
 
-	"github.com/IIIoooRRR/G4D/model/_const"
-	"github.com/IIIoooRRR/G4D/model/dependencies"
-	"github.com/IIIoooRRR/G4D/model/schema"
 	"go.uber.org/zap"
 )
 
@@ -26,61 +23,21 @@ that if you want to add some structure that I didn’t implement (by accident) o
 I wanted to be a stickler, so use add to add a new structure, and change to modify it. You can only replace it without adding.
 */
 
-type Cache struct {
-	Entry  []EventEntry
-	noCopy noCopy
-	logger *zap.Logger
-}
 type EventEntry struct {
-	Data unsafe.Pointer
+	Data any
 	Wg   *sync.WaitGroup
 }
 
-func InitCache(quantity _const.Quantity, logger *zap.Logger) *Cache {
-	return &Cache{
-		Entry:  make([]EventEntry, quantity),
-		logger: logger,
-	}
-}
-
+// GetEvent returns a pointer to shared event data.
+// Commands must NOT modify the returned value.
 func GetEvent[T any](event *RawEvent) *T {
-	defer event.cache[event.idx].Wg.Done()
-	return (*T)(event.cache[event.idx].Data)
+	return event.cache[event.idx].Data.(*T)
 }
 
-func (c *Cache) AddEvent(event *RawEvent, wg *sync.WaitGroup, seq, quantity int, t reflect.Type) {
-	wg.Add(quantity)
-	c.Entry[seq] = EventEntry{
-		Data: c.reflectParsing(event, t),
-		Wg:   wg,
-	}
-	//We set the values for the hidden fields so that we can retrieve the parsing values during reading.
-	event.cache, event.idx = c.Entry, seq
-}
-func (c *Cache) reflectParsing(event *RawEvent, t reflect.Type) unsafe.Pointer {
-	d := reflect.New(t)
-	err := Unmarshal(event.Data, d.Interface())
+func (c *Cache) reflectParsing(event *RawEvent, t any) any {
+	err := Unmarshal(event.Data, t)
 	if err != nil {
 		c.logger.Error("unmarshal raw event", zap.Error(err))
 	}
-	// #nosec G103
-	return d.UnsafePointer()
-}
-
-/* Channel */
-func ToChannel(body []byte) (*schema.Channel, error) {
-	var channel *schema.Channel
-	err := Unmarshal(body, channel)
-	if err != nil {
-		return nil, err
-	}
-	return channel, nil
-}
-func ToUser(body []byte) (*dependencies.User, error) {
-	var user dependencies.User
-	err := Unmarshal(body, &user)
-	if err != nil {
-		return nil, err
-	}
-	return &user, nil
+	return t
 }

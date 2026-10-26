@@ -27,15 +27,13 @@ func (r *Receiver) dispatch(event json.Payload) error {
 			}
 			r.dLogger.Info("g4d is ready")
 			r.sessionID = d.SessionID
-
 			r.resumeURL = d.ResumeGatewayURL
 		default:
-			r.Queue <- &parse.RawEvent{
-				Type: event.T,
-				Data: event.D,
-			}
+			ev := r.EventPool.Get().(*parse.RawEvent)
+			ev.Type, ev.Data = event.T, event.D
+			r.Queue <- ev
 		}
-		r.lastSeq.Store((int64)(event.S))
+		r.lastSeq.Store(event.S)
 		return nil
 	}
 }

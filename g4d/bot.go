@@ -5,6 +5,7 @@ import (
 	"errors"
 	"strings"
 	"sync"
+	"sync/atomic"
 
 	"github.com/IIIoooRRR/G4D/api"
 	gw "github.com/IIIoooRRR/G4D/gateway"
@@ -25,10 +26,10 @@ type Bot struct {
 	cmdLogger     *zap.Logger
 	Client        *api.DiscordClient // I didn't make the client field private so that you wouldn't have to write crutches to change http.Client
 	// without crutches. It may not be safe, but.. as it turned out. excuse me
-	processorsOnce sync.Once
-	eventCache     *parse.Cache
-	memReportOnce  sync.Once
-	ctx            context.Context
+	processorsOnce    sync.Once
+	eventCache        *parse.Cache
+	ctx               context.Context
+	isMemReportActive atomic.Bool
 }
 type PanicHandler interface {
 	OnPanic(event *parse.RawEvent, cmd *CommandTemplate, r any, stack []byte)
@@ -38,8 +39,10 @@ func (b *Bot) Run(qnt _const.Quantity, limit _const.SemaphoreLimit, processorTyp
 	if err := b.validate(); err != nil {
 		return err
 	}
+	if ctx == nil {
+		return errors.New("ctx is nil")
+	}
 	b.ctx = ctx
-
 	b.initLogger()
 	b.initCache(qnt)
 	b.initClient()
@@ -51,9 +54,7 @@ func (b *Bot) Run(qnt _const.Quantity, limit _const.SemaphoreLimit, processorTyp
 	if err := b.initProcessors(processorType, qnt, limit); err != nil {
 		return err
 	}
-	if ctx == nil {
-		b.Logger.Info("the bot context is nil; it is strongly recommended to replace it with a non‑nil value")
-	}
+
 	return b.Gateway.InitGateway(ctx, b.Logger.Named("gateway"), &b.Token)
 }
 

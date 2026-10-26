@@ -1,6 +1,8 @@
 package gateway
 
 import (
+	"sync"
+
 	"github.com/IIIoooRRR/G4D/model/_const"
 	"github.com/IIIoooRRR/G4D/model/customize"
 	"github.com/IIIoooRRR/G4D/model/parse"
@@ -14,6 +16,11 @@ func NewGateway(bufferSize _const.BufferSize, intents _const.Intents, activity [
 			Activities: activity,
 			Status:     netStatus,
 			Afk:        false,
+		},
+		EventPool: &sync.Pool{
+			New: func() interface{} {
+				return new(parse.RawEvent)
+			},
 		},
 		Intents: intents,
 	}

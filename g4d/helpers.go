@@ -4,8 +4,8 @@ import (
 	"context"
 	"os"
 	"runtime"
+	"runtime/metrics"
 	"runtime/pprof"
-	"sync"
 	"time"
 
 	"github.com/IIIoooRRR/G4D/api"
@@ -35,36 +35,6 @@ func WithSemaphoreLimit(limit int) _const.SemaphoreLimit {
 	return _const.SemaphoreLimit(limit)
 }
 
-func (b *Bot) MemReport(ctx context.Context, timeSleep time.Duration) {
-	b.memReportOnce.Do(func() {
-		logger := b.Logger.Named("mem-reporter")
-		go func(ctx context.Context) {
-			for {
-				select {
-				case <-ctx.Done():
-					return
-				case <-time.After(timeSleep):
-					var m runtime.MemStats
-					runtime.ReadMemStats(&m)
-					logger.Info("stats",
-						zap.Float32("alloc_mb", float32(m.Alloc)/1024/1024),
-						zap.Float32("stack_mb", float32(m.StackInuse)/1024/1024),
-						zap.Float32("sys_mb", float32(m.Sys)/1024/1024),
-						zap.Float32("cache_sys_mb", float32(m.MCacheSys)/1024/1024),
-						zap.Uint64("heap_objects", m.HeapObjects),
-						zap.Int("goroutines", runtime.NumGoroutine()),
-						zap.Float32("heap_idle_mb", float32(m.HeapIdle)/1024/1024),
-						zap.Float32("heap_released_mb", float32(m.HeapReleased)/1024/1024),
-						zap.Uint32("gc_count", m.NumGC),
-						zap.Uint64("total_alloc", m.TotalAlloc),
-					)
-				}
-			}
-		}(ctx)
-	})
-	b.memReportOnce = sync.Once{}
-}
-
 func (b *Bot) StartProfiling(ctx context.Context) {
 	f, err := os.Create("./cpu.prof")
 	if err != nil {
@@ -87,4 +57,64 @@ func (b *Bot) StartProfiling(ctx context.Context) {
 	}()
 
 	b.Logger.Info("CPU profiling started")
+}
+
+func (b *Bot) MemReport(ctx context.Context, timeSleep time.Duration) {
+	if b.isMemReportActive.Swap(true) {
+		return
+	}
+
+	logger := b.Logger.Named("mem-reporter")
+
+	const (
+		allocName    = "/memory/classes/heap/objects:bytes"
+		stackName    = "/memory/classes/heap/stacks:bytes"
+		sysName      = "/memory/classes/total:bytes"
+		mcacheName   = "/memory/classes/metadata/mcache:bytes"
+		objectsName  = "/memory/classes/heap/objects:objects"
+		gcName       = "/gc/cycles:total"
+		heapIdleName = "/memory/classes/heap/free:bytes"
+	)
+
+	samples := []metrics.Sample{
+		{Name: allocName},
+		{Name: stackName},
+		{Name: heapIdleName},
+	}
+
+	go func(ctx context.Context) {
+		defer b.isMemReportActive.Store(false)
+
+		ticker := time.NewTicker(timeSleep)
+		defer ticker.Stop()
+
+		for {
+			select {
+			case <-ctx.Done():
+				logger.Info("mem reporter stopped")
+				return
+			case <-ticker.C:
+				metrics.Read(samples)
+
+				var alloc, stack, heapIdle uint64
+
+				if samples[0].Value.Kind() == metrics.KindUint64 {
+					alloc = samples[0].Value.Uint64()
+				}
+				if samples[1].Value.Kind() == metrics.KindUint64 {
+					stack = samples[1].Value.Uint64()
+				}
+				if samples[2].Value.Kind() == metrics.KindUint64 {
+					heapIdle = samples[2].Value.Uint64()
+				}
+
+				logger.Info("stats",
+					zap.Float32("alloc_mb", float32(alloc)/1024/1024),
+					zap.Float32("stack_mb", float32(stack)/1024/1024),
+					zap.Int("goroutines", runtime.NumGoroutine()),
+					zap.Float32("heap_idle_mb", float32(heapIdle)/1024/1024),
+				)
+			}
+		}
+	}(ctx)
 }

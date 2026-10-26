@@ -1,44 +1,45 @@
 package types
 
 import (
-	"reflect"
-
 	"github.com/IIIoooRRR/G4D/model/_const"
 	"github.com/IIIoooRRR/G4D/model/schema"
 )
 
-var features = map[string]reflect.Type{
-	_const.EventMessageCreate:     reflect.TypeOf(schema.GetMessage{}),
-	_const.EventMessageUpdate:     reflect.TypeOf(schema.MessageEdit{}),
-	_const.EventMessageDelete:     reflect.TypeOf(schema.MessageDelete{}),
-	_const.EventMessageDeleteBulk: reflect.TypeOf(schema.MessageDeleteBulk{}),
+var features = map[string]func() any{
+	_const.EventMessageCreate:     func() any { return &schema.GetMessage{} },
+	_const.EventMessageUpdate:     func() any { return &schema.MessageEdit{} },
+	_const.EventMessageDelete:     func() any { return &schema.MessageDelete{} },
+	_const.EventMessageDeleteBulk: func() any { return &schema.MessageDeleteBulk{} },
 
-	_const.EventInteractionCreate: reflect.TypeOf(schema.Interaction{}),
-	_const.EventInteractionUpdate: reflect.TypeOf(schema.Interaction{}),
-	_const.EventInteractionDelete: reflect.TypeOf(schema.Interaction{}),
+	_const.EventInteractionCreate: func() any { return &schema.Interaction{} },
+	_const.EventInteractionUpdate: func() any { return &schema.Interaction{} },
+	_const.EventInteractionDelete: func() any { return &schema.Interaction{} },
 
-	_const.EventGuildCreate:       reflect.TypeOf(schema.Guild{}),
-	_const.EventGuildMemberAdd:    reflect.TypeOf(schema.GuildMemberAdd{}),
-	_const.EventGuildMemberRemove: reflect.TypeOf(schema.GuildMemberRemove{}),
-	_const.EventGuildBanAdd:       reflect.TypeOf(schema.GuildBanAdd{}),
-	_const.EventGuildBanRemove:    reflect.TypeOf(schema.GuildBanRemove{}),
-	_const.EventGuildEmojisUpdate: reflect.TypeOf(schema.GuildEmojisUpdate{}),
-	_const.EventGuildUpdate:       reflect.TypeOf(schema.Guild{}),
+	_const.EventGuildCreate:       func() any { return &schema.Guild{} },
+	_const.EventGuildMemberAdd:    func() any { return &schema.GuildMemberAdd{} },
+	_const.EventGuildMemberRemove: func() any { return &schema.GuildMemberRemove{} },
+	_const.EventGuildBanAdd:       func() any { return &schema.GuildBanAdd{} },
+	_const.EventGuildBanRemove:    func() any { return &schema.GuildBanRemove{} },
+	_const.EventGuildEmojisUpdate: func() any { return &schema.GuildEmojisUpdate{} },
+	_const.EventGuildUpdate:       func() any { return &schema.Guild{} },
 
-	_const.EventMessageReactionAdd:         reflect.TypeOf(schema.MessageReactionAdd{}),
-	_const.EventMessageReactionRemove:      reflect.TypeOf(schema.MessageReactionRemove{}),
-	_const.EventMessageReactionRemoveAll:   reflect.TypeOf(schema.MessageReactionRemoveAll{}),
-	_const.EventMessageReactionRemoveEmoji: reflect.TypeOf(schema.MessageReactionRemoveEmoji{}),
+	_const.EventMessageReactionAdd:         func() any { return &schema.MessageReactionAdd{} },
+	_const.EventMessageReactionRemove:      func() any { return &schema.MessageReactionRemove{} },
+	_const.EventMessageReactionRemoveAll:   func() any { return &schema.MessageReactionRemoveAll{} },
+	_const.EventMessageReactionRemoveEmoji: func() any { return &schema.MessageReactionRemoveEmoji{} },
 
-	_const.EventChannelCreate: reflect.TypeOf(schema.Channel{}),
-	_const.EventChannelUpdate: reflect.TypeOf(schema.Channel{}),
-	_const.EventChannelDelete: reflect.TypeOf(schema.ChannelDelete{}),
+	_const.EventChannelCreate: func() any { return &schema.Channel{} },
+	_const.EventChannelUpdate: func() any { return &schema.Channel{} },
+	_const.EventChannelDelete: func() any { return &schema.ChannelDelete{} },
 }
 
-func Get(s string) reflect.Type {
+// return a factory
+func Get(s string) func() any {
 	return features[s]
 }
-func Add(s string, t reflect.Type) {
+
+// adds a factory to the missing K
+func Add(s string, t func() any) {
 	r := features[s]
 	if r != nil {
 
@@ -46,7 +47,9 @@ func Add(s string, t reflect.Type) {
 	}
 	features[s] = t
 }
-func Change(s string, t reflect.Type) {
+
+// replaces the fabric of the existing K
+func Change(s string, t func() any) {
 	r := features[s]
 	if r == nil {
 		return

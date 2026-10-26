@@ -1,7 +1,6 @@
 package parse
 
 import (
-	"reflect"
 	"runtime"
 	"sync"
 	"testing"
@@ -30,7 +29,7 @@ func TestEvent_GetMessage(t *testing.T) {
 	}
 
 	wg := sync.WaitGroup{}
-	cache.AddEvent(event, &wg, 0, 1, reflect.TypeOf(schema.GetMessage{}))
+	cache.AddEvent(event, &wg, 0, 1, types.Get(_const.EventMessageCreate))
 	msg := GetEvent[schema.GetMessage](event)
 
 	if msg.ID != "123456789" {

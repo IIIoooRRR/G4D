@@ -83,10 +83,7 @@ func (c *DiscordClient) doWithoutBody(method, url string) (int, []byte, error) {
 func (c *DiscordClient) delete(url string) (int, []byte, error) {
 	return c.doWithoutBody("DELETE", url)
 }
-func (c *DiscordClient) get(url string) (int, []byte, error) {
-	return c.doWithoutBody("GET", url)
-}
-
+func (c *DiscordClient) get(url string) (int, []byte, error) { return c.doWithoutBody("GET", url) }
 func (c *DiscordClient) post(url string, body []byte) (int, []byte, error) {
 	return c.doWithBody("POST", url, body)
 }

@@ -10,3 +10,7 @@ type Context struct {
 	Logger *zap.Logger
 	*api.DiscordClient
 }
+
+func (ctx *Context) WithPrefix(s1, s2 string) bool {
+	return s1 == ctx.Prefix+s2
+}

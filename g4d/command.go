@@ -2,6 +2,7 @@ package g4d
 
 import (
 	"runtime/debug"
+	"sync"
 
 	"github.com/IIIoooRRR/G4D/model/ctx"
 	"github.com/IIIoooRRR/G4D/model/parse"
@@ -21,8 +22,9 @@ type SlashCommandTemplate struct {
 	Form SlashCreateCommand
 }
 
-func (b *Bot) initCommand(command CommandTemplate, event *parse.RawEvent, ctx ctx.Context) {
+func (b *Bot) initCommand(command CommandTemplate, event *parse.RawEvent, ctx ctx.Context, wg *sync.WaitGroup) {
 	defer func() {
+		wg.Done()
 		if r := recover(); r != nil {
 			b.OnPanic(event, &command, r, debug.Stack())
 		}

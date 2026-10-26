@@ -1,6 +1,7 @@
 package g4d
 
 import (
+	"fmt"
 	"sync"
 
 	"github.com/IIIoooRRR/G4D/model/parse"
@@ -20,25 +21,27 @@ func (b *Bot) staticEventProcessor(seq int, limiter chan struct{}) {
 	for {
 		select {
 		case <-b.ctx.Done():
-			b.Logger.Info("processor stopped")
+			b.Logger.Info(fmt.Sprintf("%d processor stopped", seq))
 			return
 		case event := <-b.Gateway.Queue:
 			ctx := b.newCtx()
 			wg := sync.WaitGroup{}
-			eventType := types.Get(event.Type)
-			if eventType == nil {
+			factory := types.Get(event.Type)
+			if factory == nil {
+				b.Gateway.EventPool.Put(event.Reset())
 				continue
 			}
 			cmds := cmdMap[event.Type]
-			b.eventCache.AddEvent(event, &wg, seq, len(cmds), eventType)
+			b.eventCache.AddEvent(event, &wg, seq, len(cmds), factory)
 			for _, cmd := range cmds {
 				limiter <- struct{}{}
 				go func(cmd CommandTemplate, event *parse.RawEvent) {
 					defer func() { <-limiter }()
-					b.initCommand(cmd, event, ctx)
+					b.initCommand(cmd, event, ctx, &wg)
 				}(cmd, event)
 			}
 			wg.Wait()
+			b.Gateway.EventPool.Put(event.Reset())
 		}
 	}
 }

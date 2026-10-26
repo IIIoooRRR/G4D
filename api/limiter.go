@@ -24,14 +24,15 @@ I also switched the structure to a more gentle read-write mutex, which improves 
 and also makes reading/writing atomic at the method level, but not at the map level.
 */
 type DiscordClient struct {
-	client  *fasthttp.Client
-	buckets map[string]*limiter
-	rwmu    sync.RWMutex
-	token   *string
-	logger  *zap.Logger
-	timeout time.Duration
-	AppId   *string
-	ctx     context.Context
+	client     *fasthttp.Client
+	buckets    map[string]*limiter
+	rwmu       sync.RWMutex
+	token      *string
+	logger     *zap.Logger
+	timeout    time.Duration
+	AppId      *string
+	ctx        context.Context
+	maxAttempt atomic.Int64
 }
 type limiter struct {
 	rate.Limiter
@@ -56,10 +57,11 @@ func NewClient(token *string, clientTimeout time.Duration) *DiscordClient {
 		buckets: make(map[string]*limiter),
 		timeout: clientTimeout,
 	}
+	client.maxAttempt.Store(3)
 	return client
 }
 
-func (c *DiscordClient) GetOrNewBucket(uri string) *limiter {
+func (c *DiscordClient) getOrNewBucket(uri string) *limiter {
 	if lim, ok := c.getBucket(uri); ok {
 		return lim
 	}
@@ -83,11 +85,11 @@ func (c *DiscordClient) getBucket(uri string) (*limiter, bool) {
 	return bucket, ok
 }
 func (c *DiscordClient) RunDelete() {
-	select {
-	case <-c.ctx.Done():
-		return
-	case <-time.After(c.timeout):
-		for {
+	for {
+		select {
+		case <-c.ctx.Done():
+			return
+		case <-time.After(c.timeout):
 			c.rwmu.Lock()
 			for uri, lim := range c.buckets {
 				if time.Now().UnixNano() > lim.TTL.Load()+int64(time.Minute*10) {
@@ -107,4 +109,7 @@ func (c *DiscordClient) SetLogger(logger *zap.Logger) {
 }
 func (c *DiscordClient) SetContext(ctx context.Context) {
 	c.ctx = ctx
+}
+func (c *DiscordClient) SetRequestAttempt(at int64) {
+	c.maxAttempt.Store(at)
 }

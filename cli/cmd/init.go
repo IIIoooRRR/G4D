@@ -33,7 +33,7 @@ func InitDir() {
 	writeTemplate(filepath.Join("commands", "init.go"), templates.Init)
 }
 func createDir(name string) {
-	err := os.Mkdir(name, os.ModePerm)
+	err := os.Mkdir(name, 0755)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -46,7 +46,7 @@ func createFile(name string) {
 	defer f.Close()
 }
 func writeTemplate(path, content string) {
-	if err := os.WriteFile(path, []byte(content), 0644); err != nil {
+	if err := os.WriteFile(path, []byte(content), 0600); err != nil {
 		log.Fatal(err)
 	}
 }

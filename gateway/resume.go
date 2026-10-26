@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/IIIoooRRR/G4D/gateway/internal"
+	"github.com/IIIoooRRR/G4D/model/_const"
 	"go.uber.org/zap"
 )
 
@@ -29,7 +30,7 @@ func (r *Receiver) resume() error {
 		if err = r.connectWS.Close(); err != nil {
 			logger.Warn("close old socket", zap.Error(err))
 		}
-		if err = r.gateway(); err != nil {
+		if err = r.gateway(_const.Resume); err != nil {
 			r.connMutex.Unlock()
 			return fmt.Errorf("gateway: %w", err)
 		}

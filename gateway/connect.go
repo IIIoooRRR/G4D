@@ -2,11 +2,12 @@ package gateway
 
 import (
 	"github.com/IIIoooRRR/G4D/gateway/internal"
+	"github.com/IIIoooRRR/G4D/model/_const"
 	"go.uber.org/zap"
 )
 
 func (r *Receiver) connect() error {
-	err := r.gateway()
+	err := r.gateway(_const.NonResume)
 	if err != nil {
 		return err
 	}
@@ -66,7 +67,7 @@ func (r *Receiver) listen(logger *zap.Logger) error {
 				r.connMutex.Lock()
 				err = r.connectWS.WriteJSON(json.Payload{ // it tells you what interval heartbeat.go should work with.
 					Op: 1,
-					S:  int(r.lastSeq.Load()),
+					S:  r.lastSeq.Load(),
 				})
 				r.connMutex.Unlock()
 				if err != nil {

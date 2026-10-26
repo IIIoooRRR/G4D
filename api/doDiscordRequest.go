@@ -24,8 +24,8 @@ func (c *DiscordClient) DoDiscordRequest(method _const.Method, uri string, body 
 
 func (c *DiscordClient) DoDiscordLimitRequest(ctx context.Context, method _const.Method, uri string, body []byte) ([]byte, error) {
 	url := GetURL("https://discord.com/api/v10", uri)
-	limiter := c.GetOrNewBucket(uri)
-	for at := 0; at < 2; at++ {
+	limiter := c.getOrNewBucket(uri)
+	for at := int64(0); at < c.maxAttempt.Load(); at++ {
 		if err := limiter.Wait(ctx); err != nil {
 			return nil, err
 		}
@@ -39,7 +39,7 @@ func (c *DiscordClient) DoDiscordLimitRequest(ctx context.Context, method _const
 			if code == http.StatusTooManyRequests {
 				var retry dependencies.RetryResponse
 				if err := json.Unmarshal(resp, &retry); err == nil {
-					timer := time.NewTimer(retry.After * time.Second)
+					timer := time.NewTimer(time.Duration(retry.After))
 
 					select {
 					case <-ctx.Done():
