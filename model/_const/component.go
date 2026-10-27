@@ -1,9 +1,14 @@
 package _const
 
 const (
-	ActionRowType = 1
-	ButtonType    = 2
-	SelectType    = 3
+	ComponentActionRowType = 1
+	ComponentButtonType    = 2
+
+	ComponentSelectTypeString      = 3
+	ComponentSelectTypeUser        = 5
+	ComponentSelectTypeRole        = 6
+	ComponentSelectTypeMentionable = 7
+	ComponentSelectTypeChannel     = 8
 )
 const (
 	ButtonStylePrimary   = 1

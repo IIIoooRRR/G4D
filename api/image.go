@@ -14,7 +14,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func (c *DiscordClient) SendImage(toChannel _const.ChannelId, msg schema.SendMessage, path string) error {
+func (c *DiscordClient) SendImage(toChannel _const.ChannelId, msg schema.Message, path string) error {
 	file, err := os.Open(filepath.Clean(path))
 	if err != nil {
 		return err

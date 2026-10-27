@@ -1,4 +1,4 @@
-package dependencies
+package entity
 
 import "github.com/IIIoooRRR/G4D/model/_const"
 

@@ -33,7 +33,7 @@ func InitDir() {
 	writeTemplate(filepath.Join("commands", "init.go"), templates.Init)
 }
 func createDir(name string) {
-	err := os.Mkdir(name, 0755)
+	err := os.Mkdir(name, 0600)
 	if err != nil {
 		log.Fatal(err)
 	}

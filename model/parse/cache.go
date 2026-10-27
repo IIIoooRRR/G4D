@@ -4,7 +4,7 @@ import (
 	"sync"
 
 	"github.com/IIIoooRRR/G4D/model/_const"
-	"github.com/IIIoooRRR/G4D/model/dependencies"
+	"github.com/IIIoooRRR/G4D/model/entity"
 	"github.com/IIIoooRRR/G4D/model/schema"
 	"go.uber.org/zap"
 )
@@ -37,8 +37,8 @@ func ToChannel(body []byte) (*schema.Channel, error) {
 	}
 	return &channel, nil
 }
-func ToUser(body []byte) (*dependencies.User, error) {
-	var user dependencies.User
+func ToUser(body []byte) (*entity.User, error) {
+	var user entity.User
 	err := Unmarshal(body, &user)
 	if err != nil {
 		return nil, err

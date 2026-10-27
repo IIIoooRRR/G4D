@@ -9,7 +9,7 @@ import (
 	gateway2 "github.com/IIIoooRRR/G4D/gateway"
 	"github.com/IIIoooRRR/G4D/model/_const"
 	"github.com/IIIoooRRR/G4D/model/ctx"
-	"github.com/IIIoooRRR/G4D/model/dependencies/ui"
+	"github.com/IIIoooRRR/G4D/model/entity/ui"
 	"github.com/IIIoooRRR/G4D/model/gateway"
 	"github.com/IIIoooRRR/G4D/model/parse"
 	shema "github.com/IIIoooRRR/G4D/model/schema"

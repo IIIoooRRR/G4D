@@ -2,8 +2,8 @@ package schema
 
 import (
 	_const "github.com/IIIoooRRR/G4D/model/_const"
-	Dependencies2 "github.com/IIIoooRRR/G4D/model/dependencies"
-	"github.com/IIIoooRRR/G4D/model/dependencies/ui"
+	Dependencies2 "github.com/IIIoooRRR/G4D/model/entity"
+	"github.com/IIIoooRRR/G4D/model/entity/ui"
 )
 
 type GetMessage struct {
@@ -27,13 +27,13 @@ type GetMessage struct {
 	//put the schema result here.ToMessage(), if you use the MessageCreate type
 	ReferencedMessage *MessageReference `json:"message_reference,omitempty"`
 }
-type SendMessage struct {
+type Message struct {
 	Content     string                     `json:"content"`
 	Flags       int                        `json:"flags,omitempty"`
 	Attachments []Dependencies2.Attachment `json:"attachments,omitempty"`
 	Embeds      []Dependencies2.Embed      `json:"embeds,omitempty"`
 	Type        int                        `json:"type,omitempty"`
-	Components  []ui.ActionRow             `json:"components,omitempty"`
+	Components  []ui.Component             `json:"components,omitempty"`
 	// ReferencedMessage - reply
 	//put the schema result here.ToMessage(), if you use the MessageCreate type
 	ReferencedMessage *MessageReference `json:"message_reference,omitempty"`
@@ -57,7 +57,6 @@ type MessageEdit struct {
 	Components      []string              `json:"components,omitempty"`
 	Files           []string              `json:"files,omitempty"`
 	PayloadJson     string                `json:"payload_json,omitempty"`
-	Attachments     []string              `json:"attachments,omitempty"`
 }
 
 type MessageReference struct {
@@ -65,41 +64,36 @@ type MessageReference struct {
 	MessageId _const.MessageId `json:"message_id,omitempty"`
 }
 
-func NewMessage() *SendMessage {
-	return &SendMessage{}
+func NewMessage() *Message {
+	return &Message{}
 }
-func (m *SendMessage) AddContent(content string) *SendMessage {
+func (m *Message) AddContent(content string) *Message {
 	m.Content = content
 	return m
 }
-func (m *SendMessage) AddFlags(flags int) *SendMessage {
+func (m *Message) AddFlags(flags int) *Message {
 	m.Flags = flags
 	return m
 }
-func (m *SendMessage) AddEmbed(embeds ...Dependencies2.Embed) *SendMessage {
+func (m *Message) AddEmbed(embeds ...Dependencies2.Embed) *Message {
 	m.Embeds = append(m.Embeds, embeds...)
 	return m
 }
-func (m *SendMessage) AddAttachment(attachments ...Dependencies2.Attachment) *SendMessage {
-	m.Attachments = append(m.Attachments, attachments...)
-	return m
-
-}
-func (m *SendMessage) AddReferencedMessage(message *GetMessage) *SendMessage {
+func (m *Message) AddReferencedMessage(message *GetMessage) *Message {
 	m.ReferencedMessage = &MessageReference{
 		ChannelId: message.ChannelID,
 		MessageId: message.ID,
 	}
 	return m
 }
-func (m *SendMessage) AddReference(channelId _const.ChannelId, messageId _const.MessageId) *SendMessage {
+func (m *Message) AddReference(channelId _const.ChannelId, messageId _const.MessageId) *Message {
 	m.ReferencedMessage = &MessageReference{
 		ChannelId: channelId,
 		MessageId: messageId,
 	}
 	return m
 }
-func (m *SendMessage) AddActionRow(actionRow ...ui.ActionRow) *SendMessage {
-	m.Components = append(m.Components, actionRow...)
+func (m *Message) AddComponents(cmps ...ui.Component) *Message {
+	m.Components = append(m.Components, cmps...)
 	return m
 }

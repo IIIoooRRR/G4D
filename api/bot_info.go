@@ -4,11 +4,11 @@ import (
 	"fmt"
 
 	"github.com/IIIoooRRR/G4D/model/_const"
-	"github.com/IIIoooRRR/G4D/model/dependencies"
+	"github.com/IIIoooRRR/G4D/model/entity"
 	"github.com/IIIoooRRR/G4D/model/parse"
 )
 
-func (c *DiscordClient) GetBotInfo() (*dependencies.User, error) {
+func (c *DiscordClient) GetBotInfo() (*entity.User, error) {
 	resp, err := c.DoDiscordRequest(_const.Get, "/users/@me", nil)
 	if err != nil {
 		return nil, fmt.Errorf("request failed: %w", err)

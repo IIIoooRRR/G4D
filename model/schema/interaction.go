@@ -2,19 +2,19 @@ package schema
 
 import (
 	"github.com/IIIoooRRR/G4D/model/_const"
-	"github.com/IIIoooRRR/G4D/model/dependencies"
+	"github.com/IIIoooRRR/G4D/model/entity"
 )
 
 type Interaction struct {
-	ID            string            `json:"id"`
-	ApplicationID string            `json:"application_id"`
-	Type          int               `json:"type"` // 1-5
-	Data          InteractionData   `json:"data"`
-	GuildID       _const.GuildId    `json:"guild_id"`
-	ChannelID     _const.ChannelId  `json:"channel_id"`
-	Member        dependencies.User `json:"member"`
-	Token         string            `json:"token"`
-	Version       int               `json:"version"`
+	ID            string           `json:"id"`
+	ApplicationID string           `json:"application_id"`
+	Type          int              `json:"type"` // 1-5
+	Data          InteractionData  `json:"data"`
+	GuildID       _const.GuildId   `json:"guild_id"`
+	ChannelID     _const.ChannelId `json:"channel_id"`
+	Member        entity.User      `json:"member"`
+	Token         string           `json:"token"`
+	Version       int              `json:"version"`
 
 	// Для компонентов (кнопки/селекты)
 	Message *GetMessage `json:"message,omitempty"`

@@ -8,9 +8,9 @@ type ActionRow struct {
 	Components []Component `json:"components,omitempty"`
 }
 
-func (ar *ActionRow) AddComponents(components ...Component) ActionRow {
+func (ar *ActionRow) AddComponents(components ...Component) *ActionRow {
 	ar.Components = append(ar.Components, components...)
-	return *ar
+	return ar
 }
 func NewActionRow() *ActionRow {
 	return &ActionRow{
@@ -18,3 +18,4 @@ func NewActionRow() *ActionRow {
 		Type:       1,
 	}
 }
+func (ar *ActionRow) IsComponent() {}

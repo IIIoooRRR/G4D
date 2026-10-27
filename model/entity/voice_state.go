@@ -1,4 +1,4 @@
-package dependencies
+package entity
 
 type VoiceState struct {
 	UserID    string `json:"user_id"`

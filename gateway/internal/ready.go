@@ -1,7 +1,7 @@
 package json
 
 import (
-	"github.com/IIIoooRRR/G4D/model/dependencies"
+	"github.com/IIIoooRRR/G4D/model/entity"
 )
 
 type Hello struct {
@@ -9,9 +9,9 @@ type Hello struct {
 }
 
 type ReadyEvent struct {
-	Version   int               `json:"v"`
-	SessionID string            `json:"session_id"`
-	User      dependencies.User `json:"user"`
+	Version   int         `json:"v"`
+	SessionID string      `json:"session_id"`
+	User      entity.User `json:"user"`
 	Guilds    []struct {
 		ID          string `json:"id"`
 		Unavailable bool   `json:"unavailable"`

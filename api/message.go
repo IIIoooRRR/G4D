@@ -18,7 +18,7 @@ func (c *DiscordClient) SendInteractionMessage(event *schema.Interaction, msg sc
 	return err
 }
 
-func (c *DiscordClient) SendMessage(toChannel _const.ChannelId, msg *schema.SendMessage) error {
+func (c *DiscordClient) SendMessage(toChannel _const.ChannelId, msg *schema.Message) error {
 	uri := GetURI("/channels/", string(toChannel), "/messages")
 	body := msg
 	jsonBody, err := parse.Marshal(body)
@@ -43,7 +43,7 @@ func (c *DiscordClient) DeleteMessage(toChannel _const.ChannelId, msgId _const.M
 	return err
 }
 
-func (c *DiscordClient) SendMessageWithLimit(toChannel _const.ChannelId, msg *schema.SendMessage) error {
+func (c *DiscordClient) SendMessageWithLimit(toChannel _const.ChannelId, msg *schema.Message) error {
 	uri := GetURI("/channels/", string(toChannel), "/messages")
 	body := msg
 	jsonBody, err := parse.Marshal(body)

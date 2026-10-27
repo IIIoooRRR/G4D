@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/IIIoooRRR/G4D/model/_const"
-	"github.com/IIIoooRRR/G4D/model/dependencies"
+	"github.com/IIIoooRRR/G4D/model/schema"
 )
 
 func (c *DiscordClient) DoDiscordRequest(method _const.Method, uri string, body []byte) ([]byte, error) {
@@ -37,7 +37,7 @@ func (c *DiscordClient) DoDiscordLimitRequest(ctx context.Context, method _const
 
 		if code < 200 || code >= 300 {
 			if code == http.StatusTooManyRequests {
-				var retry dependencies.RetryResponse
+				var retry schema.RetryResponse
 				if err := json.Unmarshal(resp, &retry); err == nil {
 					timer := time.NewTimer(time.Duration(retry.After))
 

@@ -1,8 +1,8 @@
 package schema
 
 import (
-	"github.com/IIIoooRRR/G4D/model/dependencies"
-	"github.com/IIIoooRRR/G4D/model/dependencies/ui"
+	"github.com/IIIoooRRR/G4D/model/entity"
+	"github.com/IIIoooRRR/G4D/model/entity/ui"
 )
 
 type InteractionResponse struct {
@@ -11,12 +11,12 @@ type InteractionResponse struct {
 }
 
 type InteractionResponseData struct {
-	Content    string               `json:"content,omitempty"`
-	Components []ui.ActionRow       `json:"components,omitempty"`
-	CustomID   string               `json:"custom_id,omitempty"`
-	Title      string               `json:"title,omitempty"`
-	Flags      int                  `json:"flags,omitempty"`
-	Embeds     []dependencies.Embed `json:"embeds,omitempty"`
+	Content    string         `json:"content,omitempty"`
+	Components []ui.ActionRow `json:"components,omitempty"`
+	CustomID   string         `json:"custom_id,omitempty"`
+	Title      string         `json:"title,omitempty"`
+	Flags      int            `json:"flags,omitempty"`
+	Embeds     []entity.Embed `json:"embeds,omitempty"`
 }
 
 func NewInteractionResponse(Type int) InteractionResponse {
@@ -40,7 +40,7 @@ func NewInteractionResponseData(Content string) *InteractionResponseData {
 		Content: Content,
 	}
 }
-func (irData InteractionResponseData) AddEmbed(em ...dependencies.Embed) InteractionResponseData {
+func (irData InteractionResponseData) AddEmbed(em ...entity.Embed) InteractionResponseData {
 	irData.Embeds = append(irData.Embeds, em...)
 	return irData
 }

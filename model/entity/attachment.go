@@ -1,4 +1,4 @@
-package dependencies
+package entity
 
 type Attachment struct {
 	ID          string `json:"id"`

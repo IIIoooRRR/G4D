@@ -1,4 +1,4 @@
-package dependencies
+package entity
 
 type Emoji struct {
 	ID            string   `json:"id"`
