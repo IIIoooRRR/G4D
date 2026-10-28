@@ -6,7 +6,7 @@ type GuildMember struct {
 	User                       User       `json:"user,omitempty"`
 	Nick                       string     `json:"nick,omitempty"`
 	Avatar                     string     `json:"avatar,omitempty"`
-	Roles                      []string   `json:"roles"`
+	Roles                      []Role     `json:"roles"`
 	JoinedAt                   time.Time  `json:"joined_at"`
 	PremiumSince               *time.Time `json:"premium_since,omitempty"`
 	Deaf                       bool       `json:"deaf"`
