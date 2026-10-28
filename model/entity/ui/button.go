@@ -5,92 +5,95 @@ import (
 	"github.com/IIIoooRRR/G4D/model/entity"
 )
 
-type Button struct {
+type button struct {
 	Type     int           `json:"type"` // 2
 	Label    string        `json:"label,omitempty"`
 	CustomID string        `json:"custom_id,omitempty"`
-	Style    int           `json:"style,omitempty"`
+	Stl      int           `json:"style,omitempty"`
 	URL      string        `json:"url,omitempty"`
 	Disabled bool          `json:"disabled,omitempty"`
 	Emoji    *entity.Emoji `json:"emoji,omitempty"`
 }
 
-func (b Button) IsComponent() {}
+func (b *button) isComponent() {}
+func (b *button) isAccessory() {}
+func (b *button) isUiV1() {
 
-func NewButton(customId string) *Button {
-	return &Button{
+}
+func Button(customId string) *button {
+	return &button{
 		Type:     2,
 		CustomID: customId,
 	}
 }
-func (b *Button) SetStyle(style int) *Button {
-	b.Style = style
+func (b *button) Style(style int) *button {
+	b.Stl = style
 	return b
 }
-func (b *Button) SetURL(url string) *Button {
+func (b *button) SetURL(url string) *button {
 	b.URL = url
 	return b
 }
-func (b *Button) SetDisabled(disabled bool) *Button {
+func (b *button) Disable(disabled bool) *button {
 	b.Disabled = disabled
 	return b
 }
-func (b *Button) SetLabel(label string) *Button {
+func (b *button) SetLabel(label string) *button {
 	b.Label = label
 	return b
 }
-func (b *Button) SetEmoji(emoji *entity.Emoji) *Button {
+func (b *button) SetEmoji(emoji *entity.Emoji) *button {
 	b.Emoji = emoji
 	return b
 }
-func (b *Button) IsLink() bool {
-	return b.Style == 5
+func (b *button) IsLink() bool {
+	return b.Stl == 5
 }
 
-func (b *Button) IsInteractive() bool {
-	return b.Style != 5
+func (b *button) IsInteractive() bool {
+	return b.Stl != 5
 }
 
-func NewLinkButton(label, url string) *Button {
-	return &Button{
+func LinkButton(label, url string) *button {
+	return &button{
 		Type:  2,
-		Style: _const.ButtonStyleLink,
+		Stl:   _const.ButtonStyleLink,
 		Label: label,
 		URL:   url,
 	}
 }
 
-func NewDangerButton(customID, label string) *Button {
-	return &Button{
+func DangerButton(customID, label string) *button {
+	return &button{
 		Type:     2,
-		Style:    _const.ButtonStyleDanger,
+		Stl:      _const.ButtonStyleDanger,
 		CustomID: customID,
 		Label:    label,
 	}
 }
 
-func NewSuccessButton(customID, label string) *Button {
-	return &Button{
+func SuccessButton(customID, label string) *button {
+	return &button{
 		Type:     2,
-		Style:    _const.ButtonStyleSuccess,
+		Stl:      _const.ButtonStyleSuccess,
 		CustomID: customID,
 		Label:    label,
 	}
 }
 
-func NewPrimaryButton(customID, label string) *Button {
-	return &Button{
+func PrimaryButton(customID, label string) *button {
+	return &button{
 		Type:     2,
-		Style:    _const.ButtonStylePrimary,
+		Stl:      _const.ButtonStylePrimary,
 		CustomID: customID,
 		Label:    label,
 	}
 }
 
-func NewSecondaryButton(customID, label string) *Button {
-	return &Button{
+func SecondaryButton(customID, label string) *button {
+	return &button{
 		Type:     2,
-		Style:    _const.ButtonStyleSecondary,
+		Stl:      _const.ButtonStyleSecondary,
 		CustomID: customID,
 		Label:    label,
 	}

@@ -1,21 +1,37 @@
 package ui
 
 type Component interface {
-	IsComponent() //use it for custom components that I haven't implemented.
+	isComponent() //use it for custom components that I haven't implemented.
 }
-type ActionRow struct {
-	Type       int         `json:"type,omitempty"`
-	Components []Component `json:"components,omitempty"`
+type Accessory interface {
+	Component
+	isAccessory()
+}
+type UiV1 interface {
+	Component
+	isUiV1()
+}
+type Modal interface {
+	isModal()
+}
+type TopLvlComponent interface {
+	Component
+	isComponentTopLvl()
+}
+type actionRow struct {
+	Type   int    `json:"type,omitempty"`
+	Cmpnts []UiV1 `json:"components,omitempty"`
 }
 
-func (ar *ActionRow) AddComponents(components ...Component) *ActionRow {
-	ar.Components = append(ar.Components, components...)
+func (ar *actionRow) Components(components ...UiV1) *actionRow {
+	ar.Cmpnts = append(ar.Cmpnts, components...)
 	return ar
 }
-func NewActionRow() *ActionRow {
-	return &ActionRow{
-		Components: make([]Component, 0),
-		Type:       1,
+func ActionRow(cmpnts ...UiV1) *actionRow {
+	return &actionRow{
+		Cmpnts: cmpnts,
+		Type:   1,
 	}
 }
-func (ar *ActionRow) IsComponent() {}
+func (ar *actionRow) isComponent()       {}
+func (ar *actionRow) isComponentTopLvl() {}

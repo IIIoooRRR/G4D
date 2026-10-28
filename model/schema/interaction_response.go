@@ -12,7 +12,7 @@ type InteractionResponse struct {
 
 type InteractionResponseData struct {
 	Content    string         `json:"content,omitempty"`
-	Components []ui.ActionRow `json:"components,omitempty"`
+	Components []ui.Component `json:"components,omitempty"`
 	CustomID   string         `json:"custom_id,omitempty"`
 	Title      string         `json:"title,omitempty"`
 	Flags      int            `json:"flags,omitempty"`
@@ -48,7 +48,7 @@ func (irData InteractionResponseData) AddFlags(flags int) InteractionResponseDat
 	irData.Flags += flags
 	return irData
 }
-func (irData InteractionResponseData) AddActionRow(row ...ui.ActionRow) InteractionResponseData {
+func (irData InteractionResponseData) AddActionRow(row ...ui.Component) InteractionResponseData {
 	irData.Components = append(irData.Components, row...)
 	return irData
 }

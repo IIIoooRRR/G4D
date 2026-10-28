@@ -37,7 +37,7 @@ func GetEvent[T any](event *RawEvent) *T {
 func (c *Cache) reflectParsing(event *RawEvent, t any) any {
 	err := Unmarshal(event.Data, t)
 	if err != nil {
-		c.logger.Error("unmarshal raw event", zap.Error(err))
+		c.logger.Error("unmarshal raw event", zap.String("event_type", event.Type), zap.Error(err), zap.Any("event", event.Data))
 	}
 	return t
 }

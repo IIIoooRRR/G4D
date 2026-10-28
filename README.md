@@ -3,7 +3,7 @@
 **G4D** is a partially modular library written in Go for creating Discord bots. The project is designed according to a clear architecture - each package and file has its own purpose.
 
 > **Project Status:** , An actively developing project. Moved from the status of a "fully modular library" to a "library for enterprise development"## The basic information is provided in the root .md files.
-
+> **API design orientation:** introducing dependencies within the team through context, Flutter‑like layout for components.
 ## ✨ Features
 - **Bot-oriented architecture**: Centralized management of all modules through the basic bot structure
 - **Isolated gateway and API**: Network logic is strictly separated from interaction methods to simplify maintenance and refactoring.
@@ -25,21 +25,14 @@ export PATH=$PATH:$(go env GOPATH)/
 Here is an example of a simple bot that responds to the basic command:
 
 ```go
+
 import (
-	"github.com/IIIoooRRR/G4D/api"
-	"github.com/IIIoooRRR/G4D/g4d"
 	way "github.com/IIIoooRRR/G4D/gateway"
-	"github.com/IIIoooRRR/G4D/model/_const"
-	"github.com/IIIoooRRR/G4D/model/ctx"
-	"github.com/IIIoooRRR/G4D/model/customize"
-	"github.com/IIIoooRRR/G4D/model/parse"
-	shema "github.com/IIIoooRRR/G4D/model/schema"
-	"go.uber.org/zap"
 )
 
 func main() {
-	var token = ""
-	var prefix = ""
+	var token = os.Getenv("TOKEN")
+	const prefix = "r."
 	logger := zap.Must(zap.NewProduction()).Named("bot")
 	bot := g4d.NewBot(
 		token,
@@ -47,24 +40,65 @@ func main() {
 		way.NewGateway(way.BufferSize(15),
 			way.Intents(34307),
 			way.Activity(customize.Activity{
-				Name: "With G4D",
-				Type: _const.ActivityStreaming,
+				Name:    "With G4D",
+				Type:    _const.ActivityStreaming,
+				Details: "with g4d",
 			}),
-			way.NetStatus(_const.NetStatusIDLE)).WithDescription("hello!"),
+			way.NetStatus(_const.NetStatusIDLE)),
 		logger,
-		api.NewClient(&token, 10),
+		api.NewClient(&token, 10*time.Second),
 	)
 
 	bot.SetPrefix(prefix).SetBotBio("test bot").AddCommands([]g4d.CommandTemplate{
 		{_const.EventMessageCreate, "", Button},
 		{_const.EventInteractionCreate, "", ButtonReaction},
+		{_const.EventMessageCreate, "", UiTest},
 	})
 
-	if err := bot.Run(g4d.WithDispQuantity(2),
+	botCtx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
+	defer cancel()
+	bot.MemReport(botCtx, time.Second*30)
+	bot.StartProfiling(botCtx)
+
+	if err := bot.Run(
+		g4d.WithProcessorsQuantity(2),
 		g4d.WithSemaphoreLimit(12),
-		_const.StaticEventProcessor); err != nil {
-		logger.Panic(err.Error())
+		_const.StaticEventProcessor,
+		botCtx,
+	); err != nil {
+		logger.Error("error", zap.Error(err))
 	}
+}
+
+```
+
+## Commands:
+```go
+func Button(event *parse.RawEvent, ctx ctx.Context) error {
+	data := parse.GetEvent[schema.GetMessage](event)
+	if !ctx.IsCommand(data.Content, "button") { //find hard match
+		return nil
+	}
+	msg := schema.NewMessage().
+		Reply(data).
+		Content("button").
+		Components(
+			ui.ActionRow(
+				ui.DangerButton("button", "danger"),
+			),
+		)
+	return ctx.SendMessageWithLimit(data.ChannelID, msg)
+}
+
+func ButtonReaction(event *parse.RawEvent, ctx ctx.Context) error {
+	d := parse.GetEvent[schema.Interaction](event)
+	if d.Data.ComponentType != _const.ComponentButtonType || d.Data.CustomID != "button" {
+		return nil
+	}
+
+	data := schema.NewInteractionResponseData("hihi!")
+	response := schema.NewInteractionResponse(_const.ResponseChannelMessageWithSource).SetData(*data)
+	return ctx.SendInteractionMessage(d, response)
 }
 
 type PanicHandler struct {
@@ -73,32 +107,34 @@ type PanicHandler struct {
 }
 
 func (p PanicHandler) OnPanic(event *parse.RawEvent, cmd *g4d.CommandTemplate, r any, stack []byte) {
-	p.Logger.Panic("cmd:", zap.Any("cmd", cmd), zap.String("stack", string(stack)), zap.Any("r:", r))
+	p.Logger.Error("cmd:", zap.Any("cmd", cmd), zap.String("stack", string(stack)), zap.Any("r:", r))
 }
 
-```
-
-## Commands:
-```go
-func Button(event *parse.RawEvent, ctx *ctx.Context) error {
-	data := parse.GetEvent[shema.GetMessage](event)
-	if  data.Content != ctx.Prefix+"button" {
+func UiTest(event *parse.RawEvent, ctx ctx.Context) error {
+	data := parse.GetEvent[schema.GetMessage](event)
+	if !ctx.Match(data.Content, "help") { // find soft match
 		return nil
 	}
-	return ctx.SendMessageWithLimit(data.ChannelID, shema.NewMessage().AddReferencedMessage(data).AddContent("pipi"))
-}
+	msg := schema.NewMessage().Flags(_const.FlagComponentsV2)
+	cnt := ui.Container(
+		ui.TextDisplay("1 display"),
 
-func ButtonReaction(event *parse.RawEvent, ctx *ctx.Context) error {
-	d := parse.GetEvent[shema.Interaction](event)
-	if d.Data.ComponentType != _const.ButtonType && d.Data.CustomID == "button" {
-		return nil
-	}
+		ui.MediaGallery().Add(
+			ui.MediaItem(
+				ctx.GetAvatarURL(data.Author.Id, data.Author.Avatar)).
+				Description("true"),
+		),
 
-	data := shema.NewInteractionResponseData("hihi!")
-	response := shema.NewInteractionResponse(_const.ResponseChannelMessageWithSource).SetData(*data)
-	return ctx.SendInteractionMessage(d, response)
+		ui.Section().Text("sections").
+			Accessory(
+				ui.DangerButton("custom_button", "danger"),
+			),
+	)
+	msg.Components(cnt)
+	return ctx.SendMessageWithMultipart(data.ChannelID, msg.Reply(data))
 }
 ```
+
 ## 🛠 Project Structure
 
 The project follows a modular hierarchy inspired by structured programming:

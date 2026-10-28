@@ -1,7 +1,9 @@
 package schema
 
 import (
-	_const "github.com/IIIoooRRR/G4D/model/_const"
+	"encoding/json"
+
+	"github.com/IIIoooRRR/G4D/model/_const"
 	Dependencies2 "github.com/IIIoooRRR/G4D/model/entity"
 	"github.com/IIIoooRRR/G4D/model/entity/ui"
 )
@@ -26,14 +28,15 @@ type GetMessage struct {
 	// ReferencedMessage - reply
 	//put the schema result here.ToMessage(), if you use the MessageCreate type
 	ReferencedMessage *MessageReference `json:"message_reference,omitempty"`
+	Components        json.RawMessage   `json:"components,omitempty"`
 }
 type Message struct {
-	Content     string                     `json:"content"`
-	Flags       int                        `json:"flags,omitempty"`
+	Cnt         string                     `json:"content"`
+	Flgs        int                        `json:"flags,omitempty"`
 	Attachments []Dependencies2.Attachment `json:"attachments,omitempty"`
 	Embeds      []Dependencies2.Embed      `json:"embeds,omitempty"`
 	Type        int                        `json:"type,omitempty"`
-	Components  []ui.Component             `json:"components,omitempty"`
+	Cmpnts      []ui.TopLvlComponent       `json:"components,omitempty"`
 	// ReferencedMessage - reply
 	//put the schema result here.ToMessage(), if you use the MessageCreate type
 	ReferencedMessage *MessageReference `json:"message_reference,omitempty"`
@@ -50,11 +53,11 @@ type MessageDeleteBulk struct {
 	GuildId   _const.GuildId     `json:"guild_id,omitempty"`
 }
 type MessageEdit struct {
-	Content         string                `json:"content"`
+	Content         string                `json:"content,omitempty"`
 	Embeds          []Dependencies2.Embed `json:"embeds,omitempty"`
-	Flags           []string              `json:"flags,omitempty"`
+	Flags           int                   `json:"flags,omitempty"`
 	AllowedMentions string                `json:"allowed_mentions,omitempty"`
-	Components      []string              `json:"components,omitempty"`
+	Components      []json.RawMessage     `json:"components,omitempty"`
 	Files           []string              `json:"files,omitempty"`
 	PayloadJson     string                `json:"payload_json,omitempty"`
 }
@@ -67,33 +70,33 @@ type MessageReference struct {
 func NewMessage() *Message {
 	return &Message{}
 }
-func (m *Message) AddContent(content string) *Message {
-	m.Content = content
+func (m *Message) Content(content string) *Message {
+	m.Cnt = content
 	return m
 }
-func (m *Message) AddFlags(flags int) *Message {
-	m.Flags = flags
+func (m *Message) Flags(flags int) *Message {
+	m.Flgs = flags
 	return m
 }
 func (m *Message) AddEmbed(embeds ...Dependencies2.Embed) *Message {
 	m.Embeds = append(m.Embeds, embeds...)
 	return m
 }
-func (m *Message) AddReferencedMessage(message *GetMessage) *Message {
+func (m *Message) Reply(message *GetMessage) *Message {
 	m.ReferencedMessage = &MessageReference{
 		ChannelId: message.ChannelID,
 		MessageId: message.ID,
 	}
 	return m
 }
-func (m *Message) AddReference(channelId _const.ChannelId, messageId _const.MessageId) *Message {
+func (m *Message) CustomReply(channelId _const.ChannelId, messageId _const.MessageId) *Message {
 	m.ReferencedMessage = &MessageReference{
 		ChannelId: channelId,
 		MessageId: messageId,
 	}
 	return m
 }
-func (m *Message) AddComponents(cmps ...ui.Component) *Message {
-	m.Components = append(m.Components, cmps...)
+func (m *Message) Components(cmps ...ui.TopLvlComponent) *Message {
+	m.Cmpnts = append(m.Cmpnts, cmps...)
 	return m
 }

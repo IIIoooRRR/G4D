@@ -54,5 +54,5 @@ func BotHello(event *parse.RawEvent, ctx ctx.Context) error {
 	if d.Content != "!hello" {
 		return nil
 	}
-	return ctx.SendMessage(d.ChannelID, schema.NewMessage().AddContent("hello world"))
+	return ctx.SendMessage(d.ChannelID, schema.NewMessage().Content("hello world"))
 }

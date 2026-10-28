@@ -34,6 +34,6 @@ func (ctx *Context) MatchCommand(s1, s2 string) bool {
 	return strings.HasPrefix(s1[len(ctx.Prefix):], s2)
 }
 
-func GetAvatarURL(userID _const.UserId, avatarHash string) string {
+func (ctx *Context) GetAvatarURL(userID _const.UserId, avatarHash string) string {
 	return api.GetURI("https://cdn.discordapp.com/avatars/", string(userID), "/", avatarHash, ".png")
 }

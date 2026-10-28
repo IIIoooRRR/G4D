@@ -16,7 +16,6 @@ type Interaction struct {
 	Token         string           `json:"token"`
 	Version       int              `json:"version"`
 
-	// Для компонентов (кнопки/селекты)
 	Message *GetMessage `json:"message,omitempty"`
 }
 type InteractionData struct {
