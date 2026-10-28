@@ -4,7 +4,7 @@ import "github.com/IIIoooRRR/G4D/model/_const"
 
 type thumbnail struct {
 	Type  int    `json:"type"` // 11
-	URL   string `json:"url"`
+	Media media  `json:"media"`
 	Desc  string `json:"description,omitempty"`
 	Spoil bool   `json:"spoiler,omitempty"`
 }
@@ -12,7 +12,7 @@ type thumbnail struct {
 func (t *thumbnail) isComponent() {}
 func (t *thumbnail) isAccessory() {}
 func Thumbnail(url string) *thumbnail {
-	return &thumbnail{Type: _const.ComponentTypeThumbnail, URL: url}
+	return &thumbnail{Type: _const.ComponentTypeThumbnail, Media: media{URL: url}}
 }
 
 func (t *thumbnail) Description(desc string) *thumbnail {
