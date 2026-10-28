@@ -18,7 +18,7 @@ func (c *DiscordClient) BanUser(guildId _const.GuildId, userId _const.UserId, re
 	if err != nil {
 		return err
 	}
-	_, err = c.DoDiscordRequest(_const.Patch, uri, jsonBody)
+	_, err = c.DoDiscordRequest(_const.Put, uri, jsonBody)
 	return err
 }
 func (c *DiscordClient) MuteUser(guildId _const.GuildId, userId _const.UserId, dur time.Duration) error {
@@ -27,7 +27,6 @@ func (c *DiscordClient) MuteUser(guildId _const.GuildId, userId _const.UserId, d
 	body := Mute{Duration: until}
 	jsonBody, err := parse.Marshal(body)
 	if err != nil {
-
 	}
 	_, err = c.DoDiscordRequest(_const.Patch, uri, jsonBody)
 	return err
@@ -45,7 +44,7 @@ func (c *DiscordClient) BanUserWithLimit(guildId _const.GuildId, userId _const.U
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), c.timeout)
 	defer cancel()
-	_, err = c.DoDiscordLimitRequest(ctx, _const.Patch, uri, jsonBody)
+	_, err = c.DoDiscordLimitRequest(ctx, _const.Put, uri, jsonBody)
 	return err
 }
 func (c *DiscordClient) MuteUserWithLimit(guildId _const.GuildId, userId _const.UserId, dur time.Duration) error {
