@@ -2,6 +2,11 @@ module github.com/IIIoooRRR/G4D
 
 go 1.26.0
 
+retract v1.0.0
+retract v1.1.0
+retract v1.2.0
+retract v1.3.0
+retract v1.4.0
 require (
 	github.com/bytedance/sonic v1.15.4
 	github.com/gorilla/websocket v1.5.3
