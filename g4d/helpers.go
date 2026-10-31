@@ -15,14 +15,20 @@ import (
 )
 
 func NewBot(token string, handler PanicHandler, gateway *gateway.Receiver, logger *zap.Logger, client *api.DiscordClient) *Bot {
-	return &Bot{
+	bot := &Bot{
 		Token:        token,
 		Logger:       logger,
 		Gateway:      gateway,
 		PanicHandler: handler,
 		Client:       client,
 	}
+	bot.processorPool = map[_const.ProcessorType]func(*Bot, int, chan struct{}){
+		_const.StaticEventProcessor:  (*Bot).staticEventProcessor,
+		_const.DynamicEventProcessor: (*Bot).dynamicEventProcessor,
+	}
+	return bot
 }
+
 func (b *Bot) SetPrefix(pref string) *Bot {
 	b.Prefix = pref
 	return b

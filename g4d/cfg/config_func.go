@@ -1,8 +1,11 @@
 package cfg
 
 import (
+	"fmt"
 	"io/fs"
 	"os"
+	"strings"
+	"time"
 
 	"github.com/IIIoooRRR/G4D/api"
 	"github.com/IIIoooRRR/G4D/g4d"
@@ -56,20 +59,38 @@ func LoadBot(logger *zap.Logger, panicHandler g4d.PanicHandler) *g4d.Bot {
 	if cfg.GatewayConfig.PresenceUpdate.Activities != nil {
 		activity = cfg.GatewayConfig.PresenceUpdate.Activities
 	}
+
+	token, err := resolveToken(cfg.BotConfig.Token)
+	if err != nil {
+		logger.Fatal("resolve token", zap.Error(err))
+	}
+	cfg.BotConfig.Token = token
+
 	gateway := way.NewGateway(
 		way.BufferSize(cfg.GatewayConfig.QueueSize),
 		way.Intents(cfg.GatewayConfig.Intents),
 		way.Activity(activity...),
 		way.NetStatus(cfg.GatewayConfig.PresenceUpdate.Status),
 	)
-	bot := &g4d.Bot{
-		Token:        cfg.BotConfig.Token,
-		Gateway:      gateway,
-		Prefix:       cfg.BotConfig.Prefix,
-		Logger:       logger,
-		PanicHandler: panicHandler,
-		Client:       api.NewClient(&cfg.BotConfig.Token, 10),
-	}
+	bot := g4d.NewBot(
+		cfg.BotConfig.Token,
+		panicHandler,
+		gateway,
+		logger,
+		api.NewClient(&cfg.BotConfig.Token, 10*time.Second),
+	)
 	bot.SetBotBio(cfg.BotConfig.Description)
 	return bot
+}
+
+func resolveToken(raw string) (string, error) {
+	if !strings.HasPrefix(raw, "${") || !strings.HasSuffix(raw, "}") {
+		return raw, nil
+	}
+	envName := raw[2 : len(raw)-1]
+	resolved := os.Getenv(envName)
+	if resolved == "" {
+		return "", fmt.Errorf("environment variable %q not found", envName)
+	}
+	return resolved, nil
 }

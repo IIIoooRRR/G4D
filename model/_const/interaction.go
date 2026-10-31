@@ -8,13 +8,13 @@ const (
 	InteractionModalSubmit                    = 5
 )
 const (
-	ResponsePong                                 = 1
-	ResponseChannelMessageWithSource             = 4
-	ResponseDeferredChannelMessageWithSource     = 5
-	ResponseDeferredUpdateMessage                = 6
-	ResponseUpdateMessage                        = 7
-	ResponseApplicationCommandAutocompleteResult = 8
-	ResponseModal                                = 9
+	IResponsePong                                 = 1
+	IResponseChannelMessageWithSource             = 4
+	IResponseDeferredChannelMessageWithSource     = 5
+	IResponseDeferredUpdateMessage                = 6
+	IResponseUpdateMessage                        = 7
+	IResponseApplicationCommandAutocompleteResult = 8
+	IResponseModal                                = 9
 )
 const (
 	FlagsEphemeral = 1 << 6

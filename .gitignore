@@ -1,4 +1,6 @@
 /test
 main.go
 coverage.out
-.env.locale
+.env
+g4d.yaml
+cpu.prof

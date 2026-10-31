@@ -84,12 +84,12 @@ func (c *DiscordClient) getBucket(uri string) (*limiter, bool) {
 	bucket, ok := c.buckets[uri]
 	return bucket, ok
 }
-func (c *DiscordClient) RunDelete() {
+func (c *DiscordClient) RunBucketDelete() {
 	for {
 		select {
 		case <-c.ctx.Done():
 			return
-		case <-time.After(c.timeout):
+		case <-time.After(10 * time.Minute):
 			c.rwmu.Lock()
 			for uri, lim := range c.buckets {
 				if time.Now().UnixNano() > lim.TTL.Load()+int64(time.Minute*10) {

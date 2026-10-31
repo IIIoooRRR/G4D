@@ -4,39 +4,38 @@ import (
 	"encoding/json"
 
 	"github.com/IIIoooRRR/G4D/model/_const"
-	Dependencies2 "github.com/IIIoooRRR/G4D/model/entity"
+	"github.com/IIIoooRRR/G4D/model/entity"
 	"github.com/IIIoooRRR/G4D/model/entity/ui"
 )
 
 type GetMessage struct {
-	ID              _const.MessageId           `json:"id,omitempty"`
-	GuildID         _const.GuildId             `json:"guild_id,omitempty"` // Отсутствует в личке
-	ChannelID       _const.ChannelId           `json:"channel_id,omitempty"`
-	Thread          *Channel                   `json:"thread,omitempty"`
-	Author          Dependencies2.User         `json:"author,omitempty"`
-	Member          Dependencies2.GuildMember  `json:"member,omitempty"`
-	Content         string                     `json:"content,omitempty"`
-	Flags           int                        `json:"flags,omitempty"`
-	Timestamp       string                     `json:"timestamp,omitempty"`
-	EditedTimestamp string                     `json:"edited_timestamp,omitempty"`
-	MentionEveryone bool                       `json:"mention_everyone,omitempty"`
-	Mentions        []Dependencies2.User       `json:"mentions,omitempty"`
-	MentionRoles    []string                   `json:"mention_roles,omitempty"`
-	Attachments     []Dependencies2.Attachment `json:"attachments,omitempty"`
-	Embeds          []Dependencies2.Embed      `json:"embeds,omitempty"`
-	Type            int                        `json:"type,omitempty"`
+	ID              _const.MessageId    `json:"id,omitempty"`
+	GuildID         _const.GuildId      `json:"guild_id,omitempty"` // Отсутствует в личке
+	ChannelID       _const.ChannelId    `json:"channel_id,omitempty"`
+	Thread          *Channel            `json:"thread,omitempty"`
+	Author          entity.User         `json:"author,omitempty"`
+	Member          entity.GuildMember  `json:"member,omitempty"`
+	Content         string              `json:"content,omitempty"`
+	Flags           int                 `json:"flags,omitempty"`
+	Timestamp       string              `json:"timestamp,omitempty"`
+	EditedTimestamp string              `json:"edited_timestamp,omitempty"`
+	MentionEveryone bool                `json:"mention_everyone,omitempty"`
+	Mentions        []entity.User       `json:"mentions,omitempty"`
+	MentionRoles    []string            `json:"mention_roles,omitempty"`
+	Attachments     []entity.Attachment `json:"attachments,omitempty"`
+	Type            int                 `json:"type,omitempty"`
 	// ReferencedMessage - reply
 	//put the schema result here.ToMessage(), if you use the MessageCreate type
 	ReferencedMessage *MessageReference `json:"message_reference,omitempty"`
 	Components        json.RawMessage   `json:"components,omitempty"`
 }
 type Message struct {
-	Cnt         string                     `json:"content"`
-	Flgs        int                        `json:"flags,omitempty"`
-	Attachments []Dependencies2.Attachment `json:"attachments,omitempty"`
-	Embeds      []Dependencies2.Embed      `json:"embeds,omitempty"`
-	Type        int                        `json:"type,omitempty"`
-	Cmpnts      []ui.TopLvlComponent       `json:"components,omitempty"`
+	Cnt         string               `json:"content"`
+	Flgs        int                  `json:"flags,omitempty"`
+	Attachments []entity.Attachment  `json:"attachments,omitempty"`
+	Embeds      []entity.Embed       `json:"embeds,omitempty"`
+	Type        int                  `json:"type,omitempty"`
+	Cmpnts      []ui.TopLvlComponent `json:"components,omitempty"`
 	// ReferencedMessage - reply
 	//put the schema result here.ToMessage(), if you use the MessageCreate type
 	ReferencedMessage *MessageReference `json:"message_reference,omitempty"`
@@ -53,13 +52,13 @@ type MessageDeleteBulk struct {
 	GuildId   _const.GuildId     `json:"guild_id,omitempty"`
 }
 type MessageEdit struct {
-	Content         string                `json:"content,omitempty"`
-	Embeds          []Dependencies2.Embed `json:"embeds,omitempty"`
-	Flags           int                   `json:"flags,omitempty"`
-	AllowedMentions string                `json:"allowed_mentions,omitempty"`
-	Components      []json.RawMessage     `json:"components,omitempty"`
-	Files           []string              `json:"files,omitempty"`
-	PayloadJson     string                `json:"payload_json,omitempty"`
+	Content         string            `json:"content,omitempty"`
+	Embeds          []entity.Embed    `json:"embeds,omitempty"`
+	Flags           int               `json:"flags,omitempty"`
+	AllowedMentions string            `json:"allowed_mentions,omitempty"`
+	Components      []json.RawMessage `json:"components,omitempty"`
+	Files           []string          `json:"files,omitempty"`
+	PayloadJson     string            `json:"payload_json,omitempty"`
 }
 
 type MessageReference struct {
@@ -78,7 +77,7 @@ func (m *Message) Flags(flags int) *Message {
 	m.Flgs = flags
 	return m
 }
-func (m *Message) AddEmbed(embeds ...Dependencies2.Embed) *Message {
+func (m *Message) AddEmbed(embeds ...entity.Embed) *Message {
 	m.Embeds = append(m.Embeds, embeds...)
 	return m
 }

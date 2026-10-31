@@ -30,6 +30,7 @@ type Bot struct {
 	eventCache        *parse.Cache
 	ctx               context.Context
 	isMemReportActive atomic.Bool
+	processorPool     map[_const.ProcessorType]func(*Bot, int, chan struct{})
 }
 type PanicHandler interface {
 	OnPanic(event *parse.RawEvent, cmd *CommandTemplate, r any, stack []byte)
@@ -78,7 +79,7 @@ func (b *Bot) initClient() {
 	b.Client.SetLogger(b.Logger.Named("http-client"))
 	b.Client.AppId = &b.appId
 	b.Client.SetContext(b.ctx)
-	go b.Client.RunDelete()
+	go b.Client.RunBucketDelete()
 }
 func (b *Bot) initLogger() {
 	name := b.Logger.Name()
